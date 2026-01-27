@@ -1,0 +1,26 @@
+meta {
+  name: Get Supplier Invoices
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{PENNYLANE_URI}}/supplier_invoices?limit=100&filter=[{"field":"supplier_id","operator":"eq", "value":"191196847"}]&sort=-date
+  body: none
+  auth: bearer
+}
+
+params:query {
+  limit: 100
+  filter: [{"field":"supplier_id","operator":"eq", "value":"191196847"}]
+  sort: -date
+}
+
+auth:bearer {
+  token: {{PENNYLANE_API_KEY}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,33 @@
+meta {
+  name: Payment Request Update
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{PENNYLANE_URI}}/supplier_invoices/:invoice_id/payment_status
+  body: json
+  auth: bearer
+}
+
+params:path {
+  invoice_id: 4014099649
+}
+
+headers {
+  " accept": application/json
+  content-type: application/json
+}
+
+auth:bearer {
+  token: {{PENNYLANE_API_KEY}}
+}
+
+body:json {
+  { "payment_status": "to_be_paid" }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

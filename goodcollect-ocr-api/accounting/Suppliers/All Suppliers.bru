@@ -1,0 +1,24 @@
+meta {
+  name: All Suppliers
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{PENNYLANE_URI}}/suppliers?filter=[{"field":"name", "operator": "start_with", "value":"AVENIR"}]
+  body: none
+  auth: bearer
+}
+
+params:query {
+  filter: [{"field":"name", "operator": "start_with", "value":"AVENIR"}]
+}
+
+auth:bearer {
+  token: {{PENNYLANE_API_KEY}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

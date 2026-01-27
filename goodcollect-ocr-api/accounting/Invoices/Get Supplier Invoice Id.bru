@@ -1,0 +1,28 @@
+meta {
+  name: Get Supplier Invoice Id
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{PENNYLANE_URI}}/supplier_invoices/:invoice
+  body: none
+  auth: bearer
+}
+
+params:path {
+  invoice: asdfasdf
+}
+
+auth:bearer {
+  token: {{PENNYLANE_API_KEY}}
+}
+
+vars:pre-request {
+  ~invoice: dsfasdsda
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,22 @@
+meta {
+  name: Create Document
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{krakend}}/api/document
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Ambre",
+    "path": "http://aws.sdk2.com/9879v89d8f/facture.pdf"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

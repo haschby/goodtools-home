@@ -1,0 +1,30 @@
+meta {
+  name: Update Reference Booking
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{PENNYLANE_URI}}/supplier_invoices/:invoice_id
+  body: json
+  auth: bearer
+}
+
+params:path {
+  invoice_id: 
+}
+
+auth:bearer {
+  token: {{PENNYLANE_API_KEY}}
+}
+
+body:json {
+  { 
+    "external_reference": "GC-005849"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

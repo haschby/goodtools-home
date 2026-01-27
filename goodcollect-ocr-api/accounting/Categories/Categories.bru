@@ -1,0 +1,25 @@
+meta {
+  name: Categories
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{PENNYLANE_URI}}/categories?sort=-id&cursor=eyJjdXJzb3JfYXR0cmlidXRlcyI6WzI4MDczMTAxXSwic29ydCI6Ii1pZCJ9
+  body: none
+  auth: bearer
+}
+
+params:query {
+  sort: -id
+  cursor: eyJjdXJzb3JfYXR0cmlidXRlcyI6WzI4MDczMTAxXSwic29ydCI6Ii1pZCJ9
+}
+
+auth:bearer {
+  token: {{PENNYLANE_API_KEY}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

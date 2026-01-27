@@ -1,0 +1,61 @@
+{
+    "version": 3,
+    "name": "GoodCollect API Gateway",
+    "port": 8080,
+    "endpoints": [
+      {
+        "endpoint": "/api/document",
+        "method": "GET",
+        "output_encoding": "negotiate",
+        "backend": [
+          {
+            "url_pattern": "/api/client/document",
+            "host": ["http://fastapi:3004"],
+            "method": "GET",
+            "extra_config": {
+              "github.com/devopsfaith/krakend/proxy": {
+                "return_error_details": true,
+                "allowed_status_codes": [200, 201, 400, 401, 403, 404, 409, 422, 429, 500]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "endpoint": "/api/document/{document_id}",
+        "method": "GET",
+        "output_encoding": "negotiate",
+        "backend": [
+          {
+            "url_pattern": "/api/client/document/{document_id}",
+            "host": ["http://fastapi:3004"],
+            "extra_config": {
+              "github.com/devopsfaith/krakend/proxy": {
+                "return_error_details": true,
+                "allowed_status_codes": [200, 201, 400, 401, 403, 404, 409, 422, 429, 500]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "endpoint": "/api/document",
+        "method": "POST",
+        "output_encoding": "negotiate",
+        "backend": [
+          {
+            "url_pattern": "/api/client/document",
+            "host": ["http://fastapi:3004"],
+            "method": "POST",
+            "extra_config": {
+              "github.com/devopsfaith/krakend/proxy": {
+                "return_error_details": true,
+                "allowed_status_codes": [200, 201, 400, 401, 403, 404, 409, 422, 429, 500]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+  
