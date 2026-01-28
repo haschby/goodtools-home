@@ -1,0 +1,93 @@
+services:
+
+  temporal-postgres:
+    image: postgres:15
+    container_name: temporal-postgres
+    environment:
+      POSTGRES_USER: temporal
+      POSTGRES_PASSWORD: temporal_pwd
+      POSTGRES_DB: temporal_db
+    ports:
+      - 5432:5432
+    networks:
+      - temporal-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U temporal -d temporal_db"]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+      start_period: 5s
+    
+  temporal:
+    image: temporalio/auto-setup:1.26.2
+    container_name: temporal
+    depends_on:
+      temporal-postgres:
+        condition: service_healthy
+    environment:
+      - DB=postgres12
+      - POSTGRES_USER=temporal
+      - POSTGRES_PASSWORD=temporal_pwd
+      - POSTGRES_SEEDS=temporal-postgres
+      - POSTGRES_DB=temporal_db
+      - TEMPORAL_ADDRESS=temporal:7233
+    networks:
+      - temporal-network
+    ports:
+      - '7233:7233'
+
+  temporal-ui:
+    image: temporalio/ui:2.26.2
+    container_name: temporal-gc-ui
+    depends_on:
+      - temporal
+    environment:
+      - TEMPORAL_GRPC_ENDPOINT=temporal:7233
+    networks:
+      - temporal-network
+    ports:
+      - '8082:8080'
+
+  postgres:
+    container_name: postgres
+    image: postgres:15
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: goodcollect_ocr
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d postgres -U postgres"]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+      start_period: 20s
+    networks:
+      - temporal-network
+
+  minio:
+    image: quay.io/minio/minio
+    container_name: minio
+    ports:
+      - "7770:9000"
+      - "7771:9001"
+    environment:
+      MINIO_ROOT_USER: thomas@goodcollect.co
+      MINIO_ROOT_PASSWORD: 9sdf7csdfsd89fsadfsdaFASDFa7cf7894sd987fcsd
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - temporal-network
+
+volumes:
+  postgres_data:
+  temporal_db:
+  minio_data:
+
+networks:
+  temporal-network:
+    driver: bridge
