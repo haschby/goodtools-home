@@ -11,7 +11,7 @@ from infrastructure.logger.logger import LoggerImplement
 
 # from application.containers.openAIContainer import OpenAIContainer
 from application.containers.invoiceContainer import InvoiceContainer
-from application.containers.ocrContainer import OCRContainer
+# from application.containers.ocrContainer import OCRContainer
 from application.containers.userContainer import UserContainer
 from application.containers.orchestrator.orchestratorContainer import OrchestratorContainer
 from application.containers.workflowContainer import WorkflowContainer
