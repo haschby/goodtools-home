@@ -1,4 +1,4 @@
-from ..baseUsecase import BaseUsecase
+from application.ports.baseUsecase import BaseUsecase
 from .constants import (
     extract_float,
     GC_BOOKING_REGEX,

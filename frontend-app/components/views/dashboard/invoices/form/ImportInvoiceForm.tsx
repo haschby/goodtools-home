@@ -1,11 +1,14 @@
 "use client";
 
 import { useRef, ChangeEvent } from "react";
+import { useRouter } from "next/navigation";
 import Icon from "@/components/atoms/Icon";
-import { Download1Solid } from "@lineiconshq/free-icons";
+import { Cloud2Stroke } from "@lineiconshq/free-icons";
+import { startWorkflow } from "@/actions/workflow";
 
 export default function ImportInvoiceForm() {
     const inputRef = useRef<HTMLInputElement>(null);
+    const router = useRouter();
     
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
@@ -14,6 +17,13 @@ export default function ImportInvoiceForm() {
         for( let i = 0; i < files.length; i++ ) {
             newFormData.append("files", files[i]);
         }
+    }
+
+    const handleSync = async () => {
+        const uniqueId = Math.random().toString(36).substring(2, 15);
+        const provider = "pennylane";
+        await startWorkflow({ provider, id: uniqueId, workflowName: 'syncPennyLaneWorkflow' });
+        router.push(`/workflows/${provider}/sync/${uniqueId}`);
     }
 
     return (
@@ -28,12 +38,25 @@ export default function ImportInvoiceForm() {
             <p className="border-r border-gray-800 pr-2">
                 https://www.goodcollect.co
             </p>
-            <button
-                className="cursor-pointer py-2 px-4 bg-black shadow-md shadow-gray-600 rounded-lg"
+            {/* <button
+                className="cursor-pointer py-2 px-2 bg-gray-200 shadow-md shadow-gray-200 rounded-sm"
                 onClick={() => inputRef.current?.click()}>
-                <span className="flex items-center gap-2 text-white text-md font-normal">
-                    <Icon Icon={Download1Solid} size={20} strokeWidth={2} className="text-white" />
-                    IMPORT
+                <span className="flex items-center gap-2 text-gray-500 text-md font-normal">
+                    <Icon Icon={Download1Solid} size={16} strokeWidth={2} className="text-gray-500" />
+                    import files
+                </span>
+            </button> */}
+
+            <button
+                className="bg-[#f9f8f0] border-2 border-amber-500 group cursor-pointer p-2 rounded-md text-amber-500"
+                onClick={handleSync}>
+                <span className="text-xs flex items-center gap-2 font-semibold">
+                    <Icon
+                        Icon={Cloud2Stroke}
+                        size={16}
+                        strokeWidth={3}
+                        className="" />
+                    Pennylane Sync
                 </span>
             </button>
         </aside>

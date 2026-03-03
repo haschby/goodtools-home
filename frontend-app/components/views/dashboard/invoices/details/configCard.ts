@@ -24,6 +24,7 @@ const statuses = [
     { label: 'Facturer ticket', value: 'Facturer ticket' },
     { label: 'Avoiriser', value: 'Avoiriser' },
     { label: 'A Traiter', value: 'A Traiter' },
+    { label: 'A Facturer', value: 'A Facturer' },
     { label: 'TBD', value: 'TBD' },
 ];
 

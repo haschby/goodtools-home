@@ -8,6 +8,7 @@ interface RegisterProps {
     name: string;
     value: string;
     ref?: React.RefObject<HTMLSelectElement>;
+    className: string;
 }
 
 interface SelectProps {
@@ -34,9 +35,10 @@ const Select = ({
         <input
             onFocus={() => setIsOpen(true)}
             onBlur={() => setIsOpen(false)}
+            onChange={() => {}}
             type="text"
             name={name}
-            className={`bg-gray-100 rounded-lg focus:outline-none transition-all duration-300 border border-gray-200 p-2 ${isEditable ? 'bg-white active:bg-white active:p-2' : ''} w-full text-gray-900 text-sm`}
+            className={register.className}
             value={register.value}
             disabled={!isEditable}
         />
@@ -53,7 +55,7 @@ const Select = ({
                                 <li key={index}
                                     onMouseDown={() => register.onChange(item.value)}
                                     className={`${isLast ? '' : 'border-b border-gray-200'} text-sm p-2 hover:bg-green-300/60 hover:text-green-700 cursor-pointer`}>
-                                {item.label}
+                                    {item.label}
                                 </li>
                             )}
                         )

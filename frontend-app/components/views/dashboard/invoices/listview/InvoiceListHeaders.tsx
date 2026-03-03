@@ -26,12 +26,6 @@ export default function InvoiceListHeaders() {
                     index === columns.length - 1 && 'pr-6'
                 ) || '';
 
-                const borderSide = (
-                    index === 0 && 'border-l-0'
-                    ||
-                    index === columns.length - 1 && 'border-r-0'
-                ) || '';
-
                 return (    
                     <th
                         key={index}

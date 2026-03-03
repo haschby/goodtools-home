@@ -1,34 +1,11 @@
 
-
-const LogoGoodTools = () =>
-<svg width="32" height="32" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M19.1953 19.196V21.804H32.2128V36.1535C33.1503 35.4491 34.0216 34.6616 34.8176 33.803V19.1961H19.1953V19.196Z" className="fill-amber-500"></path>
-<path d="M40.0343 20.4999C40.0343 9.69713 31.2881 0.940186 20.4986 0.940186C9.70913 0.940186 0.962891 9.69715 0.962891 20.4999C0.962891 31.3027 9.7091 40.0596 20.4986 40.0596C23.7914 40.0596 26.894 39.2439 29.6153 37.803V34.7865C26.9837 36.4737 23.8551 37.4517 20.4986 37.4517C11.1482 37.4517 3.56763 29.8618 3.56763 20.4999C3.56763 11.138 11.1482 3.54815 20.4986 3.54815C29.849 3.54815 37.4296 11.1381 37.4296 20.4999V30.2646C39.0865 27.3908 40.0343 24.0562 40.0343 20.4999V20.4999Z" className="fill-amber-500"></path>
-<path d="M20.4995 13.98C22.6299 13.98 24.5212 15.0044 25.7093 16.588H28.7383C27.2751 13.5043 24.1361 11.3721 20.4995 11.3721C15.4645 11.3721 11.3828 15.4588 11.3828 20.4999C11.3828 25.5411 15.4645 29.6278 20.4995 29.6278C24.1361 29.6278 27.2751 27.4956 28.7383 24.4119H25.7093C24.5212 25.9955 22.6299 27.0199 20.4995 27.0199C16.903 27.0199 13.9876 24.1008 13.9876 20.4999C13.9876 16.8991 16.903 13.98 20.4995 13.98Z" className="fill-amber-500"></path>
-<path d="M20.4981 32.2356C14.0245 32.2356 8.77664 26.9813 8.77664 20.4998C8.77664 14.0183 14.0245 8.76395 20.4981 8.76395C25.6015 8.76395 29.9424 12.0299 31.5516 16.5879H34.2848C32.584 10.5675 27.0555 6.15601 20.4981 6.15601C12.5861 6.15601 6.17188 12.5781 6.17188 20.4998C6.17188 28.4215 12.5861 34.8436 20.4981 34.8436C23.9617 34.8436 27.1381 33.6135 29.6147 31.5656V27.8768C27.4658 30.5354 24.1802 32.2357 20.4981 32.2357V32.2356Z" className="fill-amber-500"></path>
-</svg>
-
-export default function DashboardLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     return (
-        <section className="flex flex-row h-screen">
-            <div className="flex gap-2 border-r bg-gray-50 border-gray-200 h-full items-start">
-                <aside className="flex flex-row items-center gap-2 bg-white py-8 px-4 border-b border-gray-200">
-                    <LogoGoodTools />
-                    {/* <h1 className="text-gray-800 text-xl font-bold flex flex-col leading-none">
-                        Goodtools
-                        <span className="text-amber-500 text-[.8rem] font-bold">
-                            Flow Manager
-                        </span>
-                    </h1> */}
-                </aside>
-            </div>
-            <div className="w-full min-w-0 bg-gray-50">
+
+        <aside>
+            <section className="text-slate-800 h-screen">
                 {children}
-            </div>
-        </section>
-    );
+            </section>
+        </aside>
+    )
 }

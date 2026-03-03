@@ -29,13 +29,15 @@ interface SearchQueryProps {
 export async function searchQuery<T>(
     { entity, query }: SearchQueryProps
 ): Promise<BaseResponse<T[]>> {
-    const apiPath = `/client/invoice/search?query=${query}`;
-    const response: BaseResponse<unknown> = await gatewayService(
-        apiPath, {
-        method: "POST",
-        cache: 'no-store',
-        body: JSON.stringify({ query })
-    });
+    // const apiPath = `/client/invoice/search?query=${query}`;
+    // const response: BaseResponse<unknown> = await gatewayService(
+    //     apiPath, {
+    //     method: "POST",
+    //     cache: 'no-store',
+    //     body: JSON.stringify({ query })
+    // });
+
+    // console.log('@RESPONSE', response);
 
     return {
         message: 'Search query',

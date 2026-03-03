@@ -20,8 +20,6 @@ class BaseResponseSchema(BaseModel, Generic[MODEL_TYPE]):
         data: Optional[Union[List[MODEL_TYPE], MODEL_TYPE, Any]] = None
     ):  
         
-        print('=> BaseResponseSchema.response data : ', type(data))
-        
         if data is None:
             data = None
         

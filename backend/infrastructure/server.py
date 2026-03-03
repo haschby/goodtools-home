@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from application.containers.appContainer import AppContainer
 from infrastructure.db.engine import init_models
 from infrastructure.router import RouterHandler
+from infrastructure.middleware.routeLoggerMiddleware import RouteLoggerMiddleware
 
 def bootstrap() -> FastAPI:
     
@@ -21,6 +22,11 @@ def bootstrap() -> FastAPI:
         description=settings.application_description(),
     )
     app.container = container
+    
+    app.add_middleware(
+        RouteLoggerMiddleware,
+        logger=container.logger()
+    )
     
     app.add_middleware(
         CORSMiddleware,

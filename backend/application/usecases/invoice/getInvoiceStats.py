@@ -1,8 +1,9 @@
 from domain.services.invoiceService import InvoiceService
 from application.dtos.baseDto import BaseResponseSchema
 from application.dtos.invoiceDto import StatsInvoicesResponseSchema
+from application.ports.baseUsecase import BaseUsecase
 
-class GetInvoiceStats:
+class GetInvoiceStats(BaseUsecase):
     def __init__(self, invoiceService: InvoiceService):
         self.invoiceService = invoiceService
 

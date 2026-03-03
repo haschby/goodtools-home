@@ -1,9 +1,10 @@
 "use client";
 
-import { RowItem } from './RowItems/Row';
+import { RowItem } from '@/components/atoms/listview/RowItems/Row';  
 import { Invoice } from '@/lib/types/invoice';
 import { useDataTable } from '@/lib/contexts/DataTableCustomContext';
-import { ColumnProps, invoicesColumns } from '../config/config.columns';
+import { invoicesColumns } from '@/components/views/dashboard/invoices/config/config.columns';
+import { ColumnProps } from '@/lib/types/common';
 
 
 export default function InvoiceListRowItem () {
@@ -11,33 +12,27 @@ export default function InvoiceListRowItem () {
     const {
         data: filteredData,
         pickedRecord,
-        setPickedRecord } = useDataTable<Invoice>();
-
-    // const isFirstLoading = useMemo(() => {
-    //     return isLoading && filteredData.length === 0;
-    // }, [isLoading, filteredData]);
-
-    // const isLoadingMore = useMemo(() => {
-    //     return isLoading && filteredData.length > 0;
-    // }, [isLoading, filteredData]);
-
+        pickRecordById } = useDataTable<Invoice>();
+    
     return (
         <>
             { 
                 filteredData.map(
-                (invoice: Invoice) => {
+                (invoice: Invoice, index: number) => {
                     const isPicked = pickedRecord?.id === invoice.id;
-
+                    console.log('@IS_PICKED', isPicked);
                     return (
                         <tr
                             id={invoice.id}
-                            key={`${invoice.id}`}
+                            key={`${invoice.id}-${index}`}
                             className={`bg-white cursor-pointer border-b border-gray-100 text-gray-600 text-left ${isPicked ? '!bg-gray-50' : ''}`}
                             onClick={() => {
-                                setPickedRecord(isPicked ? null : invoice);
+                                console.log('@CLICKED', invoice.id, isPicked);
+                                if (isPicked) pickRecordById(null);
+                                else pickRecordById(invoice.id);
                             }}>
                                 { invoicesColumns.map(
-                                    (column: ColumnProps) =>
+                                    (column: ColumnProps<Invoice>) =>
                                     <RowItem
                                         key={column.keyfield}
                                         isFirst={column.isFirst}

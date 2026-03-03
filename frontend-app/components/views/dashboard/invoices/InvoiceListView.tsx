@@ -1,52 +1,53 @@
 "use client";
 
-import { useMemo, useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Invoice } from '@/lib/types/invoice';
 import { ListView } from '@/components/atoms/listview/ListView';
 import Icon from '@/components/atoms/Icon';
 import InvoiceDetailView from './details/InvoiceDetailView';
-import { ArrowRightCircleSolid, SlidersHorizontalSquare2Solid, Train3Bulk } from '@lineiconshq/free-icons';
+import { ArrowRightCircleSolid, Train3Bulk } from '@lineiconshq/free-icons';
 import { useDataTable } from '@/lib/contexts/DataTableCustomContext';
+import SearchBar from './search/searchBar';
 
 import { 
   InvoiceListHeaders, 
   InvoiceListRowItem,
-  InvoiceListStatusBar,
-  InvoiceListTitleInfo
+  InvoiceListStatusBar
 } from './listview/InvoiceListViewComponent';
 
-const Filters = () => {
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  
-  return (
-    <div className="flex text-gray-700 p-2">
-      <div className="px-6 py-6 flex items-center w-full gap-4 rounded-md">
-        <input
-          type="Search"
-          placeholder="Search"
-          className="self-start w-full max-w-[400px] rounded-lg border border-gray-200 p-2 bg-white" />
-        <button
-          onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-          className="bg-gray-700 text-white flex items-center gap-2 justify-center rounded-lg px-2 py-2 w-full max-w-[150px]">
-          <Icon
-            Icon={SlidersHorizontalSquare2Solid}
-            size={20}
-            strokeWidth={2} />
-          <span className="text-sm font-semibold">Filters</span>
-        </button>
-      </div>
-    </div>
-  )
-}
+import TitleInfo from '@/components/atoms/view/TitleInfo';
+
 
 export default function InvoiceListView() {
 
-  const { pickedRecord, setPickedRecord, fetchData, data, isLoading } = useDataTable<Invoice>();
+  const {
+    pickedId,
+    pickedRecord,
+    pickRecordById, 
+    fetchData, 
+    data, 
+    isLoading, 
+    totalRows } = useDataTable<Invoice>();
 
 
-  const isDetailViewOpen = useMemo(() => {
-    return !!pickedRecord;
-  }, [pickedRecord]);
+  const [isDetailViewOpen, setIsDetailViewOpen] = useState(false);
+    
+  useEffect(() => {
+    let cancel = false;
+    
+    const openLeftPanel = async () => {
+      if (pickedId && !cancel) {
+        setIsDetailViewOpen(true);
+      }
+    };
+
+    openLeftPanel();
+
+    return () => { 
+      cancel = true; 
+      setIsDetailViewOpen(false);
+    };
+  }, [pickedId]);
 
   const handleScrollEnd = useCallback(
     (isEndOfList: boolean) => {
@@ -57,45 +58,55 @@ export default function InvoiceListView() {
           id: data?.[data.length - 1].id as string
         });
       }
-    }, [fetchData, data]);
+  }, [fetchData, data]);
 
   return (
     <>
       <div className={`h-screen bg-white`}>
         <div className="flex flex-row">
-          <div className={`flex flex-col transition-all duration-300 ${ pickedRecord ? 'w-[30%] lg:flex hidden' : 'w-full'}`}>
+          <div className={`relative h-screen flex flex-col transition-all duration-300 ${ pickedRecord ? 'w-[35%] lg:flex hidden' : 'w-full'}`}>
       
-            <InvoiceListTitleInfo
+            <TitleInfo
               title="Invoice Records"
               baseLineText="View detailed invoices records by clicking on the row."
+              totalRows={totalRows}
             />      
+
             <ListView
               onScrollEnd={ 
                 (isEndOfList: boolean) =>
                 handleScrollEnd(isEndOfList)
               }
-              filters={ <Filters /> }
+              filters={ <SearchBar /> }
               actionsList={ <></> }
               statuses={ <InvoiceListStatusBar /> }
               headers={ <InvoiceListHeaders /> }
-              data={ <InvoiceListRowItem /> } />
-              <div className="flex items-center w-full gap-4 justify-center p-4 text-gray-700">
-                GOOD
-                <Icon
-                  className={`${isLoading ? 'animate-spin text-blue-500' : 'text-gray-700'}`}
-                  Icon={Train3Bulk}
-                  size={20}
-                  strokeWidth={2} />
-                COLLECT
-              </div>
+              data={ <InvoiceListRowItem /> }
+              controlTableActions={
+                <div
+                  id="footer-loader-container"
+                  className="bg-white border-t border-gray-200 absolute bottom-0 left-0 right-0 flex items-center w-full gap-4 justify-center p-4 text-gray-700">
+                  GOOD
+                  <Icon
+                    className={`${isLoading ? 'animate-spin text-blue-500' : 'text-gray-700'}`}
+                    Icon={Train3Bulk}
+                    size={20}
+                    strokeWidth={2} />
+                  COLLECT
+                </div>
+              }
+              />
           </div>
           { 
-            isDetailViewOpen &&
+            pickedRecord &&
             <InvoiceDetailView
               closeButton={
                 <button
                   className="group cursor-pointer inline-flex items-center gap-2"
-                  onClick={() => setPickedRecord(null) }>
+                  onClick={() => {
+                    pickRecordById(null);
+                    setIsDetailViewOpen(false);
+                  }}>
                     <Icon
                       Icon={ArrowRightCircleSolid}
                       size={24}

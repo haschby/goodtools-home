@@ -1,9 +1,10 @@
 import uuid
 import io
 from datetime import timedelta
+import requests
 
 from dataclasses import dataclass
-from domain.ports.StorageGateway import StorageFileGateway
+from application.ports.StorageGateway import StorageFileGateway
 from application.dtos.gateway import UploadFile
 from minio import Minio
 
@@ -30,19 +31,19 @@ class MinioStorage(StorageFileGateway):
     
     async def upload_file(
         self, 
-        file: UploadFile
-    ) -> tuple[any, bytes]:
-        file_name = f"{str(uuid.uuid4())[:8]}.{file.filename}"
-        file_byte = await file.read()
+        file_byte: str,
+        file_name: str
+    ) -> str:
         
+        file_name = f"invoices/{uuid.uuid4()}_{file_name}"
         file_id = self.client.put_object(
             bucket_name=self.bucket_name,
             object_name=file_name,
             data=io.BytesIO(file_byte),
             length=len(file_byte),
-            content_type=file.content_type
+            content_type="application/pdf"
         )
-        return file_id, file_byte
+        return file_name
 
     async def download_file(self, file_name: str) -> bytes:
         pass
@@ -53,6 +54,5 @@ class MinioStorage(StorageFileGateway):
     async def presigned_url(self, file_name: str, expires_in: int = 3600) -> str:
         return self.client.presigned_get_object(
             bucket_name=self.bucket_name,
-            object_name=file_name,
-            expires=timedelta(seconds=expires_in)
+            object_name=file_name
         )

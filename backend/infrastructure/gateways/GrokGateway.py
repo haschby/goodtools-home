@@ -2,7 +2,7 @@ from xai_sdk import AsyncClient
 from xai_sdk.chat import user
 from application.dtos.gateway import OpenAIResponse
 import json
-from domain.ports.openaiGateway import OpenAIGateway
+from application.ports.openaiGateway import OpenAIGateway
 
 class GrokGateway(OpenAIGateway):
     

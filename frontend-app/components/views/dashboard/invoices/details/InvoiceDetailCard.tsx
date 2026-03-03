@@ -1,28 +1,45 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import { useDataTable } from "@/lib/contexts/DataTableCustomContext";
 import { Invoice } from "@/lib/types/invoice";
 import Icon from "@/components/atoms/Icon";
 import { Pencil1Bulk, Cart1Solid, Trash3Solid } from '@lineiconshq/free-icons';
-import { useState } from "react";
 import { AsyncSelectField } from "@/components/atoms/form/AsyncSelectField";
 import { searchQuery } from "@/actions/common";
-import { StatusRow } from "@/components/views/dashboard/invoices/listview/RowItems/StatusRow";
+import { StatusRow } from "@/components/atoms/listview/RowItems/StatusRow";
 import { Select } from "@/components/atoms/form/items/Select";
 import { statuses } from "./configCard";
+import { patchInvoice } from "@/actions/invoice.actions";
+import { SearchQueryMockData } from "@/mockData/common";
+import { useRouter } from "next/navigation";
 
 export default function InvoiceDetailCard() {
     
+    const router = useRouter();
     const { pickedRecord, setPickedRecord } = useDataTable<Invoice>();
-    const [isEditing, setIsEditing] = useState<boolean>(false);
+    const [ isEditing, setIsEditing ] = useState<boolean>(false);
+
+    const handlePatchInvoice = useCallback(
+        async () => {
+        if (pickedRecord) {
+            const response = await patchInvoice(pickedRecord);  
+            if (response.data) {
+                console.log('@RESPONSE', response.data);
+                setIsEditing(false);
+                setPickedRecord(response.data);
+                router.push(`/invoices?status=${response.data.status}`);
+            }
+        }
+    }, [pickedRecord, setIsEditing, setPickedRecord, router]);
 
     return (
-        <div className="bg-white relative flex flex-col gap-4 w-[45%] border-t border-gray-200 text-gray-800">
+        <div className="bg-white relative flex flex-col gap-4 w-[40%] border-t border-gray-200 text-gray-800">
             <p className="mx-3 mt-3 flex items-center bg-black self-start rounded-lg">
                 <Icon
                     className="text-white mx-1"
                     Icon={Cart1Solid}
-                    size={16}
+                    size={14}
                     strokeWidth={2} />
                 <span className="px-1 py-[2px] bg-white text-black rounded-md text-xs font-semibold border-2 border-black">
                     Invoice
@@ -40,7 +57,7 @@ export default function InvoiceDetailCard() {
                     -
                     <span className="text-gray-700 p-1 rounded-md text-xs">
                     {   
-                        new Date(pickedRecord?.created_at || '')
+                        new Date(pickedRecord?.created_at || new Date().toISOString())
                         .toLocaleDateString(
                             'en-US', 
                             { day: '2-digit', month: '2-digit', year: 'numeric' }
@@ -48,7 +65,9 @@ export default function InvoiceDetailCard() {
                     }
                     </span>
                 </p>
-                <StatusRow status={pickedRecord?.status || ''} />
+                <StatusRow
+                    className="text-sm px-2 py-1"
+                    status={pickedRecord?.status || 'TBD'} />
             </aside>
 
             <form
@@ -57,16 +76,22 @@ export default function InvoiceDetailCard() {
                     <label className="text-sm py-2" htmlFor="issuer_name">
                         <span className="w-full font-semibold">Provider</span>
                     </label>
-                    <AsyncSelectField
+                    <AsyncSelectField<SearchQueryMockData>
+                        onSelectedValue={
+                            (value: string) =>
+                            setPickedRecord({ 
+                                ...pickedRecord, issuer_name: value } as Invoice)
+                        }
                         renderInput={
                             (props, ref) => (
                                 <input
+                                    name="issuer_name"
                                     id="issuer_name"
                                     disabled={!isEditing}
                                     {...props}
                                     type="search"
                                     ref={ref}
-                                    className={`bg-gray-100 rounded-lg focus:outline-none transition-all duration-300 border border-gray-200 p-2 ${isEditing && 'bg-white active:bg-white active:p-2'} w-full text-gray-900 text-sm`}
+                                    className={`bg-[#f9f8f0] rounded-lg focus:outline-none transition-all duration-300 border border-gray-200 p-2 ${isEditing && 'bg-white active:bg-white active:p-2'} w-full text-gray-900 text-sm`}
                                 />
                             )
                         }
@@ -82,11 +107,18 @@ export default function InvoiceDetailCard() {
                             <span className="w-full font-semibold">Amount (HT)</span>
                         </label>
                         <input
+                            name="amount_ht"
                             id="amount_ht"
                             disabled={!isEditing}
                             type="text" 
-                            className={`text-right bg-gray-100 rounded-lg focus:outline-none transition-all duration-300 border border-gray-200 p-2 ${isEditing && 'bg-white active:bg-white active:p-2'} w-full text-gray-900 text-sm`}
-                            defaultValue={pickedRecord?.amount_ht?.toString() || 'N/A'}
+                            onChange={
+                                (e) =>
+                                setPickedRecord(
+                                    { ...pickedRecord,
+                                        amount_ht: parseFloat(e.target.value) } as Invoice)
+                            }
+                            className={`text-right bg-[#f9f8f0] rounded-lg focus:outline-none transition-all duration-300 border border-gray-200 p-2 ${isEditing && 'bg-white active:bg-white active:p-2'} w-full text-gray-900 text-sm`}
+                            defaultValue={pickedRecord?.amount_ht?.toString() || '0.00'}
                         />
                     </div>
                     <div className="flex flex-col w-1/2">
@@ -94,11 +126,18 @@ export default function InvoiceDetailCard() {
                             <span className="w-full font-semibold">Amount (TTC)</span>
                         </label>
                         <input
+                            name="amount_ttc"
                             id="amount_ttc"
                             disabled={!isEditing}
                             type="text"
-                            className={`text-right bg-gray-100 rounded-lg focus:outline-none transition-all duration-300 border border-gray-200 p-2 ${isEditing && 'bg-white active:bg-white active:p-2'} w-full text-gray-900 text-sm`}
-                            defaultValue={pickedRecord?.amount_ttc?.toString() || 'N/A'}
+                            onChange={
+                                (e) =>
+                                setPickedRecord(
+                                    { ...pickedRecord,
+                                        amount_ttc: parseFloat(e.target.value) } as Invoice)
+                            }
+                            className={`text-right bg-[#f9f8f0] rounded-lg focus:outline-none transition-all duration-300 border border-gray-200 p-2 ${isEditing && 'bg-white active:bg-white active:p-2'} w-full text-gray-900 text-sm`}
+                            defaultValue={pickedRecord?.amount_ttc?.toString() || '0.00'}
                         />
                     </div>
                 </div>
@@ -111,46 +150,38 @@ export default function InvoiceDetailCard() {
                             options={statuses}
                             register={{
                                 onChange: (newValue: string) => {
-                                    const newPickedRecord = { 
-                                        ...pickedRecord, status: newValue } as Invoice;
-                                    setPickedRecord(newPickedRecord);
+                                    setPickedRecord({ ...pickedRecord, status: newValue } as Invoice);
                                 },
                                 name: 'status',
-                                value: pickedRecord?.status || '',
+                                value: pickedRecord?.status || 'TBD',
+                                className: `text-right bg-[#f9f8f0] rounded-lg focus:outline-none transition-all duration-300 border border-gray-200 p-2 ${isEditing && 'bg-white active:bg-white active:p-2'} w-full text-gray-900 text-sm`
                             }}
                             name="status"
                         />
-                        {/* <label className="text-sm py-2" htmlFor="status">
-                            <span className="w-full font-semibold">Status</span>
-                        </label>
-                        <input
-                            id="status"
-                            disabled={!isEditing}
-                            type="text"
-                            className={`text-right bg-gray-100 rounded-lg focus:outline-none transition-all duration-300 border border-gray-200 p-2 ${isEditing && 'bg-white active:bg-white active:p-2'} w-full text-gray-900 text-sm`}
-                            value={pickedRecord?.status || 'N/A'}
-                        /> */}
                     </div>
-                    <div className="relative flex flex-col w-1/2">
+                    <div className="relative flex flex-col w-1/2 relative">
                         <label className="text-sm py-2" htmlFor="gc_booking">
                             <span className="w-full font-semibold">Booking Reference</span>
                         </label>
-                        <AsyncSelectField
-                            renderInput={
-                                (props, ref) => (
-                                    <input
-                                        id="gc_booking"
-                                        disabled={!isEditing}
-                                        {...props}
-                                        type="search"
-                                        ref={ref}
-                                        className={`bg-gray-100 rounded-lg focus:outline-none transition-all duration-300 border border-gray-200 p-2 ${isEditing && 'bg-white active:bg-white active:p-2'} w-full text-gray-900 text-sm`}
-                                    />
-                                )
-                            }
-                            defaultValue={pickedRecord?.gc_booking || 'N/A'}
-                            searchQueryFunction={searchQuery}
-                            entity="providers" />
+                        <input 
+                            name="gc_booking"
+                            id="gc_booking"
+                            disabled={!isEditing}
+                            type="text"
+                            onChange={(e) => {
+                                const isNotNumber = !/^\d+$/.test(e.target.value);
+                                e.target.value = isNotNumber ? e.target.value.slice(0, -1) : e.target.value;
+                                if (isNotNumber) {
+                                    return;
+                                }
+
+                                setPickedRecord(
+                                    { ...pickedRecord, 
+                                        gc_booking: `GC-${e.target.value}` } as Invoice)
+                            }}
+                            className={`text-right bg-[#f9f8f0] rounded-lg focus:outline-none transition-all duration-300 border border-gray-200 p-2 ${isEditing && 'bg-white active:bg-white active:p-2'} w-full text-gray-900 text-sm`}
+                            defaultValue={pickedRecord?.gc_booking}
+                        />
                     </div>
                 </div>
 
@@ -159,30 +190,46 @@ export default function InvoiceDetailCard() {
                         <span className="w-full font-semibold">Comments</span>
                     </label>
                     <textarea id="comments"
+                        name="comments"
                         disabled={!isEditing}
+                        onChange={(e) =>
+                            setPickedRecord(
+                                { ...pickedRecord, 
+                                    comments: e.target.value } as Invoice)
+                        }
                         rows={3}
-                        className={`h-full bg-gray-100 rounded-lg focus:outline-none transition-all duration-300 border border-gray-200 p-2 ${isEditing && 'bg-white active:bg-white active:p-2'} w-full text-gray-900 text-sm`}
+                        value={pickedRecord?.comments || ''}
+                        className={`h-full bg-[#f9f8f0] rounded-lg focus:outline-none transition-all duration-300 border border-gray-200 p-2 ${isEditing && 'bg-white active:bg-white active:p-2'} w-full text-gray-900 text-sm`}
                     ></textarea>
                 </div>
             </form>
 
             {
-                pickedRecord?.status != 'Valider' && (
-                    <aside className="px-3 flex items-center justify-end gap-3">
-                        <button
-                            onClick={() => setIsEditing(false)}
-                            className="bg-red-500 border-2 border-red-600 text-white flex items-center gap-2 cursor-pointer bg-gray-100 text-gray-800 text-sm font-semibold py-1 px-2 rounded-md">
-                            <Icon Icon={Trash3Solid} size={16} strokeWidth={2} />
-                            Cancel
-                        </button>
-                        <button
-                            onClick={() => setIsEditing(true)}
-                            className="flex items-center gap-2 cursor-pointer bg-gray-100 text-gray-800 text-sm font-semibold py-2 px-3 rounded-md">
-                            <Icon Icon={Pencil1Bulk} size={16} strokeWidth={2} />
-                            Edit
-                        </button>
-                    </aside>
-                )
+                <aside className="px-3 flex items-center justify-end gap-3">
+                    <button
+                        onClick={() => setIsEditing(false)}
+                        className="bg-red-500 border-2 border-red-600 text-white flex items-center gap-2 cursor-pointer bg-gray-100 text-gray-800 text-sm font-semibold py-1 px-2 rounded-md">
+                        <Icon Icon={Trash3Solid} size={16} strokeWidth={2} />
+                        Cancel
+                    </button>
+                    {
+                        isEditing && (
+                            <button
+                                onClick={handlePatchInvoice}
+                                className="flex items-center gap-2 cursor-pointer bg-green-400 text-white text-sm font-semibold py-2 px-3 rounded-md">
+                                <Icon Icon={Pencil1Bulk} size={16} strokeWidth={2} />
+                                Save
+                            </button>
+                        ) || (
+                            <button
+                                onClick={() => setIsEditing(true)}
+                                className="flex items-center gap-2 cursor-pointer bg-gray-100 text-gray-800 text-sm font-semibold py-2 px-3 rounded-md">
+                                <Icon Icon={Pencil1Bulk} size={16} strokeWidth={2} />
+                                Edit
+                            </button>
+                        )
+                    }
+                </aside>
             }
 
             <aside className="h-full p-3">

@@ -1,20 +1,10 @@
 "use client";
 
-import { ReactNode } from "react";
 import { Invoice } from "@/lib/types/invoice";
-import { StatusRow } from '../listview/RowItems/StatusRow';
+import { StatusRow } from '@/components/atoms/listview/RowItems/StatusRow';
+import { ColumnProps } from "@/lib/types/common";
 
-export type ColumnProps = {
-    keyfield: string;
-    align: 'left' | 'right';
-    maxWidth?: string;
-    isFirst?: boolean;
-    isLast?: boolean;
-    isNumber?: boolean;
-    renderItem: (item: Invoice) => ReactNode;
-}
-
-export const invoicesColumns: ColumnProps[] = [
+export const invoicesColumns: ColumnProps<Invoice>[] = [
     {
         keyfield: 'id',
         align: 'left',
@@ -26,12 +16,22 @@ export const invoicesColumns: ColumnProps[] = [
             </span>
     },
     {
+        keyfield: 'external_id',
+        align: 'left',
+        maxWidth: '150px',
+        isNumber: false,
+        renderItem: (item: Invoice) =>
+            <span className="text-sm font-normal text-gray-500">
+                {item.external_id}
+            </span>
+    },
+    {
         keyfield: 'status',
         align: 'left',
         maxWidth: '150px',
         isNumber: false,
         renderItem: (item: Invoice) =>
-            <StatusRow status={item.status} />
+            <StatusRow className="px-2 py-1 rounded-md" status={item.status} />
     },
     {
         keyfield: 'provider',
@@ -48,10 +48,13 @@ export const invoicesColumns: ColumnProps[] = [
         align: 'left',
         maxWidth: '150px',
         isNumber: false,
-        renderItem: (item: Invoice) =>
-            <span className="text-sm font-normal text-gray-500">
-                {new Date(item.updated_at).toLocaleDateString('fr-FR')}
-            </span>
+        renderItem: (item: Invoice) => {
+            return (
+                <span className="text-sm font-normal text-gray-500">
+                    {new Date(item.updated_at).toLocaleDateString('fr-FR')}
+                </span>
+            )
+        }
     },
     {
         keyfield: 'invoice_number',

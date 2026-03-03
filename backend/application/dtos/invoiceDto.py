@@ -11,6 +11,8 @@ class BaseInvoiceSchema(BaseModel):
 class InvoiceCreateSchema(BaseInvoiceSchema):
     name: Optional[str] = None
     path: Optional[str] = None
+    external_id: Optional[str] = None
+    comments: Optional[str] = None
     gc_booking: Optional[str | None] = None   
     amount_ttc: Optional[float] = None
     amount_ht: Optional[float] = None
@@ -31,10 +33,13 @@ class InvoiceCreateSchema(BaseInvoiceSchema):
 class InvoiceUpdateSchema(BaseInvoiceSchema):
     name: Optional[str] = None
     path: Optional[str] = None
+    amount_ttc: Optional[float] = None
+    amount_ht: Optional[float] = None
+    amount_tva: Optional[float] = None
     gc_booking: Optional[str | None] = None
+    issuer_name: Optional[str | None] = None
+    comments: Optional[str] = None
     status: Optional[str] = None
-    images: Optional[list] = None
-    extracted_data: Optional[dict] = None
     
     class Config:
         from_attributes = True
@@ -43,6 +48,8 @@ class InvoiceResponseSchema(BaseInvoiceSchema):
     name: str | None    
     path: str | None
     gc_booking: str | None
+    external_id: str | None
+    comments: str | None
     amount_ttc: float | None
     amount_ht: float | None
     amount_tva: float | None
@@ -59,4 +66,3 @@ class InvoiceResponseSchema(BaseInvoiceSchema):
         
     class Config:
         from_attributes = True
-        

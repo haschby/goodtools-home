@@ -1,4 +1,4 @@
-from domain.ports.openaiGateway import OpenAIGateway
+from application.ports.openaiGateway import OpenAIGateway
 from application.dtos.gateway import OpenAIResponse
 
 class OpenAIService:

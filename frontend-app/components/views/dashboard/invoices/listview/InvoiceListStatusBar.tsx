@@ -12,16 +12,17 @@ export default function InvoiceStatusBar() {
     const { 
         activeStatus, statuses, pickedRecord } = useDataTable<Invoice>();
     const router = useRouter();
-
     
+
     const statusesValues = statuses.map(status => status);
     const containerRef = useRef<HTMLUListElement>(null);
     const statusRef = useRef<HTMLLIElement[]>([]);
 
     function isActiveTab(status: string) {
         if (activeStatus === status)
-            return `after:absolute after:bottom-0 after:rounded-full
-            after:left-0 after:content-[""] after:flex after:w-full after:h-1 after:bg-black`;
+            return `after:absolute after:-bottom-1
+            after:left-0 after:content-[""] after:flex after:w-full after:h-1.5 after:bg-amber-400
+            bg-amber-300/20 !text-amber-500 rounded-t-md`;
        
         return 'border-b-2 border-transparent';
     }
@@ -46,17 +47,18 @@ export default function InvoiceStatusBar() {
 
             const nextStatus = state === 'forward' ? statusesValues[index + 1] : statusesValues[index - 1];
             if (nextStatus) {
+                // setQueryParams('status', nextStatus);
                 router.push(`/invoices?status=${nextStatus}`);
                 scrollToStatus();
             }
-        }, [statusesValues, router, scrollToStatus]);
+        }, [statusesValues, scrollToStatus, router]);
     
     return (
         <ul
             ref={containerRef}
             role="tablist"
-            className={`relative flex flex-row overflow-hidden border-b border-gray-200 w-full`}>
-            { pickedRecord && (    
+            className={`${pickedRecord ? '' : 'pl-6'} relative flex flex-row overflow-hidden border-b border-gray-200 w-full`}>
+            { pickedRecord && (
                 <li
                     onClick={() => handleForwardStatus(activeStatus ?? 'All', 'backward') }
                     className="opacity-10 hover:opacity-100 transition-all duration-300 h-full text-gray-700 cursor-pointer bg-white flex items-center justify-center sticky top-0 left-0 z-50 px-4">
@@ -78,9 +80,7 @@ export default function InvoiceStatusBar() {
                                     aria-label={status}
                                     className={`cursor-pointer flex items-center justify-center whitespace-nowrap text-black relative py-2 ${ isActiveTab(status) }`}
                                     style={{ width: `auto` }}
-                                    onClick={() => {
-                                        router.push(`/invoices?status=${status}`);
-                                    }}>
+                                    onClick={() => router.replace(`/invoices?status=${status}`) }>
                                     <span className={`font-semibold text-sm px-6`}>{status}</span>
                                 </li>
                         )}

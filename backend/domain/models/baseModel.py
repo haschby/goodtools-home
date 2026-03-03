@@ -5,9 +5,13 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, text
 import uuid
 
+
 Base = declarative_base()
 
-class BaseModel(Base):
+class TimestampMixin:
+    updated_at: Mapped[datetime]
+
+class BaseModel(Base, TimestampMixin):
     
     __abstract__ = True
     __allow_unmapped__ = True
@@ -17,7 +21,7 @@ class BaseModel(Base):
     
     @declared_attr
     def __tablename__(cls) -> str:
-        return f'{cls.__name__.lower()}s'
+        return f'{cls.__name__.lower()}'
     
     @classmethod
     def get_prefix(cls) -> str:
@@ -37,3 +41,4 @@ class BaseModel(Base):
 
 from .user import User
 from .invoice import Invoice
+from .workflow import Workflow, Workflow_Step

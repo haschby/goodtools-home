@@ -19,12 +19,11 @@ export default function InvoiceListTitleInfo({
         if (length === 0) return 'bg-slate-200 text-slate-500';
         return 'bg-amber-300/20 text-amber-500';
     }
-
     return (
         <div className="p-6 flex flex-col w-full">
             <h1 className="flex items-center text-2xl font-semibold text-gray-800 gap-4">
                 { title }
-                <span className={`my-2 text-xs rounded-md px-2 py-1 ${setBGcolorToRows(totalRows)}`}>
+                <span className={`text-xs rounded-md px-2 py-1 ${setBGcolorToRows(totalRows)}`}>
                     { totalRows } data
                 </span>
             </h1>

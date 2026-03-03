@@ -2,14 +2,15 @@ from dataclasses import dataclass
 from domain.services.invoiceService import InvoiceService
 from application.dtos.invoiceDto import InvoiceResponseSchema
 from application.dtos.baseDto import BaseResponseSchema
-from domain.ports.StorageGateway import StorageFileGateway
+from application.ports.StorageGateway import StorageFileGateway
 from typing import Optional
+from application.ports.baseUsecase import BaseUsecase
 
 class GetInvoicesParams:
     status: Optional[str] = "All"
     cursor: Optional[dict] = None
 
-class GetInvoices:
+class GetInvoices(BaseUsecase):
     def __init__(self,
         invoiceService: InvoiceService
     ) -> None:

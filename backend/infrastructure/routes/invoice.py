@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import Optional
 
 from application.containers.appContainer import AppContainer
-from application.usecases.baseUsecase import BaseUsecase
+from application.ports.baseUsecase import BaseUsecase
 from domain.models.invoice import EnumInvoiceStatus
 
 from application.dtos.baseDto import BaseResponseSchema
@@ -102,6 +102,7 @@ def invoice_routes() -> APIRouter:
         )
     ):
         update_invoice.id = id
+        print('@UPDATE_INVOICE', update_invoice)
         return await updateInvoiceUsecase.execute(update_invoice) 
     
     
@@ -109,10 +110,14 @@ def invoice_routes() -> APIRouter:
     '/search',
     response_model=BaseResponseSchema[InvoiceResponseSchema],
     status_code=201)
+    @inject
     async def search(
-        query: str
+        q: str,
+        searchInvoiceUsecase: BaseUsecase = Depends(
+            Provide[AppContainer.invoice_container.searchInvoiceUsecase]
+        )
     ):
-        print('@QUERY', query)
-        return { "message": "Search query", "status_code": 201, "data": [] }
+        return await searchInvoiceUsecase.execute(q)
+    
     
     return router

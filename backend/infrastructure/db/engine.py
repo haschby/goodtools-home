@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from sqlalchemy.ext.asyncio import (
     create_async_engine, 
+    async_sessionmaker,
     AsyncSession, 
     AsyncEngine
 )
@@ -9,12 +10,15 @@ from typing import AsyncGenerator
 from domain.models.baseModel import Base
 from infrastructure.config.settings import settings
 
-engine = create_async_engine(settings.database_uri, echo=True)
-AsyncSessionLocal = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
+engine = create_async_engine(
+    settings.database_uri, 
+    echo=False, 
+    pool_pre_ping=True
+)
 
-async def get_session() -> AsyncGenerator[AsyncSession, None]:
-    async with AsyncSessionLocal() as session:
-        yield session
+AsyncSessionLocal = async_sessionmaker(
+    engine, expire_on_commit=False
+)
 
 async def init_models() -> None:
     async with engine.begin() as conn:

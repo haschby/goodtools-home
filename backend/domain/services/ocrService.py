@@ -7,7 +7,7 @@ from pytesseract import pytesseract
 import easyocr
 from io import BytesIO
 
-from domain.ports.StorageGateway import StorageFileGateway
+from application.ports.StorageGateway import StorageFileGateway
 from application.usecases.ocr.constants import GOODCOLLECT_REGEX, ADDRESS_REGEX
 from application.dtos.gateway import UploadFile
 # from pdfplumber import pdfplumber

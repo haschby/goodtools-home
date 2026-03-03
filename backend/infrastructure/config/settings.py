@@ -30,6 +30,12 @@ class Settings(BaseSettings):
     minio_bucket: str = Field(..., env="MINIO_BUCKET")
     minio_region: str = Field(..., env="MINIO_REGION")
     
+    redis_host: str = Field(..., env="REDIS_HOST")  
+    redis_port: int = Field(..., env="REDIS_PORT")
+    
+    pennylane_api_token: str = Field(..., env="PENNYLANE_API_TOKEN")
+    pennylane_api_public_url: str = Field(..., env="PENNYLANE_API_PUBLIC_URL")
+    
     @property
     def database_uri(self) -> str:
         return f"postgresql+asyncpg://{self.db_user}:{self.db_pass}@{self.db_host}:{self.db_port}/{self.db_name}"

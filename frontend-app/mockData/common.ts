@@ -1,3 +1,9 @@
+export interface SearchQueryMockData {
+    name: string;
+    label: string;
+    id: number;
+}
+
 const searchQueryMockData = {
     providers: [
         {

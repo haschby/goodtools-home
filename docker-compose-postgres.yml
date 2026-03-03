@@ -1,70 +1,70 @@
 services:
-  postgresql:
-    container_name: postgres-temporal
-    env_file:
-      - .env
-    environment:
-      POSTGRES_PASSWORD: temporal
-      POSTGRES_USER: temporal
-    image: postgres:${POSTGRESQL_VERSION}
-    networks:
-      - temporal-network
-    ports:
-      - 5432:5432
-    volumes:
-      - /var/lib/postgresql/data
+  # postgresql:
+  #   container_name: postgres-temporal
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     POSTGRES_PASSWORD: temporal
+  #     POSTGRES_USER: temporal
+  #   image: postgres:${POSTGRESQL_VERSION}
+  #   networks:
+  #     - temporal-network
+  #   ports:
+  #     - 5432:5432
+  #   volumes:
+  #     - /var/lib/postgresql/data
   
-  temporal:
-    container_name: temporal-server
-    env_file:
-      - .env
-    depends_on:
-      - postgresql
-    environment:
-      - DB=postgres12
-      - DB_PORT=5432
-      - POSTGRES_USER=temporal
-      - POSTGRES_PWD=temporal
-      - POSTGRES_SEEDS=postgresql
-      - DYNAMIC_CONFIG_FILE_PATH=/etc/temporal/config/config.yaml
-      - TEMPORAL_ADDRESS=temporal:7233
-      - TEMPORAL_CLI_ADDRESS=temporal:7233
-    image: temporalio/auto-setup:${TEMPORAL_VERSION}
-    networks:
-      - temporal-network
-    ports:
-      - 7233:7233
-    volumes:
-      - ./etc/orchestrator/dynamicconfig/config.yaml:/etc/temporal/config/config.yaml
-  temporal-admin-tools:
-    container_name: temporal-admin-tools-logs
-    env_file:
-      - .env
-    depends_on:
-      - temporal
-    environment:
-      - TEMPORAL_ADDRESS=temporal:7233
-      - TEMPORAL_CLI_ADDRESS=temporal:7233
-    image: temporalio/admin-tools:${TEMPORAL_ADMINTOOLS_VERSION}
-    networks:
-      - temporal-network
-    stdin_open: true
-    tty: true
+  # temporal:
+  #   container_name: temporal-server
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     - postgresql
+  #   environment:
+  #     - DB=postgres12
+  #     - DB_PORT=5432
+  #     - POSTGRES_USER=temporal
+  #     - POSTGRES_PWD=temporal
+  #     - POSTGRES_SEEDS=postgresql
+  #     - DYNAMIC_CONFIG_FILE_PATH=/etc/temporal/config/config.yaml
+  #     - TEMPORAL_ADDRESS=temporal:7233
+  #     - TEMPORAL_CLI_ADDRESS=temporal:7233
+  #   image: temporalio/auto-setup:${TEMPORAL_VERSION}
+  #   networks:
+  #     - temporal-network
+  #   ports:
+  #     - 7233:7233
+  #   volumes:
+  #     - ./etc/orchestrator/dynamicconfig/config.yaml:/etc/temporal/config/config.yaml
+  # temporal-admin-tools:
+  #   container_name: temporal-admin-tools-logs
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     - temporal
+  #   environment:
+  #     - TEMPORAL_ADDRESS=temporal:7233
+  #     - TEMPORAL_CLI_ADDRESS=temporal:7233
+  #   image: temporalio/admin-tools:${TEMPORAL_ADMINTOOLS_VERSION}
+  #   networks:
+  #     - temporal-network
+  #   stdin_open: true
+  #   tty: true
   
-  temporal-ui:
-    container_name: temporal-ui-postgres
-    env_file:
-      - .env
-    depends_on:
-      - temporal
-    environment:
-      - TEMPORAL_ADDRESS=temporal:7233
-      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
-    image: temporalio/ui:${TEMPORAL_UI_VERSION}
-    networks:
-      - temporal-network
-    ports:
-      - 8080:8080
+  # temporal-ui:
+  #   container_name: temporal-ui-postgres
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     - temporal
+  #   environment:
+  #     - TEMPORAL_ADDRESS=temporal:7233
+  #     - TEMPORAL_CORS_ORIGINS=http://localhost:3000
+  #   image: temporalio/ui:${TEMPORAL_UI_VERSION}
+  #   networks:
+  #     - temporal-network
+  #   ports:
+  #     - 8080:8080
 
   postgres-backend:
     container_name: postgres-backend
@@ -84,7 +84,7 @@ services:
       retries: 20
       start_period: 20s 
     networks:
-      - temporal-network
+      - app-network
   
   minio:
     image: quay.io/minio/minio
@@ -99,7 +99,7 @@ services:
     volumes:
       - minio_data:/data
     networks:
-      - temporal-network
+      - app-network
 
 
 volumes:
