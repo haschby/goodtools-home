@@ -6,11 +6,15 @@ ENV PYTHONUNBUFFERED=1 \
     PORT=3004
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
-COPY . $APP_HOME
 
 WORKDIR $APP_HOME
 
+# AVOID TO REINSTALL THE DEPENDENCIES IF THE pyproject.toml/uv.lock FILE HAS NOT CHANGED
+COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev
+
+# COPY THE REST OF THE APPLICATION
+COPY . $APP_HOME
 
 EXPOSE $PORT
 

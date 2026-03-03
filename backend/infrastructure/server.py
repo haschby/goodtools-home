@@ -11,10 +11,6 @@ def bootstrap() -> FastAPI:
     container.init_resources()
     
     settings = container.config
-
-    
-    print(settings.application_name())
-    print(settings.database_uri())
     
     app = FastAPI(
         title=settings.application_name(),
