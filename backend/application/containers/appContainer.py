@@ -9,7 +9,7 @@ from infrastructure.db.workflowRepository import WorkflowRepositoryImpl
 from infrastructure.gateways.accounting.pennylane import PennyLaneAccountingGateway
 from infrastructure.logger.logger import LoggerImplement
 
-from application.containers.openAIContainer import OpenAIContainer
+# from application.containers.openAIContainer import OpenAIContainer
 from application.containers.invoiceContainer import InvoiceContainer
 from application.containers.ocrContainer import OCRContainer
 from application.containers.userContainer import UserContainer
@@ -83,10 +83,10 @@ class AppContainer(containers.DeclarativeContainer):
     #     "getAllInvoicesUsecase": invoice_container.getAllInvoicesUsecase,
     # }
     
-    openai_container = providers.Container(
-        OpenAIContainer,
-        grokClient=grokClient
-    )
+    # openai_container = providers.Container(
+    #     OpenAIContainer,
+    #     grokClient=grokClient
+    # )
     
     # ocr_container = providers.Container(
     #     OCRContainer,

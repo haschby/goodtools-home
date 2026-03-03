@@ -1,13 +1,13 @@
-from dependency_injector import containers, providers
-from domain.services.openaiService import OpenAIService
+# from dependency_injector import containers, providers
+# from domain.services.openaiService import OpenAIService
 
-class OpenAIContainer(containers.DeclarativeContainer):
-    grokClient = providers.Dependency()
+# class OpenAIContainer(containers.DeclarativeContainer):
+#     grokClient = providers.Dependency()
     
-    openai_service = providers.Factory(
-        OpenAIService,
-        grokClient=grokClient
-    )
+#     openai_service = providers.Factory(
+#         OpenAIService,
+#         grokClient=grokClient
+#     )
     
     # ocr_repository = providers.Factory(
     #     OCRRepository,
