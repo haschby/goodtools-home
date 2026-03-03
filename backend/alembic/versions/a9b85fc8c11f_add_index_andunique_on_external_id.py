@@ -20,9 +20,9 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Upgrade schema."""
-    op.create_index(op.f('ix_invoices_external_id'), 'invoices', ['external_id'], unique=True)
+    op.create_index(op.f('ix_invoices_external_id'), 'invoice', ['external_id'], unique=True)
 
 
 def downgrade() -> None:
     """Downgrade schema."""
-    op.drop_index(op.f('ix_invoices_external_id'), table_name='invoices')
+    op.drop_index(op.f('ix_invoices_external_id'), table_name='invoice')
