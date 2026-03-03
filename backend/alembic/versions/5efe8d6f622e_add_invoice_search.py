@@ -1,7 +1,7 @@
 """add invoice search
 
 Revision ID: 5efe8d6f622e
-Revises: 14a3c1b31d42
+Revises: a9b85fc8c11f
 Create Date: 2026-02-20 11:02:17.923507
 
 """
@@ -14,7 +14,7 @@ from sqlalchemy.dialects.postgresql import TSVECTOR
 
 # revision identifiers, used by Alembic.
 revision: str = '5efe8d6f622e'
-down_revision: Union[str, Sequence[str], None] = '14a3c1b31d42'
+down_revision: Union[str, Sequence[str], None] = 'a9b85fc8c11f'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
