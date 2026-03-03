@@ -1,1 +1,0 @@
-alembic revision --autogenerate -m "add indexes on invoices"
