@@ -40,7 +40,7 @@ class PennyLaneAccountingGateway(AccountingGateway[Invoice]):
         id: lt, lteq, gt, gteq, eq, not_eq, in, not_in
         """
         filters = [
-            {"field":"category_id","operator":"in", "value":"28061807,28061805,28061789,28061787,28061765"},
+            # {"field":"category_id","operator":"in", "value":"28061807,28061805,28061789,28061787,28061765"},
             {"field":"payment_status","operator":"eq","value":"to_be_processed"},
             {"field":"id","operator":"gt","value": cursor.get("id") if cursor else "0000000000"}
         ]
