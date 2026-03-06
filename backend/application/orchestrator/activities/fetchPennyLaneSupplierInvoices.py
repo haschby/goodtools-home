@@ -23,15 +23,30 @@ class FetchPennyLaneSupplierInvoices(BaseActivity):
         
         supplier_invoices = await self.pennylane_gateway.fetch_supplier_invoices(cursor=cursor)
         invoices = supplier_invoices.get("items", [])
+        
         if invoices:
+            supplier_ids = []
+            for invoice in invoices:
+                if invoice.get("supplier", {}) is not None:
+                    supplier_ids.append(invoice.get("supplier", {}).get("id"))
+                    
+            if supplier_ids:
+                suppliers = await self.pennylane_gateway.fetch_supplier_info(list(supplier_ids))
+                suppliers = suppliers.get("items", []) if suppliers else []
             
-            supplier_ids = list({invoice.get("supplier", {}).get("id") for invoice in invoices})
-            suppliers = await self.pennylane_gateway.fetch_supplier_info(list(supplier_ids))
-            suppliers = suppliers.get("items", [])
             if suppliers:
+                for supplier in suppliers:
+                    if supplier.get("id"):
+                        supplier.update({"name": supplier.get("name")})
+                    else:
+                        supplier.update({"name": None})
                 
                 suppliers_dict = {supplier.get("id"): supplier.get("name") for supplier in suppliers}
                 for invoice in invoices:
-                    invoice.update({"supplier": suppliers_dict.get(invoice.get("supplier", {}).get("id"))})
-                return InvoiceMapper.from_pennylane_list(invoices)
+                    if invoice.get("supplier", {}) is not None:
+                        invoice.update({"supplier": suppliers_dict.get(invoice.get("supplier", {}).get("id"))})
+                    else:
+                        invoice.update({"supplier": None})
+                    
+            return InvoiceMapper.from_pennylane_list(invoices)
         return None
