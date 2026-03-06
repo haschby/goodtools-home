@@ -18,14 +18,28 @@ class PennyLaneAccountingGateway(AccountingGateway[Invoice]):
             "Content-Type": "application/json"
         })
     
-    async def centralize_fetch(self, url: str, params: dict) -> dict:
+    async def centralize_fetch(
+        self,
+        url: str,
+        params: dict,
+        method: str = "GET"
+    ) -> dict:
+        
+        print("@METHOD", params)
+        print("@URL", url)
         async with AsyncClient(
             base_url=self.api_url,
             headers=self.headers ) as client:
-            response = await client.get(
-                url,
-                params=params
-            )
+            if (method == "GET"):
+                response = await client.get(
+                    url,
+                    params=params
+                )
+            elif (method == "POST"):
+                response = await client.post(
+                    url,
+                    json=params
+                )
             return response.json()
         
     async def fetch_supplier_invoices(self, cursor: dict | None = None) -> Invoice:
@@ -46,8 +60,8 @@ class PennyLaneAccountingGateway(AccountingGateway[Invoice]):
         ]
     
         return await self.centralize_fetch(f"/supplier_invoices", {
-            "limit": 100,
-            "sort": "id",
+            "limit": 10,
+            "sort": "-id",
             "filter": json.dumps(filters)
         })
     
@@ -66,4 +80,14 @@ class PennyLaneAccountingGateway(AccountingGateway[Invoice]):
         ]
         return await self.centralize_fetch(f"supplier_invoices/{invoice_id}", {
             "filter": json.dumps(filters)
+        })
+        
+    async def update_invoice_status(self, invoice_id: str, status: str) -> dict:
+        
+        f'supplier_invoices/${invoice_id}/payment_status'
+        payload = { "payment_status": status }
+        
+        await self.centralize_fetch(
+            f'supplier_invoices/${invoice_id}/payment_status', {
+            "body": json.dumps(payload)
         })
