@@ -15,7 +15,7 @@ LIMIT 1
 
 QUERY_GET_INVOICE_BY_ID = """
 SELECT
-id
+id, external_id
 FROM invoice
 """
 

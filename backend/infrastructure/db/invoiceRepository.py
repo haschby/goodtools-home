@@ -80,10 +80,13 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
     ) -> list[Invoice]:
         query = f"""
         {QUERY_GET_INVOICE_BY_ID}
-        WHERE external_id IN (:external_ids)
+        WHERE external_id = ANY(:external_ids)
         """
         async with self._session as session:
-            result = await session.execute(text(query), {"external_ids": ','.join(external_ids)})
+            result = await session.execute(
+                text(query),
+                { "external_ids" : external_ids }
+            )
             invoices = result.mappings().all()
             return [Invoice(**row) for row in invoices]
         

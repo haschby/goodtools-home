@@ -26,7 +26,7 @@ class InvoiceService:
         ]
         
         existing_invoices = await self.repository.get_by_external_ids(external_ids)
-        existing_external_ids = [ invoice for invoice in existing_invoices ]
+        existing_external_ids = [ invoice.external_id for invoice in existing_invoices ]
         invoices_to_create = [
             Invoice(**invoice.model_dump())
             for invoice in invoices
