@@ -3,6 +3,7 @@ from application.ports.providers.accountingGateway import AccountingGateway
 from application.facades.invoiceFacade import InvoiceFacade
 from application.dtos.invoiceDto import InvoiceResponseSchema
 from domain.mappers.invoiceMapper import InvoiceMapper
+from datetime import datetime, timezone
 
 class FetchPennyLaneSupplierInvoices(BaseActivity):
     def __init__(
@@ -25,8 +26,14 @@ class FetchPennyLaneSupplierInvoices(BaseActivity):
         invoices = supplier_invoices.get("items", [])
         invoices_to_treat = []
         for invoice in invoices:
-            if invoice.get("accounting_status") == "validation_needed":
-                invoices_to_treat.append(invoice)
+            date = datetime.fromisoformat(invoice.get("created_at"))
+            if date.tzinfo is None:
+                date = date.replace(tzinfo=timezone.utc)
+            threshold_date = datetime(2026, 3, 1, tzinfo=timezone.utc)
+            if date >= threshold_date:
+                invoices_to_treat.append(invoice)    
+            # if invoice.get("accounting_status") == "validation_needed":
+            
         
         if not invoices_to_treat:
             return None
