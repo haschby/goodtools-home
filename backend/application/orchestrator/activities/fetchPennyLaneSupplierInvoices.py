@@ -25,7 +25,7 @@ class FetchPennyLaneSupplierInvoices(BaseActivity):
         invoices = supplier_invoices.get("items", [])
         invoices_to_treat = []
         for invoice in invoices:
-            if invoice.get("accounting_status") =="validation_needed":
+            if invoice.get("accounting_status") == "validation_needed":
                 invoices_to_treat.append(invoice)
         
         if not invoices_to_treat:

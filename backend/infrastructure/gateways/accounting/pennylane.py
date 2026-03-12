@@ -25,8 +25,6 @@ class PennyLaneAccountingGateway(AccountingGateway[Invoice]):
         method: str = "GET"
     ) -> dict:
         
-        print("@METHOD", params)
-        print("@URL", url)
         async with AsyncClient(
             base_url=self.api_url,
             headers=self.headers ) as client:
@@ -60,7 +58,7 @@ class PennyLaneAccountingGateway(AccountingGateway[Invoice]):
         ]
     
         return await self.centralize_fetch(f"/supplier_invoices", {
-            "limit": 10,
+            "limit": 100,
             "sort": "-id",
             "filter": json.dumps(filters)
         })
@@ -84,7 +82,7 @@ class PennyLaneAccountingGateway(AccountingGateway[Invoice]):
         
     async def update_invoice_status(self, invoice_id: str, status: str) -> dict:
         
-        f'supplier_invoices/${invoice_id}/payment_status'
+        f'supplier_invoices/{invoice_id}/payment_status'
         payload = { "payment_status": status }
         
         await self.centralize_fetch(

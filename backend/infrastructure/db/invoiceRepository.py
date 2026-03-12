@@ -96,6 +96,7 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
             OR issuer_name ILIKE :like
             OR invoice_number ILIKE :like
             OR external_id ILIKE :like
+            OR id ILIKE :like
         """
 
         params = {
@@ -115,11 +116,9 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
 
         sql += " ORDER BY created_at DESC LIMIT :limit OFFSET :offset"
         
-        print('@SQL', sql)
         async with self._session as session:
             result = await session.execute(text(sql), params)
             invoices = result.mappings().all()
-            print('@INVOICES', invoices)
             return [Invoice(**invoice) for invoice in invoices]
     
     async def update(
@@ -131,3 +130,9 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
             await session.commit()
             await session.refresh(invoice)
             return invoice
+
+    async def get_external_invoice_id(self, invoice_id: str) -> str:
+        async with self._session as session:
+            cmd = "SELECT external_id FROM invoice WHERE id = :invoice_id"
+            result = await session.execute(text(cmd), {"invoice_id": invoice_id})
+            return result.scalar_one_or_none()

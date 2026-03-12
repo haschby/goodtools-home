@@ -63,7 +63,7 @@ def workflow_routes() -> APIRouter:
         
         background_tasks.add_task(orchestrator.startWorkflow, command)
         
-        return {"message": "Workflow started", "status_code": 201}
+        return { "message": "Workflow started", "status_code": 201 }
         
     
     return router

@@ -10,6 +10,7 @@ from application.usecases.invoice.updateInvoice import UpdateInvoice
 from application.usecases.invoice.getInvoices import GetInvoices
 from application.usecases.invoice.getLastInvoice import GetLastInvoice
 from application.usecases.invoice.searchInvoice import SearchInvoice
+
 from application.facades.invoiceFacade import InvoiceFacade
 
 class InvoiceContainer(containers.DeclarativeContainer):
@@ -73,5 +74,6 @@ class InvoiceContainer(containers.DeclarativeContainer):
         getInvoiceUsecase=getInvoiceUsecase,
         updateInvoiceUsecase=updateInvoiceUsecase,
         getAllInvoicesUsecase=getAllInvoicesUsecase,
-        getLastInvoiceUsecase=getLastInvoiceUsecase
+        getLastInvoiceUsecase=getLastInvoiceUsecase,
+        searchInvoiceUsecase=searchInvoiceUsecase
     )

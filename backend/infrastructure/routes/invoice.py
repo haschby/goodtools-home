@@ -1,10 +1,13 @@
 from dependency_injector.wiring import inject, Provide
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from typing import Optional
 
 from application.containers.appContainer import AppContainer
 from application.ports.baseUsecase import BaseUsecase
 from domain.models.invoice import EnumInvoiceStatus
+
+from application.ports.orchestrator.workflowLauncher import WorkflowLauncher
+from application.dtos.workflow import SyncUpdateInvoiceToPennylaneCommand
 
 from application.dtos.baseDto import BaseResponseSchema
 from application.dtos.invoiceDto import ( 
@@ -97,13 +100,25 @@ def invoice_routes() -> APIRouter:
     async def update(
         id: str,
         update_invoice: InvoiceUpdateSchema,
+        background_tasks: BackgroundTasks,
         updateInvoiceUsecase: BaseUsecase = Depends(
             Provide[AppContainer.invoice_container.updateInvoiceUsecase]
+        ),
+        orchestrator: WorkflowLauncher = Depends(
+            Provide[AppContainer.orchestrator_container.localWorkflowLauncher]
         )
     ):
-        update_invoice.id = id
-        print('@UPDATE_INVOICE', update_invoice)
-        return await updateInvoiceUsecase.execute(update_invoice) 
+        updated_invoice = await updateInvoiceUsecase.execute(update_invoice)
+        print('@UPDATED_INVOICE', updated_invoice['data'].status)
+        if updated_invoice['data'].status == EnumInvoiceStatus.VALIDATED.value:
+            command = SyncUpdateInvoiceToPennylaneCommand(
+                workflow_id='INTERNAL',
+                workflow_name="updateInvoiceToPennylaneWorkflow",
+                invoice_id=updated_invoice['data'].id
+            )
+            background_tasks.add_task(orchestrator.startWorkflow, command)
+        
+        return updated_invoice
     
     
     @router.post(

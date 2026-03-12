@@ -20,10 +20,15 @@ class CreateWorkflow(BaseUsecase):
             )
             for step in command.steps
         ] if command.steps else []
+        
+        if hasattr(command, 'provider'):
+            provider = command.provider
+        else:
+            provider = "internal"
 
         workflow = Workflow(
             ref_pulling=command.workflow_id,
-            provider=command.provider,
+            provider=provider,
             params=command.as_dict(),
             status=StatusWorkflow.PENDING,
             steps=steps

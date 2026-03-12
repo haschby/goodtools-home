@@ -6,5 +6,6 @@ class UpdateWorkflow(BaseUsecase):
     def __init__(self, repository: BaseRepositoryPort) -> None:
         self.repository = repository
     
-    async def execute(self, workflow: Workflow) -> Workflow:
-        return await self.repository.update([workflow])
+    async def execute(self, workflow: list[Workflow] | Workflow) -> list[Workflow] | Workflow:
+        workflows = workflow if isinstance(workflow, list) else [workflow]
+        return await self.repository.update(workflows)

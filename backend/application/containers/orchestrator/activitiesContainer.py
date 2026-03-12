@@ -4,6 +4,8 @@ from application.orchestrator.activities.createWorkflowSync import CreateWorkflo
 from application.orchestrator.activities.updateWorkflowSync import UpdateWorkflowSync
 from application.orchestrator.activities.storePDFInvoice import StorePDFInvoice
 from application.orchestrator.activities.createWorkflowStepSync import CreateWorkflowStepSync
+from application.orchestrator.activities.getExternalInvoiceIdSync import GetExternalInvoiceIdSync
+from application.orchestrator.activities.updatePennyLaneSupplierInvoice import UpdatePennyLaneSupplierInvoice
 
 class ActivitiesContainer(containers.DeclarativeContainer):
     
@@ -36,4 +38,14 @@ class ActivitiesContainer(containers.DeclarativeContainer):
     updateWorkflowSync = providers.Factory(
         UpdateWorkflowSync,
         updateWorkflowUsecase=workflow_container.workflowFacade.provided.updateWorkflowUsecase
+    )
+    
+    updatePennyLaneSupplierInvoice = providers.Factory(
+        UpdatePennyLaneSupplierInvoice,
+        accounting_gateway=pennylane_gateway
+    )
+    
+    getExternalInvoiceIdSync = providers.Factory(
+        GetExternalInvoiceIdSync,
+        search_invoice_usecase=invoice_container.invoiceFacade.provided.searchInvoiceUsecase
     )

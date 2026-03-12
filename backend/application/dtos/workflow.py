@@ -10,11 +10,11 @@ class WorkflowStepCommand(ABC):
 class WorkflowCommand(ABC):
     workflow_id: str
     workflow_name: str
-    steps: Optional[list[WorkflowStepCommand]]
-
-@dataclass(frozen=False)
-class SyncPennyLaneWorkflowCommand(WorkflowCommand):
-    provider: str
+    
+    def as_dict(
+        self,
+    ) -> dict:
+        return asdict(self)
     
     def to_dict_mapping(
         self,
@@ -22,10 +22,18 @@ class SyncPennyLaneWorkflowCommand(WorkflowCommand):
         return {
             "workflow_id":self.workflow_id,
             "workflow_name":self.workflow_name,
-            "provider":self.provider
+            "provider":self.provider,
+            "steps":self.steps
         }
     
-    def as_dict(
-        self,
-    ) -> dict:
-        return asdict(self)
+
+@dataclass(frozen=False)
+class SyncPennyLaneWorkflowCommand(WorkflowCommand):
+    provider: str
+    steps: Optional[list[WorkflowStepCommand]]
+    
+    
+    
+@dataclass(frozen=False)
+class SyncUpdateInvoiceToPennylaneCommand(WorkflowCommand):
+    invoice_id: str
