@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { BaseResponse } from "@/lib/types/base";
 
 interface FetchFunctionParams {

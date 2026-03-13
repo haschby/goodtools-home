@@ -4,21 +4,18 @@ import { gatewayService } from "@/lib/services/gateway";
 import { BaseResponse } from "@/lib/types/base";
 import { searchQueryMockData } from "@/mockData/common";
 
-interface GetTotalRecordsByEntityProps {
-    entity: string;
-}
 
 export async function getTotalRecordsByEntity(
-    { entity }:GetTotalRecordsByEntityProps
-): Promise<BaseResponse<unknown>> {
+    entity: string
+): Promise<BaseResponse<number>> {
     
     const apiPath = `/client/${entity}/count`;
-    const response: BaseResponse<unknown> = await gatewayService(
+    const response: BaseResponse<number> = await gatewayService<number>(
         apiPath, {
         method: "GET",
         cache: 'no-store' });
 
-    return { message: 'Total records found', status_code: 201, data: response ?? 0 };
+    return response;
 } 
 
 interface SearchQueryProps {

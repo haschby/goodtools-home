@@ -7,6 +7,7 @@ import { BaseResponse } from "@/lib/types/base";
 import { useFetchData } from "@/lib/hooks/datatable/useFetchData";
 import { usePickRecord } from "@/lib/hooks/datatable/usePickRecord";
 import { BaseEntity } from "@/lib/types/base";
+import { useTotalRows } from "@/lib/hooks/datatable/useTotalRows";
 
 interface CursorEntity {
     created_at: string;
@@ -23,7 +24,7 @@ interface DataTableListProviderProps<T> {
     status?: string;
     statuses: string[];
     fetchFunction: (params: FetchFunctionProps) => Promise<BaseResponse<T[]>>;
-    fetchTotalRowsFunction?: (params: { entity: string }) => Promise<BaseResponse<unknown>>;
+    fetchTotalRowsFunction: (entity: string) => Promise<BaseResponse<number>>;
     getRecordById: (id: string) => Promise<BaseResponse<T>>;
     columns?: unknown[];
     entity?: string;
@@ -51,10 +52,10 @@ export function DataListProvider<T extends CursorEntity & BaseEntity>({
         getRecordById: getRecordById
      });
 
-    // const totalRows = useTotalRows({
-    //     fetchFunction: fetchTotalRowsFunction,
-    //     entity
-    // });
+    const totalRows = useTotalRows({
+        fetchFunction: fetchTotalRowsFunction,
+        entity: `${entity}`
+    });
     
     const { 
         data, 
@@ -67,7 +68,7 @@ export function DataListProvider<T extends CursorEntity & BaseEntity>({
     });
 
     const contextValue: DataTableContextType<T> = {
-        totalRows: data.length ?? 0,
+        totalRows: totalRows,
         pickedRecord,
         pickedId,
         pickRecordById,
