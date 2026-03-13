@@ -35,6 +35,7 @@ def invoice_routes() -> APIRouter:
     
     @router.get(
     '/count',
+    response_model=BaseResponseSchema[int],
     status_code=201 )
     @inject
     async def count(
@@ -42,7 +43,12 @@ def invoice_routes() -> APIRouter:
             Provide[AppContainer.invoice_container.repository]
         )
     ):
-        return await repository.count()
+        number = await repository.count()
+        return BaseResponseSchema.response(
+            message="Total records found",
+            status_code=201,
+            data=number
+        )
     
     @router.get(
     '/all',
