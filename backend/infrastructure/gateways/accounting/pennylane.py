@@ -1,6 +1,6 @@
 from application.ports.providers.accountingGateway import AccountingGateway
 from domain.models.invoice import Invoice
-from httpx import AsyncClient, Headers
+from httpx import AsyncClient, Headers, HTTPStatusError, RequestError
 import json
 
 class PennyLaneAccountingGateway(AccountingGateway[Invoice]):
@@ -20,72 +20,117 @@ class PennyLaneAccountingGateway(AccountingGateway[Invoice]):
     
     async def centralize_fetch(
         self,
-        url: str,
-        params: dict,
-        method: str = "GET"
-    ) -> dict:
+        method: str = "GET",
+        url: str = "/",
+        params: dict | None = None,
+        json: dict | None = None,
+    ) -> dict | None:
         
         async with AsyncClient(
             base_url=self.api_url,
             headers=self.headers ) as client:
-            if (method == "GET"):
-                response = await client.get(
-                    url,
-                    params=params
+            
+            try:
+                response = await client.request(
+                    method=method,
+                    url=url,
+                    params=params,
+                    json=json,
                 )
-            elif (method == "POST"):
-                response = await client.post(
-                    url,
-                    json=params
-                )
-            return response.json()
+                response.raise_for_status()
+            except HTTPStatusError as e:
+                print('@HTTPStatusError', e)
+                # logger.error(
+                #     "HTTP error %s on %s %s: %s",
+                #     e.response.status_code, method, url, e.response.text,
+                # )
+                return None
+            except RequestError as e:
+                print('@RequestError', e)
+                # logger.error("Request error on %s %s: %s", method, url, e)
+                return None
+
+        return response
         
-    async def fetch_supplier_invoices(self, cursor: dict | None = None) -> Invoice:
+    async def fetch_supplier_invoices(self, cursor: dict | None = None) -> dict | None:
         """
-        Fetch supplier invoices from Pennylane
-        /supplier_invoices:
-        
-        limit: 100
-        filter: [{"field":"supplier_id","operator":"eq", "value":"191196847"}]
-        sort: -date / -id
-        payment_status: eq, not_eq, in, not_in (to_be_paid / paid / to_be_processed)
-        id: lt, lteq, gt, gteq, eq, not_eq, in, not_in
+        Fetch supplier invoices from Pennylane.
+
+        Query params:
+          limit           : max results per page
+          sort            : -date / -id
+          filter          : JSON-encoded filter array
+          payment_status  : eq, not_eq, in, not_in
         """
         filters = [
-            {"field":"category_id","operator":"in", "value":"28061807,28061805,28061789,28061787,28061765"},
-            {"field":"payment_status","operator":"eq","value":"to_be_processed"},
-            {"field":"id","operator":"gt","value": cursor.get("id") if cursor else "0000000000"},
+            {
+                "field": "category_id",
+                "operator": "in",
+                "value": "28061807,28061805,28061789,28061787,28061765",
+            },
+            {
+                "field": "payment_status",
+                "operator": "eq",
+                "value": "to_be_processed",
+            },
+            {
+                "field": "id",
+                "operator": "gt",
+                "value": cursor["id"] if cursor else "0000000000",
+            },
         ]
     
-        return await self.centralize_fetch(f"/supplier_invoices", {
+        result = await self.centralize_fetch(
+            "GET",
+            "/supplier_invoices",
+            params={
             "limit": 100,
             "sort": "-id",
-            "filter": json.dumps(filters)
-        })
+            "filter": json.dumps(filters) })
+        
+        if result:
+            return result.json()
+        else:
+            return None
     
-    async def fetch_supplier_info(self, supplier_ids: list[int]) -> dict:
+    async def fetch_supplier_info(self, supplier_ids: list[int]) -> dict | None:
         filters = [
-            { "field":"id","operator":"in", "value": f"{','.join([str(id) for id in supplier_ids])}" }
+            {
+                "field": "id",
+                "operator": "in",
+                "value": ",".join(str(sid) for sid in supplier_ids),
+            }
         ]
-        return await self.centralize_fetch(f"/suppliers", {
+        result = await self.centralize_fetch(
+            "GET",
+            "/suppliers",
+            params={
             "limit": 100,
-            "filter": json.dumps(filters)
-        })
+            "filter": json.dumps(filters) })
+        
+        if result:
+            return result.json()
+        else:
+            return None
     
-    async def fetch_invoice_public_url(self, invoice_id: str) -> str:
-        filters = [
-            { "field":"id","operator":"eq", "value": invoice_id }
-        ]
-        return await self.centralize_fetch(f"supplier_invoices/{invoice_id}", {
-            "filter": json.dumps(filters)
-        })
+    async def fetch_invoice_public_url(self, invoice_id: str) -> dict | None:
+        result = await self.centralize_fetch(
+            "GET",
+            f"supplier_invoices/{invoice_id}")
         
-    async def update_invoice_status(self, invoice_id: str, status: str) -> dict:
+        if result:
+            return result.json()
+        else:
+            return None
         
-        f'supplier_invoices/{invoice_id}/payment_status'
-        payload = { "payment_status": status }
+    async def update_invoice_status(self, invoice_id: int, status: str) -> str | None:
         
-        await self.centralize_fetch(
-            f'supplier_invoices/${invoice_id}/payment_status', {
-            "body": json.dumps(payload)
-        })
+        result = await self.centralize_fetch(
+            "PUT",
+            f"/supplier_invoices/{invoice_id}/payment_status",
+            json={"payment_status": status} )
+        
+        if result:
+            return result.text
+        else:
+            return None

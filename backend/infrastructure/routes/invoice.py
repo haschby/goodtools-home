@@ -109,7 +109,6 @@ def invoice_routes() -> APIRouter:
         )
     ):
         updated_invoice = await updateInvoiceUsecase.execute(update_invoice)
-        print('@UPDATED_INVOICE', updated_invoice['data'].status)
         if updated_invoice['data'].status == EnumInvoiceStatus.VALIDATED.value:
             command = SyncUpdateInvoiceToPennylaneCommand(
                 workflow_id='INTERNAL',

@@ -72,9 +72,14 @@ class SyncUpdateInvoiceToPennylane(BaseActivity):
             if not success:
                 workflow.steps[1].status = StatusWorkflow.FAILED
                 workflow.steps[1].ended_at = datetime.now()
+                workflow.steps[1].message = str(success)
                 workflow.status = StatusWorkflow.FAILED
                 workflow.ended_at = datetime.now()
-                raise SyncUpdateInvoiceToPennylaneError("Failed to update invoice to pennylane")
+                workflow.params = {
+                    **(workflow.params or {}),
+                    "success": str(success)
+                }
+                raise SyncUpdateInvoiceToPennylaneError(f"Failed to update invoice to pennylane: {json.dumps(success, indent=4)}")
             
             workflow.steps[1].status = StatusWorkflow.COMPLETED
             workflow.steps[1].ended_at = datetime.now()
@@ -108,6 +113,4 @@ class SyncUpdateInvoiceToPennylane(BaseActivity):
         
         finally:
             if self.workflows:
-                print('@WORKFLOWS', self.workflows)
-                print('@WORKFLOWS_VALUES', list(self.workflows.values())[0])
                 await self.update_workflow.execute(list(self.workflows.values()))

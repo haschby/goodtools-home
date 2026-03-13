@@ -12,7 +12,9 @@ class UpdatePennyLaneSupplierInvoice(BaseActivity):
             return False
         
         try:
-            await self.pennylane_gateway.update_invoice_status(invoice_id, "to_be_paid")
+            success = await self.pennylane_gateway.update_invoice_status(int(invoice_id), "to_be_paid")
+            print('@SUCCESS', success)
+            return True
         except Exception as e:
             print('@ERROR', e)
-            return None
+            return False
