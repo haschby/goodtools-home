@@ -6,6 +6,8 @@ from infrastructure.db.workflowRepository import WorkflowRepositoryImpl
 from infrastructure.orchestrator.localWorkflowLauncher import LocalWorkflowLauncher
 from application.containers.orchestrator.activitiesContainer import ActivitiesContainer
 
+from infrastructure.db.engine import AsyncSessionLocal 
+
 class OrchestratorContainer(containers.DeclarativeContainer):
 
     pennylane_gateway = providers.Dependency()
@@ -15,10 +17,13 @@ class OrchestratorContainer(containers.DeclarativeContainer):
     workflow_container = providers.DependenciesContainer()
     activities_container = providers.DependenciesContainer()
     
+    session_factory = providers.Object(AsyncSessionLocal)
+    
     synchronize_pennylane_workflow = providers.Factory(
         SyncPennyLaneWorkflow,
-        create_workflow_usecase=activities_container.createWorkflowSync,
-        update_workflow_usecase=workflow_container.workflowFacade.provided.updateWorkflowUsecase,
+        session_factory=session_factory,
+        # create_workflow_usecase=activities_container.createWorkflowSync,
+        # update_workflow_usecase=workflow_container.workflowFacade.provided.updateWorkflowUsecase,
         fetch_pennylane_supplier_invoices_usecase=activities_container.fetchPennyLaneSupplierInvoices,
         store_pdf_invoice_usecase=activities_container.storePDFInvoice,
         create_invoice_usecase=invoice_container.invoiceFacade.provided.createInvoiceUsecase,
@@ -29,8 +34,7 @@ class OrchestratorContainer(containers.DeclarativeContainer):
     
     update_invoice_to_pennylane_workflow = providers.Factory(
         SyncUpdateInvoiceToPennylane,
-        create_workflow_usecase=activities_container.createWorkflowSync,
-        update_workflow_usecase=workflow_container.workflowFacade.provided.updateWorkflowUsecase,
+        session_factory=session_factory,
         update_pennylane_supplier_invoice_usecase=activities_container.updatePennyLaneSupplierInvoice,
         search_invoice_usecase=invoice_container.invoiceFacade.provided.searchInvoiceUsecase
     )

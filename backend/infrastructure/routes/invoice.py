@@ -53,7 +53,7 @@ def invoice_routes() -> APIRouter:
         status: Optional[str] = Query(default="All", description="Filter invoices by status"),
         cursor: Optional[str|None] = Query(default=None, description="Cursor Selector"),
         id: Optional[str|None] = Query(default=None, description="ID Selector"),
-        getAllInvoicesUsecase: BaseUsecase = Depends(
+        useCase: BaseUsecase = Depends(
             Provide[AppContainer.invoice_container.getAllInvoicesUsecase]
         )
     ):
@@ -64,7 +64,7 @@ def invoice_routes() -> APIRouter:
                 "id": id
             }
         }
-        return await getAllInvoicesUsecase.execute(params)
+        return await useCase.execute(params)
 
     @router.post(
     '/',
@@ -73,11 +73,11 @@ def invoice_routes() -> APIRouter:
     @inject
     async def create(
         new_invoice: InvoiceCreateSchema,
-        createInvoiceUsecase: BaseUsecase = Depends(
+        useCase: BaseUsecase = Depends(
             Provide[AppContainer.invoice_container.createInvoiceUsecase]
         )
     ):
-        return await createInvoiceUsecase.execute([new_invoice])
+        return await useCase.execute([new_invoice])
     
     @router.get(
     '/{id}',
@@ -86,11 +86,11 @@ def invoice_routes() -> APIRouter:
     @inject
     async def invoice(
         id: str,
-        getInvoiceUsecase: BaseUsecase = Depends(
+        useCase: BaseUsecase = Depends(
             Provide[AppContainer.invoice_container.getInvoiceUsecase]
         )
     ):
-        return await getInvoiceUsecase.execute(id)
+        return await useCase.execute(id)
     
     @router.patch(
     '/{id}',
@@ -101,14 +101,14 @@ def invoice_routes() -> APIRouter:
         id: str,
         update_invoice: InvoiceUpdateSchema,
         background_tasks: BackgroundTasks,
-        updateInvoiceUsecase: BaseUsecase = Depends(
+        useCase: BaseUsecase = Depends(
             Provide[AppContainer.invoice_container.updateInvoiceUsecase]
         ),
         orchestrator: WorkflowLauncher = Depends(
             Provide[AppContainer.orchestrator_container.localWorkflowLauncher]
         )
     ):
-        updated_invoice = await updateInvoiceUsecase.execute(update_invoice)
+        updated_invoice = await useCase.execute(update_invoice)
         if updated_invoice['data'].status == EnumInvoiceStatus.VALIDATED.value:
             command = SyncUpdateInvoiceToPennylaneCommand(
                 workflow_id='INTERNAL',
@@ -127,11 +127,11 @@ def invoice_routes() -> APIRouter:
     @inject
     async def search(
         q: str,
-        searchInvoiceUsecase: BaseUsecase = Depends(
+        useCase: BaseUsecase = Depends(
             Provide[AppContainer.invoice_container.searchInvoiceUsecase]
         )
     ):
-        return await searchInvoiceUsecase.execute(q)
+        return await useCase.execute(q)
     
     
     return router

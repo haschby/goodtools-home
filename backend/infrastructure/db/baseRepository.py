@@ -15,21 +15,27 @@ class BaseRepository(BaseRepositoryPort[MODEL]):
         self._model = model
         
     async def count(self) -> int:
-        async with self._session as session:
-            async with session.begin():
-                command = select(func.count()).select_from(self._model)
-                result = await session.execute(command)
-            return result.scalar_one()
+        result = await self._session.execute(
+            select(func.count()).select_from(self._model)
+        )
+        return result.scalar_one()
     
-    async def create(self, models: list[MODEL]) -> Optional[list[MODEL]]:
-        async with self._session as session:
-            async with session.begin():
-                session.add_all(models)
-            
-            for item in models:
-                await session.refresh(item)
+    async def create(self, models: list[MODEL]) -> list[MODEL]:
+        self._session.add_all(models)
+        await self._session.flush()
+        for item in models:
+            await self._session.refresh(item)
         return models
     
-    async def update(self, models: list[MODEL]) -> Optional[list[MODEL]]:
-        await self.create(models)
+    async def update(self, models: list[MODEL]) -> list[MODEL]:
+        merged = [await self._session.merge(model) for model in models]
+        await self._session.flush()
+        await self._session.commit()
+        for item in merged:
+            await self._session.refresh(item)
+        return merged
+    
+    async def update_one(self, model: MODEL) -> MODEL:
+        result = await self.update([model])
+        return result[0]
             

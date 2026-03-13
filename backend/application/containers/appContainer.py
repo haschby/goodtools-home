@@ -1,17 +1,14 @@
 from dependency_injector import containers, providers
-# from redis.asyncio import redis
 
 from infrastructure.config.settings import settings
-from infrastructure.db.engine import AsyncSessionLocal
+from infrastructure.db.engine import AsyncSessionLocal, get_session
 from infrastructure.gateways.GrokGateway import GrokGateway
 from infrastructure.storage.minioStorage import MinioStorage
 from infrastructure.db.workflowRepository import WorkflowRepositoryImpl
 from infrastructure.gateways.accounting.pennylane import PennyLaneAccountingGateway
 from infrastructure.logger.logger import LoggerImplement
 
-# from application.containers.openAIContainer import OpenAIContainer
 from application.containers.invoiceContainer import InvoiceContainer
-# from application.containers.ocrContainer import OCRContainer
 from application.containers.userContainer import UserContainer
 from application.containers.orchestrator.orchestratorContainer import OrchestratorContainer
 from application.containers.workflowContainer import WorkflowContainer
@@ -34,9 +31,7 @@ class AppContainer(containers.DeclarativeContainer):
     
     # # LAUNCH OF THE DATABASE SESSION
     # # THIS IS A RESOURCE BECAUSE IT IS A CONTEXT MANAGER
-    session_factory = providers.Factory(
-        lambda: AsyncSessionLocal()
-    )
+    session_factory = providers.Resource(get_session)
     
     pennylane_gateway = providers.Resource(
         PennyLaneAccountingGateway,

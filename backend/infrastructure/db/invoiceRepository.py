@@ -124,15 +124,15 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
             invoices = result.mappings().all()
             return [Invoice(**invoice) for invoice in invoices]
     
-    async def update(
-        self, 
-        invoice: Invoice
-    ) -> Invoice:
-        async with self._session as session:
-            await session.merge(invoice)
-            await session.commit()
-            await session.refresh(invoice)
-            return invoice
+    # async def update(
+    #     self, 
+    #     invoice: Invoice
+    # ) -> Invoice:
+    #     async with self._session as session:
+    #         await session.merge(invoice)
+    #         await session.commit()
+    #         await session.refresh(invoice)
+    #         return invoice
 
     async def get_external_invoice_id(self, invoice_id: str) -> str:
         async with self._session as session:

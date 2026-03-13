@@ -13,27 +13,25 @@ class WorkflowRepositoryImpl(BaseRepository[Workflow]):
         pass
     
     async def get_by_ref(self, ref: str) -> Workflow:
-        async with self._session.begin():
-            result = await self._session.execute(
-                select(Workflow)
-                .options(selectinload(Workflow.steps))
-                .where(
-                    or_(
-                        Workflow.ref_pulling == ref,
-                        Workflow.id == ref
-                    )
+        result = await self._session.execute(
+            select(Workflow)
+            .options(selectinload(Workflow.steps))
+            .where(
+                or_(
+                    Workflow.ref_pulling == ref,
+                    Workflow.id == ref
                 )
             )
-            return result.scalars().one_or_none()
+        )
+        return result.scalars().one_or_none()
 
     async def get_all(self) -> List[Any]:
-        async with self._session.begin():
-            result = await self._session.execute(
-                select(Workflow)
-                .options(selectinload(Workflow.steps))
-                .order_by(desc(Workflow.created_at), desc(Workflow.id)
-            ))
-            return result.scalars().all()
+        result = await self._session.execute(
+            select(Workflow)
+            .options(selectinload(Workflow.steps))
+            .order_by(desc(Workflow.created_at), desc(Workflow.id))
+        )
+        return result.scalars().all()
     
     async def update_workflow_status(self,
         workflow_id: str,
@@ -41,7 +39,7 @@ class WorkflowRepositoryImpl(BaseRepository[Workflow]):
     ) -> Workflow:
         workflow = await self.get_by_ref(workflow_id)
         workflow.status = status
-        await self.update([workflow])
+        return await self.update_one(workflow)
     
     async def update_step_status(self,
         workflow_id: str,
@@ -51,5 +49,4 @@ class WorkflowRepositoryImpl(BaseRepository[Workflow]):
         workflow = await self.get_by_ref(workflow_id)
         step = next(s for s in workflow.steps if s.name == step_name)
         step.status = status
-        await self.update([step])
-        
+        return await self.update_one(step)

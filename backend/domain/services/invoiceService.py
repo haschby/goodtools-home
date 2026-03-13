@@ -60,4 +60,5 @@ class InvoiceService:
         for field, value in invoice.model_dump(exclude_unset=True).items():
             setattr(existing_invoice, field, value)
         
-        return await self.repository.update(existing_invoice)
+        updated_invoice = await self.repository.update([existing_invoice])
+        return updated_invoice[0]
