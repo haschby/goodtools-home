@@ -51,7 +51,7 @@ export default function InvoiceDetailCard() {
                     Invoice
                 </h1>
                 <p className="flex items-center justify-between text-gray-500 rounded-md self-start text-sm">
-                    <span className="text-amber-500 p-1 rounded-md text-sm font-semibold">
+                    <span className="text-green-500 p-1 rounded-md text-sm font-semibold">
                         #{pickedRecord?.id}
                     </span>
                     -
@@ -91,7 +91,7 @@ export default function InvoiceDetailCard() {
                                     {...props}
                                     type="search"
                                     ref={ref}
-                                    className={`bg-[#f9f8f0] rounded-lg focus:outline-none transition-all duration-300 border border-gray-200 p-2 ${isEditing && 'bg-white active:bg-white active:p-2'} w-full text-gray-900 text-sm`}
+                                    className={`rounded-md focus:outline-none transition-all p-2 ${isEditing && 'active:bg-white active:p-2 border border-gray-200' || 'border border-gray-50 bg-gray-100 text-gray-500'} w-full text-gray-900 text-sm`}
                                 />
                             )
                         }
@@ -117,7 +117,7 @@ export default function InvoiceDetailCard() {
                                     { ...pickedRecord,
                                         amount_ht: parseFloat(e.target.value) } as Invoice)
                             }
-                            className={`text-right bg-[#f9f8f0] rounded-lg focus:outline-none transition-all duration-300 border border-gray-200 p-2 ${isEditing && 'bg-white active:bg-white active:p-2'} w-full text-gray-900 text-sm`}
+                            className={`text-right rounded-md focus:outline-none transition-all p-2 ${isEditing && 'active:bg-white active:p-2 border border-gray-200' || 'border border-gray-50 bg-gray-100 text-gray-500'} w-full text-gray-900 text-sm`}
                             defaultValue={pickedRecord?.amount_ht?.toString() || '0.00'}
                         />
                     </div>
@@ -136,7 +136,7 @@ export default function InvoiceDetailCard() {
                                     { ...pickedRecord,
                                         amount_ttc: parseFloat(e.target.value) } as Invoice)
                             }
-                            className={`text-right bg-[#f9f8f0] rounded-lg focus:outline-none transition-all duration-300 border border-gray-200 p-2 ${isEditing && 'bg-white active:bg-white active:p-2'} w-full text-gray-900 text-sm`}
+                            className={`text-right rounded-md focus:outline-none transition-all p-2 ${isEditing && 'active:bg-white active:p-2 border border-gray-200' || 'border border-gray-50 bg-gray-100 text-gray-500'} w-full text-gray-900 text-sm`}
                             defaultValue={pickedRecord?.amount_ttc?.toString() || '0.00'}
                         />
                     </div>
@@ -154,7 +154,7 @@ export default function InvoiceDetailCard() {
                                 },
                                 name: 'status',
                                 value: pickedRecord?.status || 'TBD',
-                                className: `text-right bg-[#f9f8f0] rounded-lg focus:outline-none transition-all duration-300 border border-gray-200 p-2 ${isEditing && 'bg-white active:bg-white active:p-2'} w-full text-gray-900 text-sm`
+                                className: `text-right rounded-md focus:outline-none transition-all p-2 ${isEditing && 'active:bg-white active:p-2 border border-gray-200' || 'border border-gray-50 bg-gray-100 text-gray-500'} w-full text-gray-900 text-sm`
                             }}
                             name="status"
                         />
@@ -179,7 +179,7 @@ export default function InvoiceDetailCard() {
                                     { ...pickedRecord, 
                                         gc_booking: `GC-${e.target.value}` } as Invoice)
                             }}
-                            className={`text-right bg-[#f9f8f0] rounded-lg focus:outline-none transition-all duration-300 border border-gray-200 p-2 ${isEditing && 'bg-white active:bg-white active:p-2'} w-full text-gray-900 text-sm`}
+                            className={`text-right rounded-md focus:outline-none transition-all duration-300 p-2 ${isEditing && 'active:bg-white active:p-2 border border-gray-200' || 'border border-gray-50 bg-gray-100 text-gray-500'} w-full text-gray-900 text-sm`}
                             defaultValue={pickedRecord?.gc_booking}
                         />
                     </div>
@@ -199,7 +199,7 @@ export default function InvoiceDetailCard() {
                         }
                         rows={3}
                         value={pickedRecord?.comments || ''}
-                        className={`h-full bg-[#f9f8f0] rounded-lg focus:outline-none transition-all duration-300 border border-gray-200 p-2 ${isEditing && 'bg-white active:bg-white active:p-2'} w-full text-gray-900 text-sm`}
+                        className={`h-full rounded-md focus:outline-none transition-all p-2 ${isEditing && 'active:bg-white active:p-2 border border-gray-200' || 'border border-gray-50 bg-gray-100 text-gray-500'} w-full text-gray-900 text-sm`}
                     ></textarea>
                 </div>
             </form>
@@ -216,7 +216,7 @@ export default function InvoiceDetailCard() {
                         isEditing && (
                             <button
                                 onClick={handlePatchInvoice}
-                                className="flex items-center gap-2 cursor-pointer bg-green-400 text-white text-sm font-semibold py-2 px-3 rounded-md">
+                                className="flex items-center gap-2 cursor-pointer bg-green-300/20 text-green-500 text-sm font-semibold py-2 px-3 rounded-md">
                                 <Icon Icon={Pencil1Bulk} size={16} strokeWidth={2} />
                                 Save
                             </button>

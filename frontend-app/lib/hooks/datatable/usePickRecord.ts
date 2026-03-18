@@ -66,9 +66,7 @@ export function usePickRecord<T extends BaseEntity>(
         pickedRecord, 
         pickedId,
         pickRecordById: (pickedId: string | null) => { 
-            console.log('@PICKEDRECORDID :', pickedId);
-            pickedRecordIdRef.current = pickedId ?? undefined;
-            console.log('@PICKEDRECORDID REF :', pickedRecordIdRef.current);
+            pickedRecordIdRef.current = pickedId ?? undefined;  
             fetchRecord();
         },
         isLoading,

@@ -2,6 +2,9 @@
 
 import { useDataTable } from '@/lib/contexts/DataTableCustomContext';
 import { Invoice } from '@/lib/types/invoice';
+import { useRef, useState } from 'react';
+import Icon from '@/components/atoms/Icon';
+import { CheckStroke } from '@lineiconshq/free-icons';
 
 interface ColumnProps {
     label: string;
@@ -16,6 +19,17 @@ export default function InvoiceListHeaders() {
     
     return (
         <>
+            <th
+                style={{ width: '80px', minWidth: '80px' }}
+                className={`bg-green-50/50 whitespace-nowrap text-sm font-bold text-green-700`}>
+                    <label className="border-r border-t flex justify-start w-full h-full border-b border-gray-200 pl-6 px-6 py-3">
+                        <CheckBoxfilter />
+                    </label>
+                {/* <span
+                    className={`px-6 border-r border-t pl-6 flex py-4 justify-start w-full h-full border-b border-gray-200`}>
+                    <input type="checkbox" />
+                </span> */}
+            </th>
            {
             (columns as ColumnProps[]).map(
                 ({ label, maxWidth, isNumber }: ColumnProps, index: number) => {
@@ -25,14 +39,13 @@ export default function InvoiceListHeaders() {
                     ||
                     index === columns.length - 1 && 'pr-6'
                 ) || '';
-
                 return (    
                     <th
                         key={index}
                         style={{ width: maxWidth, minWidth: maxWidth }}
-                        className={`bg-amber-50/50 whitespace-nowrap text-sm font-bold`}>
+                        className={`bg-green-50/50 whitespace-nowrap text-sm font-bold text-green-700`}>
                         <span
-                            className={`px-6 border-r border-t border-gray-50 ${paddingSide} flex py-4 ${isNumber ? 'justify-end' : 'justify-start'} w-full h-full border-b border-gray-200`}>
+                            className={`px-6 border-r border-t ${paddingSide} flex py-4 ${isNumber ? 'justify-end' : 'justify-start'} w-full h-full border-b border-gray-200`}>
                             {label} 
                         </span>
                     </th>
@@ -41,4 +54,40 @@ export default function InvoiceListHeaders() {
            }
         </>
     );
+}
+
+
+
+const CheckBoxfilter = () => {
+    const checkBoxRef = useRef<HTMLInputElement>(null);
+    const selectRef = useRef<HTMLSpanElement>(null);
+    const [isChecked, setIsChecked] = useState(false);
+
+    return (
+        <>
+            <input
+                ref={checkBoxRef}
+                type="checkbox"
+                checked={isChecked}
+                hidden
+                readOnly
+                data-id="all-records" />
+            
+            <span
+                ref={selectRef}
+                className={`border border-green-300/20 p-1 rounded-md bg-white`}
+                onClick={
+                    () => {
+                        setIsChecked(!isChecked);
+                    }
+                }>
+                    <Icon
+                        Icon={CheckStroke}
+                        size={18}
+                        strokeWidth={4}
+                        className={`${isChecked ? 'bg-green-300/20 text-green-500 transform scale-120 transition-transform duration-300' : 'transform scale-0 transition-transform duration-300'}`} />
+                
+            </span>
+        </>
+    )
 }

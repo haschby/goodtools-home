@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { DataTableCTX, DataTableContextType } from "@/lib/contexts/DataTableCustomContext";
 import { BaseResponse } from "@/lib/types/base";
@@ -43,6 +43,8 @@ export function DataListProvider<T extends CursorEntity & BaseEntity>({
     const searchParams = useSearchParams();
     const status = searchParams.get('status') ?? '';
 
+    const [activeStatus, setActiveStatus] = useState<string>('All');
+
     const { 
         pickedRecord,
         pickRecordById,
@@ -62,9 +64,10 @@ export function DataListProvider<T extends CursorEntity & BaseEntity>({
         isLoading,
         error, 
         fetchData,
-        setData } = useFetchData<T>({
+        setData,
+        hasMore } = useFetchData<T>({
         fetchFunction: fetchFunction,
-        status
+        status: activeStatus
     });
 
     const contextValue: DataTableContextType<T> = {
@@ -81,7 +84,9 @@ export function DataListProvider<T extends CursorEntity & BaseEntity>({
         fetchData,
         fetchRecord,
         setData,
-        setPickedRecord
+        setPickedRecord,
+        setActiveStatus: (status: string) => setActiveStatus(status),
+        hasMore
     };
 
     return (

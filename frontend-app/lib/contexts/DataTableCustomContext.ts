@@ -26,6 +26,8 @@ export interface DataTableContextType<T> {
   fetchRecord: () => Promise<void>;
   setData: (data: T[]) => void;
   setPickedRecord: (record: T | null) => void;
+  setActiveStatus: (status: string) => void;
+  hasMore: boolean;
 }
 
 const DataTableCTX = createContext<DataTableContextType<unknown> | null>(null);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { Invoice } from '@/lib/types/invoice';
 import { ListView } from '@/components/atoms/listview/ListView';
 import Icon from '@/components/atoms/Icon';
@@ -27,7 +27,8 @@ export default function InvoiceListView() {
     fetchData, 
     data, 
     isLoading, 
-    totalRows } = useDataTable<Invoice>();
+    totalRows,
+    hasMore } = useDataTable<Invoice>();
 
 
   const [isDetailViewOpen, setIsDetailViewOpen] = useState(false);
@@ -49,20 +50,33 @@ export default function InvoiceListView() {
     };
   }, [pickedId]);
 
+  const dataRef = useRef(data);
+
+  useEffect(() => {
+      dataRef.current = data;
+  }, [data]);
+
   const handleScrollEnd = useCallback(
     (isEndOfList: boolean) => {
-      if (isEndOfList) {
-        fetchData({ 
-          isEndOfList, 
-          cursor: data?.[data.length - 1].created_at as string,
-          id: data?.[data.length - 1].id as string
-        });
-      }
-  }, [fetchData, data]);
+      if (!isEndOfList || isLoading || !hasMore) return;
+
+      const lastItem = dataRef.current?.[dataRef.current.length - 1];
+      if (!lastItem) return;
+
+      fetchData({ 
+          isEndOfList: true, 
+          cursor: lastItem.created_at as string,
+          id: lastItem.id as string
+      });
+    }, [fetchData, isLoading, hasMore] // ✅ stable
+  );
+
+  const rowItems = useMemo(() => <InvoiceListRowItem />, []);
+
 
   return (
     <>
-      <div className={`h-screen bg-white`}>
+      <div className={`h-screen`}>
         <div className="flex flex-row">
           <div className={`relative h-screen flex flex-col transition-all duration-300 ${ pickedRecord ? 'w-[35%] lg:flex hidden' : 'w-full'}`}>
       
@@ -81,7 +95,7 @@ export default function InvoiceListView() {
               actionsList={ <></> }
               statuses={ <InvoiceListStatusBar /> }
               headers={ <InvoiceListHeaders /> }
-              data={ <InvoiceListRowItem /> }
+              data={ rowItems }
               controlTableActions={
                 <div
                   id="footer-loader-container"

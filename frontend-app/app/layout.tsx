@@ -19,7 +19,7 @@ export default function RootLayout({
         <section className="flex flex-row h-screen">
           <MainSideBar />
           <div className="w-full min-w-0 bg-gray-50">
-              {children}
+            {children}
           </div>
         </section>
       </body>

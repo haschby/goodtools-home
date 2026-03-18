@@ -7,7 +7,7 @@ import { ListView } from "@/components/atoms/listview/ListView";
 import { RowItem } from '@/components/atoms/listview/RowItems/Row';  
 import { StatusRow } from "@/components/atoms/listview/RowItems/StatusRow";
 import Icon from "@/components/atoms/Icon";
-import { ArrowLeftDuotone, Bell1Solid, PartySpraySolid, WaterDrop1Duotone } from '@lineiconshq/free-icons';
+import { ArrowLeftDuotone, PartySpraySolid } from '@lineiconshq/free-icons';
 
 interface Params {
     [key: string]: string | number | boolean | object | null;

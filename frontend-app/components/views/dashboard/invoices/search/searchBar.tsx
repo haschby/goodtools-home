@@ -48,7 +48,7 @@ export default function SearchBar() {
 
 
     return (
-        <div className="flex flex-col text-gray-700 relative">
+        <div className="flex flex-col relative">
             <div className="flex flex-row items-center">
                 <SearchBox />
                 {/* <div className="text-md flex items-center z-[99999] w-1/2">

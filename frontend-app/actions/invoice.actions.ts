@@ -18,7 +18,8 @@ export async function getInvoices({ label, options }: GetInvoicesProps): Promise
     const params = new URLSearchParams({
         status: label!, 
         cursor: options?.cursor ?? '', 
-        id: options?.id ?? ''
+        id: options?.id ?? '',
+        limit: options?.limit?.toString() ?? '50'
     });
 
     const api_url = `/client/invoice/all?${params.toString()}`;

@@ -10,7 +10,7 @@ import { ArrowLeftCircleSolid, ArrowRightCircleSolid } from '@lineiconshq/free-i
 export default function InvoiceStatusBar() {
 
     const { 
-        activeStatus, statuses, pickedRecord } = useDataTable<Invoice>();
+        activeStatus, statuses, pickedRecord, setActiveStatus } = useDataTable<Invoice>();
     const router = useRouter();
     
 
@@ -21,8 +21,8 @@ export default function InvoiceStatusBar() {
     function isActiveTab(status: string) {
         if (activeStatus === status)
             return `after:absolute after:-bottom-1
-            after:left-0 after:content-[""] after:flex after:w-full after:h-1.5 after:bg-amber-400
-            bg-amber-300/20 !text-amber-500 rounded-t-md`;
+            after:left-0 after:content-[""] after:flex after:w-full after:h-1.5 after:bg-green-500
+            bg-green-300/20 !text-black rounded-t-md`;
        
         return 'border-b-2 border-transparent';
     }
@@ -80,7 +80,8 @@ export default function InvoiceStatusBar() {
                                     aria-label={status}
                                     className={`cursor-pointer flex items-center justify-center whitespace-nowrap text-black relative py-2 ${ isActiveTab(status) }`}
                                     style={{ width: `auto` }}
-                                    onClick={() => router.replace(`/invoices?status=${status}`) }>
+                                    onClick={() => setActiveStatus(status)}>
+                                    {/* // onClick={() => router.replace(`/invoices?status=${status}`) } */}
                                     <span className={`font-semibold text-sm px-6`}>{status}</span>
                                 </li>
                         )}

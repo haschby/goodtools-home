@@ -10,8 +10,8 @@ export default function TitleInfo(
     { title, totalRows = null, baseLineText }: TitleInfoProps
 ) {
     const setBGcolorToRows = (length: unknown | number) => {
-        if (length === 0) return 'bg-slate-200 text-slate-500';
-        return 'bg-amber-300/20 text-amber-500';
+        if (length === 0) return 'bg-gray-200 text-gray-500';
+        return 'bg-green-300/20 text-green-500';
     }
 
     const printTotalRows = () => {
@@ -29,7 +29,7 @@ export default function TitleInfo(
                 { printTotalRows() }
             </h1>
             <p>
-                <span className="text-xs text-gray-400">
+                <span className="text-sm text-gray-400">
                     { baseLineText }
                 </span>
             </p>

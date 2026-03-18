@@ -35,7 +35,7 @@ export default function ImportInvoiceForm() {
                 multiple
                 onChange={handleFileChange}
                 className="hidden" />
-            <p className="border-r border-gray-800 pr-2">
+            <p className="border-r border-gray-800 pr-2 text-xs">
                 https://www.goodcollect.co
             </p>
             {/* <button
@@ -48,7 +48,7 @@ export default function ImportInvoiceForm() {
             </button> */}
 
             <button
-                className="bg-[#f9f8f0] border-2 border-amber-500 group cursor-pointer p-2 rounded-md text-amber-500"
+                className="bg-green-300/20 text-green-500 group cursor-pointer p-2 rounded-md"
                 onClick={handleSync}>
                 <span className="text-xs flex items-center gap-2 font-semibold">
                     <Icon

@@ -6,8 +6,8 @@ import { Invoice } from "@/lib/types/invoice";
 import Icon from "@/components/atoms/Icon";
 import { 
     Spinner2SacleBulk, 
-    ArrowUpwardBulk, 
-    ArrowDownwardBulk } from "@lineiconshq/free-icons";
+    ArrowUpwardSolid, 
+    ArrowDownwardSolid } from "@lineiconshq/free-icons";
 
 interface InvoiceDetailViewProps {
     closeButton?: ReactNode | undefined;
@@ -58,27 +58,27 @@ export default function InvoiceDetailView(
     
 
     return (
-        <div className="w-full h-full bg-white flex flex-col border-l border-gray-200 shadow-lg">
+        <div className="w-full h-full bg-white flex flex-col border-l border-gray-200 shadow-lg relative">
             <div className="flex flex-row gap-8 py-4 px-4">
                 {closeButton}
-                <aside className="pl-4 border-l border-gray-400 flex flex-row gap-4">
+                <aside className="w-[60%] absolute bottom-0 left-0 right-0 p-4 flex flex-row items-center justify-center gap-4 text-sm">
                     <button
                         onClick={() => handlePickRecordById(data[invoiceIndex - 1])}
-                        className="cursor-pointer flex items-center gap-2 flex-row text-white p-2 bg-black rounded-md p-1">
+                        className="shadow-md cursor-pointer flex items-center gap-1 flex-row bg-white text-black px-3 py-2 font-semibold rounded-md">
                         <Icon
-                            Icon={ArrowUpwardBulk}
+                            Icon={ArrowUpwardSolid}
                             size={14}
                             strokeWidth={2} />
-                        Previous Invoice
+                        Previous
                     </button>
                     <button
                         onClick={() => handlePickRecordById(data[invoiceIndex + 1])}
-                        className="cursor-pointer flex items-center gap-2 flex-row text-white p-2 bg-black rounded-md p-1">
+                        className="shadow-md cursor-pointer flex items-center gap-1 flex-row bg-white text-black px-3 py-2 font-semibold rounded-md">
                         <Icon
-                            Icon={ArrowDownwardBulk}
+                            Icon={ArrowDownwardSolid}
                             size={14}
                             strokeWidth={2} />
-                        Next Invoice
+                        Next
                     </button>
                 </aside>
             </div>

@@ -29,6 +29,7 @@ interface UseFetchDataResponse<MODEL> {
     data: MODEL[] | [];
     fetchData: (params?: FetchDataInputParams) => Promise<void>;
     setData: (data: MODEL[]) => void;
+    hasMore: boolean;
 }
 
 
@@ -39,49 +40,49 @@ export function useFetchData<MODEL>(
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | undefined>(undefined);
     const [data, setData] = useState<MODEL[]>([]);
-    // const lastInvoiceId = useRef<MODEL | null>(null);
+    const [hasMore, setHasMore] = useState<boolean>(true);
 
     const fetchData = useCallback(
-        async (
-            params: FetchDataInputParams = {}
-        ): Promise<void> => {
-            console.log('@fetchData', params);
+        async (params: FetchDataInputParams = {}): Promise<void> => {
             setIsLoading(true);
             try {
                 const response = await fetchFunction({ 
                     label: status,
-                       options: { 
+                    options: { 
                         cursor: params?.cursor, 
-                        id: params?.id
+                        id: params?.id,
+                        limit: 50
                     }
                 });
+
                 const items = response.data ?? [];
-                setData( prev =>
+                setHasMore(items.length === 50);
+                setData(prev =>
                     params?.isEndOfList
-                    ? [...(prev ?? []), ...items]
-                    : items
+                        ? [...(prev ?? []), ...items]
+                        : items
                 );
-                // lastInvoiceId.current = items[items.length - 1] ?? null;
             } catch (error) {
                 setError(String(error));
-                setData([]);
             } finally {
                 setIsLoading(false);
             }
-        }, [fetchFunction, status]);
+        }, [fetchFunction, status]
+    );
 
     useEffect(() => {
-        console.log("FETCH CALLED", status);
         if (!status) return;
-
+        setData([]);
+        setHasMore(true);
         fetchData();
-    }, [status, fetchData]);
+    }, [status]);
 
     return {
         isLoading,
         error,
         data,
         fetchData,
+        hasMore,
         setData
     }
 }

@@ -2,7 +2,7 @@
 
 import { useRef, useCallback } from "react";
 import Icon from "@/components/atoms/Icon";
-import { Search1Outlined } from "@lineiconshq/free-icons";
+import { Database2Outlined } from "@lineiconshq/free-icons";
 import { useQueryClient } from "@/lib/contexts/QueryClientContext";
 
 export function SearchBox() {
@@ -24,26 +24,26 @@ export function SearchBox() {
         }, 500);
     }, [setQueryParams]);
 
-    function setBorderWhenOpenFilters() {
-        if (false) {
-            return "border-r border-b border-gray-200";
-        }
-        return "border-r border-gray-200";
-    }
 
     return (
         <>
             <label
                 htmlFor="search-box"
-                className={`${setBorderWhenOpenFilters()} py-6 pl-4 pr-2 relative w-full text-md flex items-center gap-2 z-[99999]`}>
-                <Icon Icon={Search1Outlined} size={20} strokeWidth={2} />
+                className={`border-r border-white bg-white w-full text-md z-[99999] flex items-center`}>
+                <span className="pl-7 py-4">
+                    <Icon
+                        Icon={Database2Outlined}
+                        size={24}
+                        strokeWidth={2}
+                        className="text-green-500" />
+                </span>
                 <input
                     name="provider"
                     id="search-box"
                     type="search"
                     onChange={handleChange}
                     placeholder="Search for invoices"
-                    className="focus:outline-none active:outline-none w-full border-none"
+                    className="text-gray-500 placeholder:text-sm text-xl focus:outline-none active:outline-none w-full border-none px-7 py-4"
                 />
             </label>
         </>
