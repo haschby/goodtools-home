@@ -18,7 +18,7 @@ export default function InvoiceListRowItem () {
         pickedRecord,
         pickRecordById, isLoading } = useDataTable<Invoice>();
 
-    if (!isLoading) return (
+    return (
         <>
             { 
                 filteredData.map(
@@ -58,6 +58,11 @@ export default function InvoiceListRowItem () {
                     )
                 })
             }
+            { isLoading && (
+                Array.from({ length: 5 }).map((_, i) => (
+                    <SkeletonListViewItem key={`skeleton-${i}`} />
+                ))
+            )}
         </>
     );
         

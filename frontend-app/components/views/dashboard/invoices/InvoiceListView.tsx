@@ -71,6 +71,10 @@ export default function InvoiceListView() {
     }, [fetchData, isLoading, hasMore] // ✅ stable
   );
 
+  const handleScrollEndCallback = useCallback((isEndOfList: boolean) => {
+    handleScrollEnd(isEndOfList);
+  }, [handleScrollEnd]);
+
   const rowItems = useMemo(() => <InvoiceListRowItem />, []);
 
 
@@ -84,13 +88,10 @@ export default function InvoiceListView() {
               title="Invoice Records"
               baseLineText="View detailed invoices records by clicking on the row."
               totalRows={totalRows}
-            />      
+            />
 
             <ListView
-              onScrollEnd={ 
-                (isEndOfList: boolean) =>
-                handleScrollEnd(isEndOfList)
-              }
+              onScrollEnd={handleScrollEndCallback}
               filters={ <SearchBar /> }
               actionsList={ <></> }
               statuses={ <InvoiceListStatusBar /> }

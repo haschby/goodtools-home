@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { BaseResponse } from "@/lib/types/base";
 
 interface FetchFunctionParams {
@@ -32,7 +32,6 @@ interface UseFetchDataResponse<MODEL> {
     hasMore: boolean;
 }
 
-
 export function useFetchData<MODEL>(
     { fetchFunction, status }: UseFetchDataProps<MODEL>
 ): UseFetchDataResponse<MODEL> {
@@ -42,21 +41,33 @@ export function useFetchData<MODEL>(
     const [data, setData] = useState<MODEL[]>([]);
     const [hasMore, setHasMore] = useState<boolean>(true);
 
+    // ✅ Stabilise fetchFunction sans la mettre dans les deps
+    const fetchFunctionRef = useRef(fetchFunction);
+    useEffect(() => {
+        fetchFunctionRef.current = fetchFunction;
+    }, [fetchFunction]);
+
+    // ✅ Stabilise status sans le mettre dans les deps de fetchData
+    const statusRef = useRef(status);
+    useEffect(() => {
+        statusRef.current = status;
+    }, [status]);
+
     const fetchData = useCallback(
         async (params: FetchDataInputParams = {}): Promise<void> => {
             setIsLoading(true);
             try {
-                const response = await fetchFunction({ 
-                    label: status,
+                const response = await fetchFunctionRef.current({ 
+                    label: statusRef.current, // ✅ via ref
                     options: { 
                         cursor: params?.cursor, 
                         id: params?.id,
-                        limit: 50
+                        limit: 20
                     }
                 });
 
                 const items = response.data ?? [];
-                setHasMore(items.length === 50);
+                setHasMore(items.length === 20);
                 setData(prev =>
                     params?.isEndOfList
                         ? [...(prev ?? []), ...items]
@@ -67,7 +78,7 @@ export function useFetchData<MODEL>(
             } finally {
                 setIsLoading(false);
             }
-        }, [fetchFunction, status]
+        }, [] // ✅ aucune dep — fetchData ne change plus jamais
     );
 
     useEffect(() => {
@@ -75,7 +86,7 @@ export function useFetchData<MODEL>(
         setData([]);
         setHasMore(true);
         fetchData();
-    }, [status]);
+    }, [status]); // ✅ uniquement status
 
     return {
         isLoading,

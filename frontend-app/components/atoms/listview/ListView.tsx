@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect, useRef } from 'react';
+import { ReactNode, useEffect, useRef, useState, useCallback } from 'react';
 
 interface ListViewProps {
   statuses?: ReactNode | undefined;
@@ -23,91 +23,77 @@ export function ListView({
 }: ListViewProps) {
 
   const listviewContainerRef = useRef<HTMLDivElement>(null);
-  const scrollTopRef = useRef<number>(0);
-  const heightModulePixels = useRef<number>(0);
+  const savedScrollTopRef = useRef<number>(0);
+  const [heightModulePixels, setHeightModulePixels] = useState<string>('');
   const onScrollEndRef = useRef(onScrollEnd);
 
+  // ✅ Toujours à jour
   useEffect(() => {
     onScrollEndRef.current = onScrollEnd;
   }, [onScrollEnd]);
 
-  useEffect(() => {  
-    console.log('ListView useEffect');
-    const el = listviewContainerRef.current;
-    if (!el) return;
-    const tbody = el.querySelector('tbody');
-
-    const handleScroll = (e: Event) => {
-      console.log('ListView useEffect handleScroll');
-      const { scrollTop, scrollHeight, clientHeight, scrollLeft } = e.target as HTMLDivElement;
-      if (scrollLeft > 0) return;
-
-      scrollTopRef.current = scrollTop;
-
-      if (scrollTop > 0 && scrollTop + clientHeight + 1 >= scrollHeight) {
-        const savedScrollTop = scrollTop;
-        const savedScrollHeight = scrollHeight;
-        console.log('SCROLL END — savedScrollTop:', savedScrollTop, 'savedScrollHeight:', savedScrollHeight);
-
-        // ✅ Observer qui se déclenche quand React injecte les nouvelles lignes
-        const observer = new MutationObserver(() => {
-          console.log('MUTATION — newScrollHeight:', el.scrollHeight, 'addedHeight:', el.scrollHeight - savedScrollHeight);
-          const newScrollHeight = el.scrollHeight;
-          const addedHeight = newScrollHeight - savedScrollHeight;
-          if (addedHeight > 0) {  
-            el.scrollTop = savedScrollTop + addedHeight;
-            console.log('RESTORED scrollTop to:', el.scrollTop);
-          }
-          observer.disconnect(); // ✅ one-shot
-        });
-
-        if (tbody) {
-            observer.observe(tbody, { childList: true, subtree: true });
-        }
-
-        onScrollEndRef.current(true);
-      }
-    };
-
-    el.addEventListener('scroll', handleScroll);
-    return () => el.removeEventListener('scroll', handleScroll);
-  }, [])
-
-  function handleResize() {
-    const el = listviewContainerRef.current;
-    if (!el) return;
-    const windowHeight = window.innerHeight;
-    const topTable = el.getBoundingClientRect().top;
-    const heightListView = windowHeight - (topTable + 200);
-    heightModulePixels.current = window.innerHeight - 269;
-    if (heightListView > 0) {
-      el.style.height = `${heightListView}px`;
-    }
-  }
-
-  useEffect(() => {
-    const el = listviewContainerRef.current;
-    if (!el) return;
-
-    handleResize();
-    el.addEventListener('resize', handleResize);
-    return () => el.removeEventListener('resize', handleResize);
+  const handleResize = useCallback(() => {
+    requestAnimationFrame(() => {
+      const container = listviewContainerRef.current;
+      if (!container) return;
+      container.style.height = 'auto';
+      requestAnimationFrame(() => {
+        const { top } = container.getBoundingClientRect();
+        const availableHeight = window.innerHeight - top - 57 - 12 + 15;
+        container.style.height = `${Math.max(availableHeight, 200)}px`;
+        setHeightModulePixels(`${Math.max(availableHeight, 200)}`);
+      });
+    });
   }, []);
 
+  const scrollToBottom = useCallback((e: Event) => {
+    const container = e.target as HTMLDivElement;
+    const { scrollTop, scrollHeight, clientHeight } = container;
+    const pourcentage = Math.round((scrollTop / (scrollHeight - clientHeight)) * 100);
+
+    if (pourcentage === 100) {
+      savedScrollTopRef.current = scrollTop; // ✅ sauvegarde
+
+      const tbody = container.querySelector('tbody');
+      if (!tbody) return;
+
+      const observer = new MutationObserver(() => {
+        const newScrollHeight = container.scrollHeight;
+        if (newScrollHeight <= scrollHeight) return; // attend que les nouvelles lignes soient là
+
+        container.scrollTop = savedScrollTopRef.current; // ✅ restaure
+        observer.disconnect();
+      });
+
+      observer.observe(tbody, { childList: true, subtree: true });
+      onScrollEndRef.current(true); // ✅ appelé une seule fois
+    }
+  }, []);
+
+  useEffect(() => {
+    const container = listviewContainerRef.current;
+    if (!container) return;
+
+    handleResize();
+    container.addEventListener('scroll', scrollToBottom);
+    window.addEventListener('resize', handleResize, { passive: true });
+
+    return () => {
+      container.removeEventListener('scroll', scrollToBottom);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   return (
     <>
-      {/* {setHeightListView} */}
-
       { !!statuses && <>{statuses}</> }
       { !!filters && <>{filters}</> }
       { !!actionsList && <>{actionsList}</> }
 
-      {/* TABLE */}
       <div
         id="listview-container"
         ref={listviewContainerRef}
-        style={{ height: `${heightModulePixels.current}px` }}
+        style={{ height: `${heightModulePixels}px` }}
         className="w-full bg-white overflow-x-scroll overflow-y-scroll overflow-hidden border-b border-gray-200">
         <table className="table-fixed border-collapse w-full">
           <thead className="w-full sticky top-0 left-0 right-0 z-50">
@@ -115,7 +101,7 @@ export function ListView({
               {headers}
             </tr>
           </thead>
-          <tbody> 
+          <tbody>
             {data}
           </tbody>
         </table>
