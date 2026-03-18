@@ -30,7 +30,7 @@ class SyncUpdateInvoiceToPennylane(BaseActivity):
         self.update_pennylane_supplier_invoice = update_pennylane_supplier_invoice_usecase
 
     def _build_workflow_usecases(self, session):
-        repo = WorkflowRepositoryImpl(session)
+        repo = WorkflowRepositoryImpl(self.session_factory)
         return (
             CreateWorkflowSync(CreateWorkflow(repo)),
             UpdateWorkflowSync(UpdateWorkflow(repo))

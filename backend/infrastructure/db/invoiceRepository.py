@@ -49,28 +49,29 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
         LIMIT :limit
         """
         
-        async with self._session as session:
+        async with self._session() as session:
             result = await session.execute(text(query), params)
             invoices = result.mappings().all()
-                
+            print(len(invoices))
+            
         return [Invoice(**row) for row in invoices] 
 
     async def get_by_id(
         self,
         id: str
     ) -> Invoice:
-        
-        stmt = select(Invoice).where(
-            (Invoice.id == id) |
-            (Invoice.external_id == id)
-        )
+        async with self._session() as session:
+            stmt = select(Invoice).where(
+                (Invoice.id == id) |
+                (Invoice.external_id == id)
+            )
 
-        result = await self._session.execute(stmt)
-        return result.scalar_one_or_none()
+            result = await session.execute(stmt)
+            return result.scalar_one_or_none()
 
     
     async def get_last_invoice_id(self) -> Optional[str]:
-        async with self._session as session:
+        async with self._session() as session:
             result = await session.execute(text(QUERY_GET_LAST_INVOICE_ID))
             return result.scalar_one_or_none()
 
@@ -82,7 +83,7 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
         {QUERY_GET_INVOICE_BY_ID}
         WHERE external_id = ANY(:external_ids)
         """
-        async with self._session as session:
+        async with self._session() as session:
             result = await session.execute(
                 text(query),
                 { "external_ids" : external_ids }
@@ -91,7 +92,11 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
             return [Invoice(**row) for row in invoices]
         
     
-    async def search(self, q: str, limit: int = 30, offset: int = 0) -> list[Invoice]:
+    async def search(
+        self, 
+        q: str, 
+        limit: int = 30, 
+        offset: int = 0 ) -> list[Invoice]:
         sql = f"""
         {QUERY_GET_ALL_INVOICES}
         WHERE
@@ -119,7 +124,7 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
 
         sql += " ORDER BY created_at DESC LIMIT :limit OFFSET :offset"
         
-        async with self._session as session:
+        async with self._session() as session:
             result = await session.execute(text(sql), params)
             invoices = result.mappings().all()
             return [Invoice(**invoice) for invoice in invoices]
@@ -135,7 +140,7 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
     #         return invoice
 
     async def get_external_invoice_id(self, invoice_id: str) -> str:
-        async with self._session as session:
+        async with self._session() as session:
             cmd = "SELECT external_id FROM invoice WHERE id = :invoice_id"
             result = await session.execute(text(cmd), {"invoice_id": invoice_id})
             return result.scalar_one_or_none()

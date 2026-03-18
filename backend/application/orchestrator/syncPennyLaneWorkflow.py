@@ -34,7 +34,7 @@ class SyncPennyLaneWorkflow(BaseUsecase):
         self.create_invoice_usecase = create_invoice_usecase
 
     def _build_workflow_usecases(self, session):
-        repo = WorkflowRepositoryImpl(session)
+        repo = WorkflowRepositoryImpl(self.session_factory)
         return (
             CreateWorkflowSync(CreateWorkflow(repo)),
             UpdateWorkflowSync(UpdateWorkflow(repo))

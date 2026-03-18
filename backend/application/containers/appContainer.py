@@ -31,7 +31,7 @@ class AppContainer(containers.DeclarativeContainer):
     
     # # LAUNCH OF THE DATABASE SESSION
     # # THIS IS A RESOURCE BECAUSE IT IS A CONTEXT MANAGER
-    session_factory = providers.Resource(get_session)
+    session_factory = providers.Object(AsyncSessionLocal)
     
     pennylane_gateway = providers.Resource(
         PennyLaneAccountingGateway,

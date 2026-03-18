@@ -59,6 +59,7 @@ def invoice_routes() -> APIRouter:
         status: Optional[str] = Query(default="All", description="Filter invoices by status"),
         cursor: Optional[str|None] = Query(default=None, description="Cursor Selector"),
         id: Optional[str|None] = Query(default=None, description="ID Selector"),
+        limit: Optional[int] = Query(default=50, description="Limit Selector"),
         useCase: BaseUsecase = Depends(
             Provide[AppContainer.invoice_container.getAllInvoicesUsecase]
         )
@@ -68,7 +69,8 @@ def invoice_routes() -> APIRouter:
             "cursor": {
                 "created_at": cursor,
                 "id": id
-            }
+            },
+            "limit": limit
         }
         return await useCase.execute(params)
 

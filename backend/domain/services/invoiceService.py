@@ -39,9 +39,18 @@ class InvoiceService:
         return await self.repository.get_by_id(id)
     
     
-    async def get_all(self, status: Optional[str] = "All", cursor: Optional[dict] = None) -> list[Invoice]:
-        invoices = await self.repository.get_all(status, cursor)
-        return invoices
+    async def get_all(self,
+        params: Optional[dict] = None
+    ) -> list[Invoice]:
+        
+        if not params:
+            return await self.repository.get_all()
+        
+        return await self.repository.get_all(
+            status=params['status'],
+            cursor=params['cursor'],
+            limit=params['limit']
+        )
     
     # async def get_stats(self) -> StatsInvoices:
     #     return await self.invoiceRepository.get_stats()

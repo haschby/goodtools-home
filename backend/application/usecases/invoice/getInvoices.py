@@ -17,7 +17,7 @@ class GetInvoices(BaseUsecase):
         self.invoiceService = invoiceService
         
     async def execute(self, params: GetInvoicesParams) -> BaseResponseSchema:
-        invoices = await self.invoiceService.get_all(params['status'], params['cursor'])
+        invoices = await self.invoiceService.get_all(params)
         return BaseResponseSchema.response(
             message="Invoices found" if invoices else "No invoices found",
             status_code=201,
