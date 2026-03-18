@@ -29,7 +29,8 @@ class FetchPennyLaneSupplierInvoices(BaseActivity):
             date = datetime.fromisoformat(invoice.get("created_at"))
             if date.tzinfo is None:
                 date = date.replace(tzinfo=timezone.utc)
-            threshold_date = datetime(2026, 1, 1, tzinfo=timezone.utc)
+            
+            threshold_date = datetime(2026, 3, 1, tzinfo=timezone.utc)
             if date >= threshold_date:
                 invoices_to_treat.append(invoice)    
             # if invoice.get("accounting_status") == "validation_needed":
