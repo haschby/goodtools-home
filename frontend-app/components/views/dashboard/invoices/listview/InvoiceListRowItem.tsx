@@ -5,7 +5,7 @@ import { Invoice } from '@/lib/types/invoice';
 import { useDataTable } from '@/lib/contexts/DataTableCustomContext';
 import { invoicesColumns } from '@/components/views/dashboard/invoices/config/config.columns';
 import { ColumnProps } from '@/lib/types/common';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import Icon from '@/components/atoms/Icon';
 import { CheckStroke } from '@lineiconshq/free-icons';
 import SkeletonListViewItem from '@/components/atoms/listview/SkeletonListViewItem';
@@ -35,6 +35,7 @@ export default function InvoiceListRowItem () {
                                 else pickRecordById(invoice.id);
                             }}>
                                 <RowItem
+                                    canSticky
                                     key={invoice.id}
                                     isFirst={true}
                                     isLast={false}
@@ -75,7 +76,7 @@ const CheckBoxfilter = ({ id }: { id: string }) => {
     const [isChecked, setIsChecked] = useState(false);
     const recordIdRef = useRef(id);
 
-    const { actions } = useMultiSelectContext();
+    const { actions  } = useMultiSelectContext();
 
     const handleCheckBoxClick = useCallback((event: React.MouseEvent<HTMLSpanElement>) => {
         event.preventDefault();
@@ -89,15 +90,6 @@ const CheckBoxfilter = ({ id }: { id: string }) => {
             actions.removeRecord(recordIdRef.current);
         }
     }, [isChecked, actions]);
-
-    // useEffect(() => {
-    //     const isCheckedValue = isChecked;
-    //     if (isCheckedValue) {
-    //         actions.addNewRecord(`${checkBoxRef.current?.id}`);
-    //     } else {
-    //         actions.removeRecord(`${checkBoxRef.current?.id}`);
-    //     }
-    // }, [isChecked]);
 
     return (
         <>

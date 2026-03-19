@@ -4,7 +4,7 @@ import { useDataTable } from '@/lib/contexts/DataTableCustomContext';
 import { Invoice } from '@/lib/types/invoice';
 import { useRef, useState } from 'react';
 import Icon from '@/components/atoms/Icon';
-import { CheckStroke } from '@lineiconshq/free-icons';
+import { PenToSquareSolid } from '@lineiconshq/free-icons';
 
 interface ColumnProps {
     label: string;
@@ -21,10 +21,13 @@ export default function InvoiceListHeaders() {
         <>
             <th
                 style={{ width: '80px', minWidth: '80px' }}
-                className={`bg-green-50/50 whitespace-nowrap text-sm font-bold text-green-700`}>
-                    <label className="border-r border-t flex justify-start w-full h-full border-b border-gray-200 pl-6 px-6 py-3">
+                className={`sticky left-0 bg-white mx-auto `}>
+                    <span className="flex items-center justify-center px-6 py-4 border-r border-t border-b border-gray-100">
+                        <Icon Icon={PenToSquareSolid} size={18} strokeWidth={4} className="text-green-500" />
+                    </span>
+                    {/* <label className="border-r border-t flex justify-start w-full h-full border-b border-gray-200 pl-6 px-6 py-3">
                         <CheckBoxfilter />
-                    </label>
+                    </label> */}
                 {/* <span
                     className={`px-6 border-r border-t pl-6 flex py-4 justify-start w-full h-full border-b border-gray-200`}>
                     <input type="checkbox" />
@@ -43,9 +46,9 @@ export default function InvoiceListHeaders() {
                     <th
                         key={index}
                         style={{ width: maxWidth, minWidth: maxWidth }}
-                        className={`bg-green-50/50 whitespace-nowrap text-sm font-bold text-green-700`}>
+                        className={`bg-green-300/1 whitespace-nowrap text-sm font-bold text-green-500`}>
                         <span
-                            className={`px-6 border-r border-t ${paddingSide} flex py-4 ${isNumber ? 'justify-end' : 'justify-start'} w-full h-full border-b border-gray-200`}>
+                            className={`px-6 border-r border-t ${paddingSide} flex py-4 ${isNumber ? 'justify-end' : 'justify-start'} w-full h-full border-b border-gray-100`}>
                             {label} 
                         </span>
                     </th>

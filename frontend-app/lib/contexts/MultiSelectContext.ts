@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext } from "react";
-import { MultiSelectReturnType } from "@/lib/hooks/form/useMultiSelect";
+import { MultiSelectReturnType } from "@/lib/hooks/form/useMultiSelect"
 
 interface MultiSelectContextType extends MultiSelectReturnType {
     isSaving: boolean;
