@@ -4,7 +4,7 @@ import { useDataTable } from '@/lib/contexts/DataTableCustomContext';
 import { Invoice } from '@/lib/types/invoice';
 import { useRef, useState } from 'react';
 import Icon from '@/components/atoms/Icon';
-import { PenToSquareSolid } from '@lineiconshq/free-icons';
+import { PenToSquareSolid, CheckStroke } from '@lineiconshq/free-icons';
 
 interface ColumnProps {
     label: string;
