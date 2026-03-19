@@ -88,13 +88,12 @@ export function ListView({
     <>
       { !!statuses && <>{statuses}</> }
       { !!filters && <>{filters}</> }
-      { !!actionsList && <>{actionsList}</> }
 
       <div
         id="listview-container"
         ref={listviewContainerRef}
         style={{ height: `${heightModulePixels}px` }}
-        className="w-full bg-white overflow-x-scroll overflow-y-scroll overflow-hidden border-b border-gray-200">
+        className="relative w-full bg-white overflow-x-scroll overflow-y-scroll overflow-hidden border-b border-gray-200">
         <table className="table-fixed border-collapse w-full">
           <thead className="w-full sticky top-0 left-0 right-0 z-50">
             <tr className="bg-green-50">
@@ -106,6 +105,7 @@ export function ListView({
           </tbody>
         </table>
       </div>
+      { !!actionsList && <>{actionsList}</> }
       { !!controlTableActions && <>{controlTableActions}</> }
     </>
   );

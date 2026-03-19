@@ -5,10 +5,11 @@ import { Invoice } from '@/lib/types/invoice';
 import { useDataTable } from '@/lib/contexts/DataTableCustomContext';
 import { invoicesColumns } from '@/components/views/dashboard/invoices/config/config.columns';
 import { ColumnProps } from '@/lib/types/common';
-import { useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Icon from '@/components/atoms/Icon';
 import { CheckStroke } from '@lineiconshq/free-icons';
 import SkeletonListViewItem from '@/components/atoms/listview/SkeletonListViewItem';
+import { useMultiSelectContext } from '@/lib/contexts/MultiSelectContext';
 
 
 export default function InvoiceListRowItem () {
@@ -40,19 +41,19 @@ export default function InvoiceListRowItem () {
                                     maxWidth="150px"
                                     isNumber={false}
                                     renderItem={
-                                        <CheckBoxfilter />
+                                        <CheckBoxfilter id={invoice.external_id}/>
                                     } />
                                 { invoicesColumns.map(
                                     (column: ColumnProps<Invoice>) =>
                                         <RowItem
-                                        key={column.keyfield}
-                                        isFirst={column.isFirst}
-                                        isLast={column.isLast}
-                                        maxWidth={column.maxWidth}
-                                        isNumber={column.isNumber}
-                                        renderItem={
-                                            column.renderItem(invoice)
-                                        } />
+                                            key={column.keyfield}
+                                            isFirst={column.isFirst}
+                                            isLast={column.isLast}
+                                            maxWidth={column.maxWidth}
+                                            isNumber={column.isNumber}
+                                            renderItem={
+                                                column.renderItem(invoice)
+                                            } />
                                 )}
                         </tr> 
                     )
@@ -68,10 +69,35 @@ export default function InvoiceListRowItem () {
         
 }
 
-const CheckBoxfilter = () => {
+const CheckBoxfilter = ({ id }: { id: string }) => {
     const checkBoxRef = useRef<HTMLInputElement>(null);
     const selectRef = useRef<HTMLSpanElement>(null);
     const [isChecked, setIsChecked] = useState(false);
+    const recordIdRef = useRef(id);
+
+    const { actions } = useMultiSelectContext();
+
+    const handleCheckBoxClick = useCallback((event: React.MouseEvent<HTMLSpanElement>) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        setIsChecked(!isChecked);
+        console.log('@isChecked', isChecked);
+        if (!isChecked) {
+            actions.addNewRecord(recordIdRef.current);
+        } else {
+            actions.removeRecord(recordIdRef.current);
+        }
+    }, [isChecked, actions]);
+
+    // useEffect(() => {
+    //     const isCheckedValue = isChecked;
+    //     if (isCheckedValue) {
+    //         actions.addNewRecord(`${checkBoxRef.current?.id}`);
+    //     } else {
+    //         actions.removeRecord(`${checkBoxRef.current?.id}`);
+    //     }
+    // }, [isChecked]);
 
     return (
         <>
@@ -86,13 +112,8 @@ const CheckBoxfilter = () => {
             <span
                 ref={selectRef}
                 className={`h-6 w-6 border ${isChecked ? 'border-green-500 bg-green-300/20' : 'border-gray-200'} transition-all duration-300 rounded-md overflow-hidden flex items-center justify-center`}
-                onClick={
-                    (event: React.MouseEvent<HTMLSpanElement>) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        setIsChecked(!isChecked);
-                    }
-                }>
+                onClick={handleCheckBoxClick}
+                >
                     <Icon
                         Icon={CheckStroke}
                         size={16}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 interface RegisterProps {
     onChange: (item:string) => void;
@@ -24,27 +24,47 @@ const Select = ({
     label,
     options,
     register,
-    name,
+    name
 }: SelectProps) => {
     const [isOpen, setIsOpen] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [dropdownPosition, setDropdownPosition] = useState<'top' | 'bottom'>('bottom');
+
+    const handleFocus = useCallback(
+        () => {
+        if (containerRef.current) {
+            const { bottom } = containerRef.current.getBoundingClientRect();
+            const spaceBelow = window.innerHeight - bottom;
+            console.log(spaceBelow < 220 ? 'top' : 'bottom');
+            // ✅ Si moins de 220px en bas, ouvre en haut
+            setDropdownPosition(spaceBelow < 220 ? 'top' : 'bottom');
+        }
+        setIsOpen(true);
+    },[])
+
     return (
     <>
-        <label className="text-sm py-2" htmlFor={name}>
-            <span className="w-full font-semibold">{label}</span>
-        </label>
+        {
+            label && (
+                <label className="text-sm py-2" htmlFor={name}>
+                    <span className="w-full font-semibold">{label}</span>
+                </label>
+            )
+        }
+        <div ref={containerRef} className="relative w-full"> 
         <input
-            onFocus={() => setIsOpen(true)}
+            onFocus={handleFocus}
             onBlur={() => setIsOpen(false)}
             onChange={() => {}}
             type="text"
             name={name}
-            className={register.className}
+            className={`cursor-pointer ${register.className}`}
             value={register.value}
             disabled={!isEditable}
         />
         {
             (isOpen) && (
-            <ul className="border border-gray-300 bg-white shadow-lg absolute top-[calc(100%+10px)] rounded-md left-0 w-full max-h-[200px] overflow-y-auto z-[9999]"
+            <ul className={`border border-gray-300 bg-white shadow-lg absolute ${dropdownPosition === 'top' ? 'bottom-[calc(100%+10px)]' : 'top-[calc(100%+10px)]'} rounded-md left-0 w-full max-h-[200px] overflow-y-auto z-[9999]`}
                 id={name}
             >
                 {
@@ -63,6 +83,7 @@ const Select = ({
                 </ul>
             )
         }
+        </div>
     </>
     )
 };

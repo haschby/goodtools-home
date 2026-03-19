@@ -8,11 +8,11 @@ export const invoicesColumns: ColumnProps<Invoice>[] = [
     {
         keyfield: 'id',
         align: 'left',
-        maxWidth: '150px',
+        maxWidth: '0',
         isFirst: true,
         renderItem: (item: Invoice) =>
-            <span className="underline bg-gray-100 font-semibold text-gray-800 p-1 rounded-md">
-                #{item.id.toUpperCase()}
+            <span className="p-1 bg-gray-300/20 font-semibold text-gray-500 text-xs rounded-md">
+                {item.id.substring(3)}
             </span>
     },
     {
