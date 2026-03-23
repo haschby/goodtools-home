@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Icon from '@/components/atoms/Icon';
-import { DollarSolid, PlaySolid } from '@lineiconshq/free-icons';
+import { DollarSolid, PlaySolid, BeatStroke } from '@lineiconshq/free-icons';
 import { usePathname } from 'next/navigation';
 
 export default function MainSideBar() {
@@ -13,12 +13,12 @@ export default function MainSideBar() {
 
     return (
     <div className="relative z-[999999] flex flex-col border-r border-gray-200 h-full items-start max-w-[150px] w-full">
-        <h1 className="text-green-500 py-5 flex flex-row justify-center w-full text-black font-bold items-center text-xl">
+        <h1 className="relative text-green-500 py-5 flex flex-row justify-center w-full text-black font-bold items-center text-lg">
             {/* <LogoGoodTools /> OODTOOLS */}
-            Biftec
-            <span className="rounded-full ml-[1px] green-500 h-5 w-[6px] flex bg-green-500"></span>
-            <span className="rounded-full ml-1 mr-1 relative h-8 w-[6px] flex bg-green-500"></span>
-            <span className="relative right-2 top-[1.5px] transform -rotate-90 rounded-full relative h-6 w-[6px] flex bg-green-500"></span>
+            
+            Goodtools
+            <Icon Icon={BeatStroke} size={24} strokeWidth={2} className="relative -left-1 -top-1 text-green-500 inline-block" />
+            
         </h1>
         <nav className="w-full h-full text-sm pt-4">
             <ul className="flex flex-col gap-2 text-gray-300">
