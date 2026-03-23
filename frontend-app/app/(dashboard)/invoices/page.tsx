@@ -6,7 +6,7 @@ import { DataListProvider } from "@/components/providers/DataListProvider";
 import { QueryClientProvider } from "@/components/providers/QueryClientProvider";
 import { getTotalRecordsByEntity } from "@/actions/common";
 import { getInvoiceById, getInvoices } from "@/actions/invoice.actions";
-import { configTable } from "@/components/views/dashboard/invoices/config/config.table";
+import { configHeaders } from "@/components/views/dashboard/invoices/config/config.headers";
 
 import InvoicePage from "@/components/views/dashboard/invoices/InvoicePage";
 
@@ -16,9 +16,9 @@ export default async function InvoicesPage() {
             <Suspense fallback={<div>Loading...</div>}>
                 <DataListProvider<Invoice>
                     fetchTotalRowsFunction={getTotalRecordsByEntity}
-                    statuses={configTable.statuses}
+                    statuses={configHeaders.statuses}
                     fetchFunction={getInvoices}
-                    columns={configTable.columns}
+                    columns={configHeaders.columns}
                     entity="invoice"
                     getRecordById={getInvoiceById}
                 >

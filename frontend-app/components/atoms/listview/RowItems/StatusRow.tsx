@@ -11,7 +11,7 @@ interface StatusRowProps {
 }
 
 const StatusRow = ({ status, className } :StatusRowProps ): ReactNode => {
-    const cssClasses = `self-start rounded-full font-semibold ${className} flex items-center gap-1`;
+    const cssClasses = `rounded-full font-semibold ${className} flex items-center gap-1`;
     switch (status) {
         case 'Skipped':
         case 'Aborted':

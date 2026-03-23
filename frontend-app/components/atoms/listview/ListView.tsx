@@ -96,7 +96,7 @@ export function ListView({
         className="relative w-full bg-white overflow-x-scroll overflow-y-scroll overflow-hidden border-b border-gray-200">
         <table className="table-fixed border-collapse w-full">
           <thead className="w-full sticky top-0 left-0 right-0 z-50">
-            <tr className="bg-green-50">
+            <tr className="bg-white">
               {headers}
             </tr>
           </thead>

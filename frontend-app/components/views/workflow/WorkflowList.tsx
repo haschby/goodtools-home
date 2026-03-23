@@ -18,6 +18,8 @@ export default function WorkflowList() {
         fetchWorkflows();
     }, []);
 
+    const cssHeader = "whitespace-nowrap text-sm font-bold bg-gray-100 text-gray-500";
+
     return (
         <div className="h-screen bg-white">
             <div className="flex flex-col h-full text-gray-700 gap-4 w-full">
@@ -32,32 +34,32 @@ export default function WorkflowList() {
                     data={ <WorkflowListRowItem data={workflows} /> }
                     headers={
                         <>
-                            <th key={0} style={{ width: '180px' }} className="bg-amber-50/50 whitespace-nowrap text-sm font-bold">
+                            <th key={0} style={{ width: '180px' }} className={cssHeader}>
                                 <span className="px-6 border-r border-t border-gray-50 pl-6 flex py-4 w-full h-full border-b border-gray-200">
                                     {'Workflow ID'} 
                                 </span>
                             </th>
-                            <th key={1} style={{ width: '180px' }} className="bg-amber-50/50 whitespace-nowrap text-sm font-bold">
+                            <th key={1} style={{ width: '180px' }} className={cssHeader}>
                                 <span className="px-6 border-r border-t border-gray-50 pl-6 flex py-4 justify-start w-full h-full border-b border-gray-200">
                                     {'Provider'} 
                                 </span>
                             </th>
-                            <th key={2} style={{ width: '150px' }} className="bg-amber-50/50 whitespace-nowrap text-sm font-bold">
+                            <th key={2} style={{ width: '150px' }} className={cssHeader}>
                                 <span className="px-6 border-r border-t border-gray-50 pl-6 flex py-4 justify-start w-full h-full border-b border-gray-200">
                                     {'Status'} 
                                 </span>
                             </th>
-                            <th key={3} style={{ width: '180px' }} className="bg-amber-50/50 whitespace-nowrap text-sm font-bold">
+                            <th key={3} style={{ width: '180px' }} className={cssHeader}>
                                 <span className="px-6 border-r border-t border-gray-50 pl-6 flex py-4 justify-start w-full h-full border-b border-gray-200">
                                     {'Started At'} 
                                 </span>
                             </th>
-                            <th key={4} style={{ width: '180px' }} className="bg-amber-50/50 whitespace-nowrap text-sm font-bold">
+                            <th key={4} style={{ width: '180px' }} className={cssHeader}>
                                 <span className="px-6 border-r border-t border-gray-50 pl-6 flex py-4 justify-start w-full h-full border-b border-gray-200">
                                     {'Ended At'} 
                                 </span>
                             </th>
-                            <th key={5} style={{ width: 'auto' }} className="bg-amber-50/50 whitespace-nowrap text-sm font-bold">
+                            <th key={5} style={{ width: 'auto' }} className={cssHeader}>
                                 <span className="px-6 border-r border-t border-gray-50 pl-6 flex py-4 justify-start w-full h-full border-b border-gray-200">
                                     {'Time Consumed'} 
                                 </span>

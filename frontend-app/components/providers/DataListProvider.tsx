@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, useState } from "react";
-import { useSearchParams } from "next/navigation";
+// import { useSearchParams } from "next/navigation";
 import { DataTableCTX, DataTableContextType } from "@/lib/contexts/DataTableCustomContext";
 import { BaseResponse } from "@/lib/types/base";
 import { useFetchData } from "@/lib/hooks/datatable/useFetchData";
@@ -40,8 +40,8 @@ export function DataListProvider<T extends CursorEntity & BaseEntity>({
     getRecordById
 }: DataTableListProviderProps<T> ) {
 
-    const searchParams = useSearchParams();
-    const status = searchParams.get('status') ?? '';
+    // const searchParams = useSearchParams();
+    // const status = searchParams.get('status') ?? '';
 
     const [activeStatus, setActiveStatus] = useState<string>('All');
 
@@ -65,7 +65,8 @@ export function DataListProvider<T extends CursorEntity & BaseEntity>({
         error, 
         fetchData,
         setData,
-        hasMore } = useFetchData<T>({
+        hasMore,
+        setHasMore } = useFetchData<T>({
         fetchFunction: fetchFunction,
         status: activeStatus
     });
@@ -76,7 +77,7 @@ export function DataListProvider<T extends CursorEntity & BaseEntity>({
         pickedId,
         pickRecordById,
         statuses,
-        activeStatus: status,
+        activeStatus: activeStatus,
         isLoading,
         error,
         data,
@@ -86,7 +87,8 @@ export function DataListProvider<T extends CursorEntity & BaseEntity>({
         setData,
         setPickedRecord,
         setActiveStatus: (status: string) => setActiveStatus(status),
-        hasMore
+        hasMore,
+        setHasMore
     };
 
     return (

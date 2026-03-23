@@ -22,7 +22,7 @@ export default function WorkflowListRowItem(
                         <tr
                             id={workflow.id}
                             key={`${workflow.id}-${index}`}
-                            className="bg-white cursor-pointer border-b border-gray-100 text-gray-600 text-left">
+                            className="cursor-pointer hover:bg-green-300/20 transition-all duration-300">
                             {
                                 workflowsColumns.map(
                                     (column: ColumnProps<Workflow>) =>

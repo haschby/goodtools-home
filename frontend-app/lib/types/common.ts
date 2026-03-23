@@ -17,5 +17,6 @@ export type ColumnProps<T> = {
     isLast?: boolean;
     isNumber?: boolean;
     renderItem: (item: T) => ReactNode;
+    canSticky?: boolean;
 }
 

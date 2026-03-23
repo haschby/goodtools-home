@@ -1,33 +1,42 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useMultiSelect } from "@/lib/hooks/form/useMultiSelect";
 import { MultiSelectCTX } from "@/lib/contexts/MultiSelectContext";
+import { bulkUpdateInvoices } from "@/actions/invoice.actions";
 
 interface MultiSelectProviderProps {
     children: React.ReactNode;
-    onSave: (recordIds: string[], status: string) => void;
 }
 
-export function MultiSelectProvider({ children, onSave }: MultiSelectProviderProps) {
+export function MultiSelectProvider(
+    { children }: MultiSelectProviderProps
+) {
     const [isSaving, setIsSaving] = useState(false);
     const multiSelectComponent = useMultiSelect();
+    const multiSelectRef = useRef(multiSelectComponent);
+
+    useEffect(() => {
+        multiSelectRef.current = multiSelectComponent;
+    }, [multiSelectComponent]);
 
     const save = useCallback(
         async (status: string) => {
-        if (!multiSelectComponent.hasSelection) return;
+
+        if (!multiSelectRef.current.hasSelection) return;
 
         setIsSaving(true);
         try {
-            await onSave(Array.from(multiSelectComponent.recordBucket), status);
-            multiSelectComponent.actions.clear();
+            await bulkUpdateInvoices({ ids: Array.from(multiSelectRef.current.recordBucket).filter(id => id !== 'All'), status });
+            // multiSelectComponent.actions.clear();
         } catch (error) {
             console.error('Error saving records:', error);
         } finally {
             setIsSaving(false);
+            multiSelectRef.current.actions.clear();
         }
         
-        }, [onSave]);
+        }, []);
 
     return (
         <MultiSelectCTX.Provider value={{ ...multiSelectComponent, isSaving, save }}>

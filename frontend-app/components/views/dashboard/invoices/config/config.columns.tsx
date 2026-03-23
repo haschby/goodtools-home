@@ -3,13 +3,24 @@
 import { Invoice } from "@/lib/types/invoice";
 import { StatusRow } from '@/components/atoms/listview/RowItems/StatusRow';
 import { ColumnProps } from "@/lib/types/common";
+import { CheckBoxfilter } from "@/components/atoms/form/items/CheckboxFilter";
 
 export const invoicesColumns: ColumnProps<Invoice>[] = [
+    {
+        keyfield: '#',
+        canSticky: true,
+        align: 'left',
+        maxWidth: '200px',
+        isFirst: true,
+        renderItem: (item: Invoice) =>
+            // <span className="p-1 bg-gray-300/20 font-semibold text-gray-500 text-xs rounded-md">
+                <CheckBoxfilter id={item.id}/>
+            // </span>
+    },
     {
         keyfield: 'id',
         align: 'left',
         maxWidth: '0',
-        isFirst: true,
         renderItem: (item: Invoice) =>
             <span className="p-1 bg-gray-300/20 font-semibold text-gray-500 text-xs rounded-md">
                 {item.id.substring(3)}

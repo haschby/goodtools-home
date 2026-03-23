@@ -5,11 +5,7 @@ import { Invoice } from '@/lib/types/invoice';
 import { useDataTable } from '@/lib/contexts/DataTableCustomContext';
 import { invoicesColumns } from '@/components/views/dashboard/invoices/config/config.columns';
 import { ColumnProps } from '@/lib/types/common';
-import { useCallback, useRef, useState } from 'react';
-import Icon from '@/components/atoms/Icon';
-import { CheckStroke } from '@lineiconshq/free-icons';
 import SkeletonListViewItem from '@/components/atoms/listview/SkeletonListViewItem';
-import { useMultiSelectContext } from '@/lib/contexts/MultiSelectContext';
 
 
 export default function InvoiceListRowItem () {
@@ -29,24 +25,15 @@ export default function InvoiceListRowItem () {
                         <tr
                             id={invoice.id}
                             key={`${invoice.id}-${index}`}
-                            className={`bg-white cursor-pointer border-b border-gray-100 text-gray-600 text-left ${isPicked ? '!bg-gray-50' : ''}`}
+                            className={`${isPicked ? 'bg-green-300/50' : 'bg-white'} cursor-pointer hover:bg-green-300/20 transition-all duration-300`}
                             onClick={() => {
                                 if (isPicked) pickRecordById(null);
                                 else pickRecordById(invoice.id);
                             }}>
-                                <RowItem
-                                    canSticky
-                                    key={invoice.id}
-                                    isFirst={true}
-                                    isLast={false}
-                                    maxWidth="150px"
-                                    isNumber={false}
-                                    renderItem={
-                                        <CheckBoxfilter id={invoice.external_id}/>
-                                    } />
                                 { invoicesColumns.map(
                                     (column: ColumnProps<Invoice>) =>
                                         <RowItem
+                                            canSticky={column?.canSticky || false}
                                             key={column.keyfield}
                                             isFirst={column.isFirst}
                                             isLast={column.isLast}
@@ -68,51 +55,4 @@ export default function InvoiceListRowItem () {
         </>
     );
         
-}
-
-const CheckBoxfilter = ({ id }: { id: string }) => {
-    const checkBoxRef = useRef<HTMLInputElement>(null);
-    const selectRef = useRef<HTMLSpanElement>(null);
-    const [isChecked, setIsChecked] = useState(false);
-    const recordIdRef = useRef(id);
-
-    const { actions  } = useMultiSelectContext();
-
-    const handleCheckBoxClick = useCallback((event: React.MouseEvent<HTMLSpanElement>) => {
-        event.preventDefault();
-        event.stopPropagation();
-
-        setIsChecked(!isChecked);
-        console.log('@isChecked', isChecked);
-        if (!isChecked) {
-            actions.addNewRecord(recordIdRef.current);
-        } else {
-            actions.removeRecord(recordIdRef.current);
-        }
-    }, [isChecked, actions]);
-
-    return (
-        <>
-            <input
-                ref={checkBoxRef}
-                type="checkbox"
-                checked={isChecked}
-                hidden
-                readOnly
-                data-id="all-records" />
-            
-            <span
-                ref={selectRef}
-                className={`h-6 w-6 border ${isChecked ? 'border-green-500 bg-green-300/20' : 'border-gray-200'} transition-all duration-300 rounded-md overflow-hidden flex items-center justify-center`}
-                onClick={handleCheckBoxClick}
-                >
-                    <Icon
-                        Icon={CheckStroke}
-                        size={16}
-                        strokeWidth={4}
-                        className={`p-[3px] h-full w-full rounded-md ${isChecked ? 'text-green-500 transform scale-100 transition-transform duration-300' : 'bg-white transform scale-0 transition-transform duration-300'}`} />
-                
-            </span>
-        </>
-    )
 }

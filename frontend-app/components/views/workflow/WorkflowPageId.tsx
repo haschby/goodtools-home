@@ -35,7 +35,7 @@ interface Workflow_Step {
 
 export default function WorkflowPageId() {
 
-    const { provider, id } = useParams();
+    const { id } = useParams();
     const [workflow, setWorkflow] = useState<Workflow|null>(null);
 
     useEffect(() => {
@@ -115,7 +115,9 @@ export default function WorkflowPageId() {
                             workflow?.steps?.map(
                                 (step: Workflow_Step, index: number) => 
                                 (
-                                    <tr key={index} className="bg-white cursor-pointer border-b border-gray-100 text-gray-600 text-left">
+                                    <tr
+                                        key={index}
+                                        className="bg-white">
                                         <RowItem
                                             renderItem={
                                                 <span className="text-sm font-semibold">{`${step.name}`}</span>
@@ -167,24 +169,25 @@ export default function WorkflowPageId() {
 }
 
 const Headers = () => {
+    const cssHeader = "whitespace-nowrap text-sm font-bold bg-gray-100 text-gray-500";
     return (
     <>
-        <th key={0} style={{ width: '350px' }} className="bg-amber-50/50 whitespace-nowrap text-sm font-bold">
+        <th key={0} style={{ width: '350px' }} className={cssHeader}>
             <span className="px-6 border-r border-t border-gray-50 pl-6 flex py-4 justify-start w-full h-full border-b border-gray-200">
                 {'Job Name'} 
             </span>
         </th>
-        <th key={1} style={{ width: '180px' }} className="bg-amber-50/50 whitespace-nowrap text-sm font-bold">
+        <th key={1} style={{ width: '180px' }} className={cssHeader}>
             <span className="px-6 border-r border-t border-gray-50 pl-6 flex py-4 justify-start w-full h-full border-b border-gray-200">
                 {'Job Status'} 
             </span>
         </th>
-        <th key={2} style={{ width: '200px' }} className="bg-amber-50/50 whitespace-nowrap text-sm font-bold">
+        <th key={2} style={{ width: '200px' }} className={cssHeader}>
             <span className="px-6 border-r border-t border-gray-50 pl-6 flex py-4 justify-start w-full h-full border-b border-gray-200">
                 {'Ended At'} 
             </span>
         </th>
-        <th key={3} style={{ width: '300px' }} className="bg-amber-50/50 whitespace-nowrap text-sm font-bold">
+        <th key={3} style={{ width: '300px' }} className={cssHeader}>
             <span className="px-6 border-r border-t border-gray-50 pl-6 flex py-4 justify-start w-full h-full border-b border-gray-200">
                 {'Message'} 
             </span>

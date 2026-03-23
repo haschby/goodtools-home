@@ -25,7 +25,6 @@ import { useMultiSelectContext } from '@/lib/contexts/MultiSelectContext';
 export default function InvoiceListView() {
 
   const {
-    pickedId,
     pickedRecord,
     pickRecordById, 
     fetchData, 
@@ -35,24 +34,24 @@ export default function InvoiceListView() {
     hasMore } = useDataTable<Invoice>();
 
 
-  const [isDetailViewOpen, setIsDetailViewOpen] = useState(false);
+  // const [isDetailViewOpen, setIsDetailViewOpen] = useState(false);
     
-  useEffect(() => {
-    let cancel = false;
+  // useEffect(() => {
+  //   let cancel = false;
     
-    const openLeftPanel = async () => {
-      if (pickedId && !cancel) {
-        setIsDetailViewOpen(true);
-      }
-    };
+  //   const openLeftPanel = async () => {
+  //     if (pickedId && !cancel) {
+  //       setIsDetailViewOpen(true);
+  //     }
+  //   };
 
-    openLeftPanel();
+  //   openLeftPanel();
 
-    return () => { 
-      cancel = true; 
-      setIsDetailViewOpen(false);
-    };
-  }, [pickedId]);
+  //   return () => { 
+  //     cancel = true; 
+  //     setIsDetailViewOpen(false);
+  //   };
+  // }, [pickedId]);
 
   const dataRef = useRef(data);
 
@@ -72,21 +71,15 @@ export default function InvoiceListView() {
           cursor: lastItem.created_at as string,
           id: lastItem.id as string
       });
-    }, [fetchData, isLoading, hasMore] // ✅ stable
-  );
+    },
+    [fetchData, isLoading, hasMore] );
 
-  const handleScrollEndCallback = useCallback((isEndOfList: boolean) => {
+  const handleScrollEndCallback = useCallback(
+    (isEndOfList: boolean) => {
     handleScrollEnd(isEndOfList);
   }, [handleScrollEnd]);
 
-  const rowItems = useMemo(() => <InvoiceListRowItem />, []);
-
-  const handleSave = useCallback(
-    async (recordIds: string[], status: string) => {
-      console.log('@recordIds', recordIds);
-      console.log('@status', status);
-    }, []);
-
+  const RowItems = useMemo(() => <InvoiceListRowItem />, []);
 
   return (
     <>
@@ -99,14 +92,14 @@ export default function InvoiceListView() {
               baseLineText="View detailed invoices records by clicking on the row."
               totalRows={totalRows}
             />
-            <MultiSelectProvider onSave={handleSave}>
+            <MultiSelectProvider>
               <ListView
                 onScrollEnd={handleScrollEndCallback}
                 filters={ <SearchBar /> }
                 actionsList={ <InvoiceDetailViewActions /> }
                 statuses={ <InvoiceListStatusBar /> }
                 headers={ <InvoiceListHeaders /> }
-                data={ rowItems }
+                data={ RowItems }
                 controlTableActions={
                   <div
                     id="footer-loader-container"
@@ -131,7 +124,6 @@ export default function InvoiceListView() {
                   className="group cursor-pointer inline-flex items-center gap-2"
                   onClick={() => {
                     pickRecordById(null);
-                    setIsDetailViewOpen(false);
                   }}>
                     <Icon
                       Icon={ArrowRightCircleSolid}
@@ -152,18 +144,15 @@ export default function InvoiceListView() {
 
 export function InvoiceDetailViewActions () {
 
-  const { save, isSaving, hasSelection, count } = useMultiSelectContext();
+  const { save, hasSelection, count } = useMultiSelectContext();
   const [status, setStatus] = useState<string>('TBD');
 
   const cssClass = hasSelection ? 'opacity-100 translate-y-0 duration-300' : 'opacity-0 translate-y-60 duration-300';
 
   return (
-    <section className={`${cssClass} absolute bottom-20 left-24 right-0 z-[99999] flex justify-start`}>
-      <div className="shadow-2xl bg-black p-2 rounded-md border border-gray-200 flex flex-col items-start gap-2 w-[300px] py-2 px-4 text-white">
-        <div className="flex flex-row gap-2 items-center justify-start">
-          <span className="font-bold bg-green-300/20 text-green-500 px-1 rounded-md">{count}</span> records selected
-        </div>
-        <div className="relative flex flex-row gap-4 justify-between w-full">
+    <section className={`${cssClass} absolute bottom-20 left-24 right-24 z-[99999] flex justify-start`}>
+      <div className="w-full shadow-2xl bg-gray-50 rounded-md border border-gray-200 flex flex-row items-start gap-2 w-[300px] p-4 text-black">
+        <div className="relative flex flex-row gap-4 justify-between text-gray-900">
           <Select
             isEditable={true}
             label=""
@@ -177,8 +166,16 @@ export function InvoiceDetailViewActions () {
                 className: `text-right rounded-md focus:outline-none transition-all p-2 bg-white border border-gray-200 w-full text-gray-900 text-sm`
             }}
             name="status" />
-            <button disabled={!hasSelection} className="cursor-pointer font-bold bg-green-300/20 text-green-500 px-4 py-1 rounded-md">save</button>
+            
         </div>   
+        <div className="flex gap-2 items-center justify-start">
+          <span className="font-bold bg-green-300/20 text-green-500 px-1 rounded-md">{count}</span> records selected
+          <button
+            onClick={() => save(status)}
+            className="cursor-pointer font-bold bg-green-300/20 text-green-500 px-4 py-1 rounded-md">
+              save
+          </button>
+        </div>
       </div>
     </section>
   )

@@ -66,3 +66,20 @@ export async function patchInvoice(invoice: Invoice): Promise<BaseResponse<Invoi
     });
     return response;
 }
+
+interface InvoiceBulkUpdateSchema {
+    ids: string[];
+    status: string;
+}
+
+export async function bulkUpdateInvoices(payload: InvoiceBulkUpdateSchema): Promise<BaseResponse<Invoice[]>> {
+    console.log('@payload : ', payload);
+    const api_url = `/client/invoice/bulk/update/${payload.status}`;
+    const response: BaseResponse<Invoice[]> = await gatewayService(api_url, {
+        method: "PATCH",
+        cache: 'no-store',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload.ids)
+    });
+    return response;
+}

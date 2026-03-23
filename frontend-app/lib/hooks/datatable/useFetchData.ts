@@ -30,6 +30,7 @@ interface UseFetchDataResponse<MODEL> {
     fetchData: (params?: FetchDataInputParams) => Promise<void>;
     setData: (data: MODEL[]) => void;
     hasMore: boolean;
+    setHasMore: (hasMore: boolean) => void;
 }
 
 export function useFetchData<MODEL>(
@@ -41,14 +42,13 @@ export function useFetchData<MODEL>(
     const [data, setData] = useState<MODEL[]>([]);
     const [hasMore, setHasMore] = useState<boolean>(true);
 
-    // ✅ Stabilise fetchFunction sans la mettre dans les deps
     const fetchFunctionRef = useRef(fetchFunction);
+    const statusRef = useRef(status);
+
     useEffect(() => {
         fetchFunctionRef.current = fetchFunction;
     }, [fetchFunction]);
 
-    // ✅ Stabilise status sans le mettre dans les deps de fetchData
-    const statusRef = useRef(status);
     useEffect(() => {
         statusRef.current = status;
     }, [status]);
@@ -78,15 +78,15 @@ export function useFetchData<MODEL>(
             } finally {
                 setIsLoading(false);
             }
-        }, [] // ✅ aucune dep — fetchData ne change plus jamais
+        }, []
     );
 
     useEffect(() => {
         if (!status) return;
-        setData([]);
+        // setData([]);
         setHasMore(true);
         fetchData();
-    }, [status]); // ✅ uniquement status
+    }, [status]);
 
     return {
         isLoading,
@@ -94,6 +94,9 @@ export function useFetchData<MODEL>(
         data,
         fetchData,
         hasMore,
-        setData
+        setData,
+        setHasMore: (bool: boolean) => {
+            console.log('@setHasMore : ', bool);
+        }
     }
 }
