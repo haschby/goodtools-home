@@ -160,14 +160,11 @@ def invoice_routes() -> APIRouter:
         )
         
     ):
-        print('@ids : ', ids)
-        print('@status : ', status)
         invoices = []
         for id in ids:
             invoices.append(
                 await useCase.execute(
                     InvoiceUpdateSchema(id=id, status=status)))
-        print('@invoices : ', invoices)
         
         
         if status == EnumInvoiceStatus.VALIDATED.value:
@@ -179,16 +176,6 @@ def invoice_routes() -> APIRouter:
                 )
                 background_tasks.add_task(orchestrator.startWorkflow, command)
         
-        
-        
-        # if status == EnumInvoiceStatus.VALIDATED.value:
-        #     for id in ids:
-        #     command = SyncUpdateInvoiceToPennylaneCommand(
-        #         workflow_id='INTERNAL',
-        #         workflow_name="updateInvoiceToPennylaneWorkflow",
-        #         invoice_id=ids
-        #     )
-        #     background_tasks.add_task(orchestrator.startWorkflow, command)
         return BaseResponseSchema.response(
             message="Invoice bulk updated",
             status_code=201,
