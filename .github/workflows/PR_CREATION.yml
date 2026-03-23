@@ -1,0 +1,69 @@
+name: Create PR to develop from tag
+ 
+on:
+  push:
+    tags:
+      - 'backend/**'
+      - 'frontend/**'
+ 
+jobs:
+  create-pull-request:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+ 
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+ 
+      - name: Extract branch name from tag
+        id: extract
+        run: |
+          TAG="${{ github.ref_name }}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+ 
+          # Extraire le type (backend ou frontend) et l'identifiant
+          TYPE=$(echo "$TAG" | cut -d'/' -f1)
+          FEATURE=$(echo "$TAG" | cut -d'/' -f2)
+ 
+          echo "type=$TYPE" >> $GITHUB_OUTPUT
+          echo "feature=$FEATURE" >> $GITHUB_OUTPUT
+ 
+          # Vérifier que la branche source existe
+          if git ls-remote --heads origin "$TAG" | grep -q "$TAG"; then
+            echo "branch_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "branch_exists=false" >> $GITHUB_OUTPUT
+          fi
+ 
+      - name: Fail if source branch does not exist
+        if: steps.extract.outputs.branch_exists == 'false'
+        run: |
+          echo "❌ La branche '${{ steps.extract.outputs.tag }}' n'existe pas."
+          exit 1
+ 
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: develop
+          head: ${{ steps.extract.outputs.tag }}
+          title: "[${{ steps.extract.outputs.type }}] Merge ${{ steps.extract.outputs.feature }} → develop"
+          body: |
+            ## 📦 PR générée automatiquement
+ 
+            | Champ        | Valeur |
+            |--------------|--------|
+            | **Type**     | `${{ steps.extract.outputs.type }}` |
+            | **Feature**  | `${{ steps.extract.outputs.feature }}` |
+            | **Tag**      | `${{ steps.extract.outputs.tag }}` |
+            | **Cible**    | `develop` |
+ 
+            > Cette PR a été créée automatiquement suite au push du tag `${{ steps.extract.outputs.tag }}`.
+          labels: |
+            ${{ steps.extract.outputs.type }}
+            auto-pr
+          draft: false
