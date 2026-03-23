@@ -17,7 +17,11 @@ export default function MainSideBar() {
             {/* <LogoGoodTools /> OODTOOLS */}
             
             Goodtools
-            <Icon Icon={BeatStroke} size={24} strokeWidth={2} className="relative -left-1 -top-1 text-green-500 inline-block" />
+            <Icon
+                Icon={BeatStroke}
+                size={24}
+                strokeWidth={2}
+                className="relative -left-1 -top-1 text-green-500 inline-block" />
             
         </h1>
         <nav className="w-full h-full text-sm pt-4">

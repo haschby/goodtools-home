@@ -1,0 +1,52 @@
+name: Create PR to develop from tag
+
+on:
+  push:
+    branches:
+      - 'backend/**'
+      - 'frontend/**'
+
+jobs:
+  create-pull-request:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract info from branch
+        id: extract
+        run: |
+          BRANCH="${{ github.ref_name }}"
+          TYPE=$(echo "$BRANCH" | cut -d'/' -f1)
+          FEATURE=$(echo "$BRANCH" | cut -d'/' -f2)
+
+          echo "branch=$BRANCH"   >> $GITHUB_OUTPUT
+          echo "type=$TYPE"       >> $GITHUB_OUTPUT
+          echo "feature=$FEATURE" >> $GITHUB_OUTPUT
+
+      - name: Create Pull Request via gh CLI
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create \
+            --base develop \
+            --head "${{ steps.extract.outputs.branch }}" \
+            --title "[${{ steps.extract.outputs.type }}] Merge ${{ steps.extract.outputs.feature }} → develop" \
+            --body "## 📦 PR générée automatiquement
+
+          | Champ       | Valeur |
+          |-------------|--------|
+          | **Type**    | \`${{ steps.extract.outputs.type }}\` |
+          | **Feature** | \`${{ steps.extract.outputs.feature }}\` |
+          | **Branche** | \`${{ steps.extract.outputs.branch }}\` |
+          | **Cible**   | \`develop\` |
+
+          > Cette PR a été créée automatiquement depuis la branche \`${{ steps.extract.outputs.branch }}\`." \
+            --label "${{ steps.extract.outputs.type }}" \
+            --label "auto-pr"
