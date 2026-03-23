@@ -18,4 +18,4 @@ COPY . $APP_HOME
 
 EXPOSE $PORT
 
-CMD ["/app/.venv/bin/uvicorn", "main:app", "--port", "3004", "--host", "0.0.0.0"]
+CMD ["/app/.venv/bin/uvicorn", "main:app", "--port", "3333", "--host", "0.0.0.0"]

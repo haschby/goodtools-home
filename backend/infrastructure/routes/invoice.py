@@ -1,5 +1,5 @@
 from dependency_injector.wiring import inject, Provide
-from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks, Body
 from typing import Optional
 
 from application.containers.appContainer import AppContainer
@@ -13,7 +13,8 @@ from application.dtos.baseDto import BaseResponseSchema
 from application.dtos.invoiceDto import ( 
     InvoiceResponseSchema, 
     InvoiceCreateSchema, 
-    InvoiceUpdateSchema
+    InvoiceUpdateSchema,
+    InvoiceBulkUpdateSchema
 )
 
 INVOICES_STATUS_DICT = {
@@ -88,7 +89,7 @@ def invoice_routes() -> APIRouter:
         return await useCase.execute([new_invoice])
     
     @router.get(
-    '/{id}',
+    '/{id:str}',
     response_model=BaseResponseSchema[InvoiceResponseSchema],
     status_code=201)
     @inject
@@ -101,7 +102,7 @@ def invoice_routes() -> APIRouter:
         return await useCase.execute(id)
     
     @router.patch(
-    '/{id}',
+    '/{id:str}',
     response_model=BaseResponseSchema[InvoiceResponseSchema],
     status_code=201)
     @inject
@@ -141,5 +142,57 @@ def invoice_routes() -> APIRouter:
     ):
         return await useCase.execute(q)
     
+
+    @router.patch(
+    '/bulk/update/{status:str}',
+    response_model=BaseResponseSchema[InvoiceResponseSchema],
+    status_code=201)
+    @inject
+    async def bulk(
+        status: str,
+        ids: list[str],
+        background_tasks: BackgroundTasks,
+        useCase: BaseUsecase = Depends(
+            Provide[AppContainer.invoice_container.updateInvoiceUsecase]
+        ),
+        orchestrator: WorkflowLauncher = Depends(
+            Provide[AppContainer.orchestrator_container.localWorkflowLauncher]
+        )
+        
+    ):
+        print('@ids : ', ids)
+        print('@status : ', status)
+        invoices = []
+        for id in ids:
+            invoices.append(
+                await useCase.execute(
+                    InvoiceUpdateSchema(id=id, status=status)))
+        print('@invoices : ', invoices)
+        
+        
+        if status == EnumInvoiceStatus.VALIDATED.value:
+            for invoice in invoices:
+                command = SyncUpdateInvoiceToPennylaneCommand(
+                    workflow_id='INTERNAL',
+                    workflow_name="updateInvoiceToPennylaneWorkflow",
+                    invoice_id=invoice.get('data').id
+                )
+                background_tasks.add_task(orchestrator.startWorkflow, command)
+        
+        
+        
+        # if status == EnumInvoiceStatus.VALIDATED.value:
+        #     for id in ids:
+        #     command = SyncUpdateInvoiceToPennylaneCommand(
+        #         workflow_id='INTERNAL',
+        #         workflow_name="updateInvoiceToPennylaneWorkflow",
+        #         invoice_id=ids
+        #     )
+        #     background_tasks.add_task(orchestrator.startWorkflow, command)
+        return BaseResponseSchema.response(
+            message="Invoice bulk updated",
+            status_code=201,
+            data=[]
+        )
     
     return router

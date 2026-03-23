@@ -66,3 +66,11 @@ class InvoiceResponseSchema(BaseInvoiceSchema):
         
     class Config:
         from_attributes = True
+        
+
+class InvoiceBulkUpdateSchema(BaseInvoiceSchema):
+    ids: list[str]
+    status: str
+    
+    class Config:
+        from_attributes = True
