@@ -116,7 +116,7 @@ def invoice_routes() -> APIRouter:
         orchestrator: WorkflowLauncher = Depends(
             Provide[AppContainer.orchestrator_container.localWorkflowLauncher]
         )
-    ):
+    ):      
         updated_invoice = await useCase.execute(update_invoice)
         if updated_invoice['data'].status == EnumInvoiceStatus.VALIDATED.value:
             command = SyncUpdateInvoiceToPennylaneCommand(
