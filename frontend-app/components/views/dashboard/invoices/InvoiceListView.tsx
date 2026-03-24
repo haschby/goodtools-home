@@ -137,11 +137,15 @@ export function InvoiceDetailViewActions () {
   const { save, hasSelection, count } = useMultiSelectContext();
   const [status, setStatus] = useState<string>('TBD');
 
-  const cssClass = hasSelection ? 'opacity-100 translate-y-0 duration-300' : 'opacity-0 translate-y-60 duration-300';
+  const cssClass = hasSelection ? 'opacity-100 translate-y-0 duration-600' : 'opacity-0 translate-y-60 duration-100';
 
   return (
-    <section className={`${cssClass} absolute bottom-20 left-24 right-24 z-[99999] flex justify-start`}>
-      <div className="w-full shadow-2xl bg-gray-50 rounded-md border border-gray-200 flex flex-row items-start gap-2 w-[300px] p-4 text-black">
+    <section className={`${cssClass} absolute bottom-20 left-24 right-4 z-[99999] flex justify-start`}>
+      <div className="w-full shadow-2xl bg-gray-50 rounded-md border border-gray-200 flex flex-row items-center gap-2 w-[300px] p-4 text-black">
+        <p className={`flex items-center gap-2 text-xl font-bold text-green-500 px-2 rounded-md ${count === 0 ? 'bg-orange-300/20 text-orange-500' : 'bg-green-300/20 text-green-500'}`}>
+          {count}
+          <span className="text-xs">{count === 0 ? 'Any records available to process' : 'records selected to process'}</span>
+        </p> 
         <div className="relative flex flex-row gap-4 justify-between text-gray-900">
           <Select
             isEditable={count > 0}
@@ -153,19 +157,16 @@ export function InvoiceDetailViewActions () {
                 },
                 name: 'status',
                 value:  status,
-                className: `${count > 0 ? '' : 'opacity-9'} rounded-md focus:outline-none transition-all p-2 bg-white border border-gray-200 w-full text-gray-900 text-sm`
+                className: `${count > 0 ? '' : 'opacity-30 !cursor-not-allowed'} rounded-md focus:outline-none transition-all p-2 bg-white border border-gray-200 w-full text-gray-900 text-sm`
             }}
             name="status" />
             
         </div>   
         <div className="flex gap-2 items-center justify-start">
-          <p className={`font-bold text-green-500 px-1 rounded-md ${count === 0 ? 'bg-orange-300/20 text-orange-500' : 'bg-green-300/20 text-green-500'}`}>
-          {count}
-          <span className="text-xs">{count === 0 ? 'Any records is available to be processed' : 'record selected to be processed'}</span>
-          </p> 
           <button
+            disabled={count === 0}
             onClick={() => save(status)}
-            className="cursor-pointer font-bold bg-green-300/20 text-green-500 px-4 py-1 rounded-md">
+            className={`font-bold bg-green-300/20 text-green-500 px-4 py-1 rounded-md ${count === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
               save
           </button>
         </div>
