@@ -8,7 +8,7 @@ import { CheckStroke, Spinner3Bulk } from "@lineiconshq/free-icons";
 import { useDataTable } from "@/lib/contexts/DataTableCustomContext";
 import { Invoice } from "@/lib/types/invoice";
 
-export function CheckBoxfilter ({ id }: { id: string }) {
+export function CheckBoxfilter ({ id, disabled = false }: { id: string, disabled?: boolean }) {
 
     const { actions, recordBucket, isSaving } = useMultiSelectContext();
     const { data } = useDataTable<Invoice>();
@@ -31,7 +31,8 @@ export function CheckBoxfilter ({ id }: { id: string }) {
             } else {
                 // Cocher toutes les lignes + 'All'
                 actions.addNewRecord('All');
-                (data as Invoice[]).forEach(
+                const filteredData = (data as Invoice[]).filter(d => d.gc_booking);
+                filteredData.forEach(
                     d => actions.addNewRecord(d.id));
             }
             return;
@@ -43,6 +44,13 @@ export function CheckBoxfilter ({ id }: { id: string }) {
             actions.removeRecord(id);
         }
     }, [id, isChecked, actions, data]);
+
+    if (disabled) {
+        return (
+            <span className="p-1 bg-gray-300/20 font-semibold text-gray-500 text-xs rounded-md">
+            </span>
+        )
+    }
 
     return (
         <label className="cursor-pointer w-full h-full flex items-center justify-center" onClick={handleCheckBoxClick}>

@@ -13,8 +13,11 @@ export const invoicesColumns: ColumnProps<Invoice>[] = [
         maxWidth: '200px',
         isFirst: true,
         renderItem: (item: Invoice) =>
+            <CheckBoxfilter
+            id={item.id}
+            disabled={!item.gc_booking} />
             // <span className="p-1 bg-gray-300/20 font-semibold text-gray-500 text-xs rounded-md">
-                <CheckBoxfilter id={item.id}/>
+                
             // </span>
     },
     {

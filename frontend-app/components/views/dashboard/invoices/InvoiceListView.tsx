@@ -31,29 +31,18 @@ export default function InvoiceListView() {
     data, 
     isLoading, 
     totalRows,
-    hasMore } = useDataTable<Invoice>();
-
-
-  // const [isDetailViewOpen, setIsDetailViewOpen] = useState(false);
-    
-  // useEffect(() => {
-  //   let cancel = false;
-    
-  //   const openLeftPanel = async () => {
-  //     if (pickedId && !cancel) {
-  //       setIsDetailViewOpen(true);
-  //     }
-  //   };
-
-  //   openLeftPanel();
-
-  //   return () => { 
-  //     cancel = true; 
-  //     setIsDetailViewOpen(false);
-  //   };
-  // }, [pickedId]);
+    hasMore,
+    activeStatus } = useDataTable<Invoice>();
 
   const dataRef = useRef(data);
+  const refStatus = useRef(activeStatus);
+
+  const statusResetCallback = useCallback(() => {
+    if (refStatus.current !== activeStatus) {
+      return true;
+    }
+    return false;
+  }, [activeStatus]);
 
   useEffect(() => {
       dataRef.current = data;
@@ -92,7 +81,8 @@ export default function InvoiceListView() {
               baseLineText="View detailed invoices records by clicking on the row."
               totalRows={totalRows}
             />
-            <MultiSelectProvider>
+
+            <MultiSelectProvider reset={statusResetCallback}>
               <ListView
                 onScrollEnd={handleScrollEndCallback}
                 filters={ <SearchBar /> }
@@ -147,14 +137,18 @@ export function InvoiceDetailViewActions () {
   const { save, hasSelection, count } = useMultiSelectContext();
   const [status, setStatus] = useState<string>('TBD');
 
-  const cssClass = hasSelection ? 'opacity-100 translate-y-0 duration-300' : 'opacity-0 translate-y-60 duration-300';
+  const cssClass = hasSelection ? 'opacity-100 translate-y-0 duration-600' : 'opacity-0 translate-y-60 duration-100';
 
   return (
-    <section className={`${cssClass} absolute bottom-20 left-24 right-24 z-[99999] flex justify-start`}>
-      <div className="w-full shadow-2xl bg-gray-50 rounded-md border border-gray-200 flex flex-row items-start gap-2 w-[300px] p-4 text-black">
+    <section className={`${cssClass} absolute bottom-20 left-24 right-4 z-[99999] flex justify-start`}>
+      <div className="w-full shadow-2xl bg-gray-50 rounded-md border border-gray-200 flex flex-row items-center gap-2 w-[300px] p-4 text-black">
+        <p className={`flex items-center gap-2 text-xl font-bold text-green-500 px-2 rounded-md ${count === 0 ? 'bg-orange-300/20 text-orange-500' : 'bg-green-300/20 text-green-500'}`}>
+          {count}
+          <span className="text-xs">{count === 0 ? 'Any records available to process' : 'records selected to process'}</span>
+        </p> 
         <div className="relative flex flex-row gap-4 justify-between text-gray-900">
           <Select
-            isEditable={true}
+            isEditable={count > 0}
             label=""
             options={statuses}
             register={{
@@ -163,16 +157,16 @@ export function InvoiceDetailViewActions () {
                 },
                 name: 'status',
                 value:  status,
-                className: `text-right rounded-md focus:outline-none transition-all p-2 bg-white border border-gray-200 w-full text-gray-900 text-sm`
+                className: `${count > 0 ? '' : 'opacity-30 !cursor-not-allowed'} rounded-md focus:outline-none transition-all p-2 bg-white border border-gray-200 w-full text-gray-900 text-sm`
             }}
             name="status" />
             
         </div>   
         <div className="flex gap-2 items-center justify-start">
-          <span className="font-bold bg-green-300/20 text-green-500 px-1 rounded-md">{count}</span> records selected
           <button
+            disabled={count === 0}
             onClick={() => save(status)}
-            className="cursor-pointer font-bold bg-green-300/20 text-green-500 px-4 py-1 rounded-md">
+            className={`font-bold bg-green-300/20 text-green-500 px-4 py-1 rounded-md ${count === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
               save
           </button>
         </div>

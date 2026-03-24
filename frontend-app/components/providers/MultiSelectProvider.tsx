@@ -7,10 +7,11 @@ import { bulkUpdateInvoices } from "@/actions/invoice.actions";
 
 interface MultiSelectProviderProps {
     children: React.ReactNode;
+    reset: () => boolean;
 }
 
 export function MultiSelectProvider(
-    { children }: MultiSelectProviderProps
+    { children, reset }: MultiSelectProviderProps
 ) {
     const [isSaving, setIsSaving] = useState(false);
     const multiSelectComponent = useMultiSelect();
@@ -19,6 +20,12 @@ export function MultiSelectProvider(
     useEffect(() => {
         multiSelectRef.current = multiSelectComponent;
     }, [multiSelectComponent]);
+
+    useEffect(() => {
+        if (reset()) {
+            multiSelectRef.current.actions.clear();
+        }
+    }, [reset]);
 
     const save = useCallback(
         async (status: string) => {
