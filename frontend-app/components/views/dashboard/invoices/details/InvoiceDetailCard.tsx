@@ -177,6 +177,7 @@ export default function InvoiceDetailCard() {
 
                                 setPickedRecord(
                                     { ...pickedRecord, 
+                                        status: pickedRecord?.status === 'TBD' ? 'A Traiter' : pickedRecord?.status,
                                         gc_booking: `GC-${e.target.value}` } as Invoice)
                             }}
                             className={`text-right rounded-md focus:outline-none transition-all duration-300 p-2 ${isEditing && 'active:bg-white active:p-2 border border-gray-200' || 'border border-gray-50 bg-gray-100 text-gray-500'} w-full text-gray-900 text-sm`}

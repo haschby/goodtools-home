@@ -31,29 +31,17 @@ export default function InvoiceListView() {
     data, 
     isLoading, 
     totalRows,
-    hasMore } = useDataTable<Invoice>();
-
-
-  // const [isDetailViewOpen, setIsDetailViewOpen] = useState(false);
-    
-  // useEffect(() => {
-  //   let cancel = false;
-    
-  //   const openLeftPanel = async () => {
-  //     if (pickedId && !cancel) {
-  //       setIsDetailViewOpen(true);
-  //     }
-  //   };
-
-  //   openLeftPanel();
-
-  //   return () => { 
-  //     cancel = true; 
-  //     setIsDetailViewOpen(false);
-  //   };
-  // }, [pickedId]);
+    hasMore,
+    activeStatus } = useDataTable<Invoice>();
 
   const dataRef = useRef(data);
+  const refStatus = useRef(activeStatus);
+
+  const statusResetCallback = useCallback(() => {
+    if (refStatus.current !== activeStatus) {
+      return true;
+    }
+  }, [activeStatus]);
 
   useEffect(() => {
       dataRef.current = data;
@@ -92,7 +80,8 @@ export default function InvoiceListView() {
               baseLineText="View detailed invoices records by clicking on the row."
               totalRows={totalRows}
             />
-            <MultiSelectProvider>
+
+            <MultiSelectProvider reset={statusResetCallback}>
               <ListView
                 onScrollEnd={handleScrollEndCallback}
                 filters={ <SearchBar /> }
@@ -154,7 +143,7 @@ export function InvoiceDetailViewActions () {
       <div className="w-full shadow-2xl bg-gray-50 rounded-md border border-gray-200 flex flex-row items-start gap-2 w-[300px] p-4 text-black">
         <div className="relative flex flex-row gap-4 justify-between text-gray-900">
           <Select
-            isEditable={true}
+            isEditable={count > 0}
             label=""
             options={statuses}
             register={{
@@ -163,13 +152,16 @@ export function InvoiceDetailViewActions () {
                 },
                 name: 'status',
                 value:  status,
-                className: `text-right rounded-md focus:outline-none transition-all p-2 bg-white border border-gray-200 w-full text-gray-900 text-sm`
+                className: `${count > 0 ? '' : 'opacity-9'} rounded-md focus:outline-none transition-all p-2 bg-white border border-gray-200 w-full text-gray-900 text-sm`
             }}
             name="status" />
             
         </div>   
         <div className="flex gap-2 items-center justify-start">
-          <span className="font-bold bg-green-300/20 text-green-500 px-1 rounded-md">{count}</span> records selected
+          <p className={`font-bold text-green-500 px-1 rounded-md ${count === 0 ? 'bg-orange-300/20 text-orange-500' : 'bg-green-300/20 text-green-500'}`}>
+          {count}
+          <span className="text-xs">{count === 0 ? 'Any records is available to be processed' : 'record selected to be processed'}</span>
+          </p> 
           <button
             onClick={() => save(status)}
             className="cursor-pointer font-bold bg-green-300/20 text-green-500 px-4 py-1 rounded-md">
