@@ -41,6 +41,7 @@ export default function InvoiceListView() {
     if (refStatus.current !== activeStatus) {
       return true;
     }
+    return false;
   }, [activeStatus]);
 
   useEffect(() => {
