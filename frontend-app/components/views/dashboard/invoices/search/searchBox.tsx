@@ -2,7 +2,7 @@
 
 import { useRef, useCallback } from "react";
 import Icon from "@/components/atoms/Icon";
-import { Database2Outlined } from "@lineiconshq/free-icons";
+import { Database2Outlined, Database2Stroke } from "@lineiconshq/free-icons";
 import { useQueryClient } from "@/lib/contexts/QueryClientContext";
 
 export function SearchBox() {
@@ -29,21 +29,21 @@ export function SearchBox() {
         <>
             <label
                 htmlFor="search-box"
-                className={`border-r border-white bg-white w-full text-md z-[99999] flex items-center`}>
-                <span className="pl-7 py-4">
+                className={`w-full text-md flex items-center h-full text-gray-800`}>
+                <span className="flex items-center justify-center p-4 bg-gray-200 rounded-l-md">
                     <Icon
-                        Icon={Database2Outlined}
-                        size={24}
+                        Icon={Database2Stroke}
+                        size={22}
                         strokeWidth={2}
-                        className="text-green-500" />
+                        className="text-gray-600" />
                 </span>
                 <input
                     name="provider"
                     id="search-box"
                     type="search"
                     onChange={handleChange}
-                    placeholder="Search for invoices"
-                    className="text-gray-500 placeholder:text-sm text-xl focus:outline-none active:outline-none w-full border-none px-7 py-4"
+                    placeholder="Search for invoices..."
+                    className="font-semibold border-l-0 border border-gray-200 rounded-r-md px-7 h-full bg-white placeholder:text-sm placeholder:text-gray-400 text-xl focus:outline-none active:outline-none w-full"
                 />
             </label>
         </>

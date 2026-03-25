@@ -3,7 +3,7 @@
 import { Workflow } from "@/lib/types/workflow";
 import { RowItem } from "@/components/atoms/listview/RowItems/Row";
 import { ColumnProps } from "@/lib/types/common";
-import { workflowsColumns } from "@/components/views/workflow/config/config.columns";
+import { workflowsColumns } from "@/components/views/dashboard/workflow/config/config.columns";
 
 interface WorkflowListRowItemProps {
     data: Workflow[];

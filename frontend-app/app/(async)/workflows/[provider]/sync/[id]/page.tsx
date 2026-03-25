@@ -1,6 +1,6 @@
 "use server";
 
-import WorkflowPageId from "@/components/views/workflow/WorkflowPageId";
+import WorkflowPageId from "@/components/views/dashboard/workflow/WorkflowPageId";
 
 export default async function SyncPageId() {
     return (

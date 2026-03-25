@@ -1,6 +1,6 @@
 "use server";
 
-import WorkflowList from "@/components/views/workflow/WorkflowList";
+import WorkflowList from "@/components/views/dashboard/workflow/WorkflowList";
 
 export default async function WorkflowPage() {
     return (

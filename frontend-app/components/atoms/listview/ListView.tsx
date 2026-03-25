@@ -23,66 +23,69 @@ export function ListView({
 }: ListViewProps) {
 
   const listviewContainerRef = useRef<HTMLDivElement>(null);
-  const savedScrollTopRef = useRef<number>(0);
   const [heightModulePixels, setHeightModulePixels] = useState<string>('');
-  const onScrollEndRef = useRef(onScrollEnd);
 
   // ✅ Toujours à jour
   useEffect(() => {
-    onScrollEndRef.current = onScrollEnd;
-  }, [onScrollEnd]);
 
-  const handleResize = useCallback(() => {
-    requestAnimationFrame(() => {
-      const container = listviewContainerRef.current;
-      if (!container) return;
-      container.style.height = 'auto';
-      requestAnimationFrame(() => {
-        const { top } = container.getBoundingClientRect();
-        const availableHeight = window.innerHeight - top - 57 - 12 + 15;
-        container.style.height = `${Math.max(availableHeight, 200)}px`;
-        setHeightModulePixels(`${Math.max(availableHeight, 200)}`);
-      });
-    });
+    const windowHeight = window.innerHeight;
+    const top = listviewContainerRef.current?.getBoundingClientRect().top;
+    const availableHeight = windowHeight - (top || 0) - 57 - 12 + 15;
+    setHeightModulePixels(`${Math.max(availableHeight, 0)}`);
+    
   }, []);
 
-  const scrollToBottom = useCallback((e: Event) => {
-    const container = e.target as HTMLDivElement;
-    const { scrollTop, scrollHeight, clientHeight } = container;
-    const pourcentage = Math.round((scrollTop / (scrollHeight - clientHeight)) * 100);
+  // const handleResize = useCallback(() => {
+  //   requestAnimationFrame(() => {
+  //     const container = listviewContainerRef.current;
+  //     if (!container) return;
+  //     container.style.height = 'auto';
+  //     requestAnimationFrame(() => {
+  //       const { top } = container.getBoundingClientRect();
+  //       const availableHeight = window.innerHeight - top - 57 - 12 + 15;
+  //       container.style.height = `${Math.max(availableHeight, 0)}px`;
+  //       setHeightModulePixels(`${Math.max(availableHeight, 0)}`);
+  //     });
+  //   });
+  // }, []);
 
-    if (pourcentage === 100) {
-      savedScrollTopRef.current = scrollTop; // ✅ sauvegarde
+  // const scrollToBottom = useCallback((e: Event) => {
+  //   const container = e.target as HTMLDivElement;
+  //   const { scrollTop, scrollHeight, clientHeight } = container;
+  //   const pourcentage = Math.round((scrollTop / (scrollHeight - clientHeight)) * 100);
 
-      const tbody = container.querySelector('tbody');
-      if (!tbody) return;
+  //   if (pourcentage === 100) {
+  //     savedScrollTopRef.current = scrollTop; // ✅ sauvegarde
 
-      const observer = new MutationObserver(() => {
-        const newScrollHeight = container.scrollHeight;
-        if (newScrollHeight <= scrollHeight) return; // attend que les nouvelles lignes soient là
+  //     const tbody = container.querySelector('tbody');
+  //     if (!tbody) return;
 
-        container.scrollTop = savedScrollTopRef.current; // ✅ restaure
-        observer.disconnect();
-      });
+  //     const observer = new MutationObserver(() => {
+  //       const newScrollHeight = container.scrollHeight;
+  //       if (newScrollHeight <= scrollHeight) return; // attend que les nouvelles lignes soient là
 
-      observer.observe(tbody, { childList: true, subtree: true });
-      onScrollEndRef.current(true); // ✅ appelé une seule fois
-    }
-  }, []);
+  //       container.scrollTop = savedScrollTopRef.current; // ✅ restaure
+  //       observer.disconnect();
+  //     });
 
-  useEffect(() => {
-    const container = listviewContainerRef.current;
-    if (!container) return;
+  //     observer.observe(tbody, { childList: true, subtree: true });
+  //     onScrollEndRef.current(true); // ✅ appelé une seule fois
+  //   }
+  // }, []);
 
-    handleResize();
-    container.addEventListener('scroll', scrollToBottom);
-    window.addEventListener('resize', handleResize, { passive: true });
+  // useEffect(() => {
+  //   const container = listviewContainerRef.current;
+  //   if (!container) return;
 
-    return () => {
-      container.removeEventListener('scroll', scrollToBottom);
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
+  //   // handleResize();
+  //   container.addEventListener('scroll', scrollToBottom);
+  //   // window.addEventListener('resize', handleResize, { passive: true });
+
+  //   return () => {
+  //     container.removeEventListener('scroll', scrollToBottom);
+  //     // window.removeEventListener('resize', handleResize);
+  //   };
+  // }, []);
 
   return (
     <>
@@ -92,8 +95,8 @@ export function ListView({
       <div
         id="listview-container"
         ref={listviewContainerRef}
-        style={{ height: `${heightModulePixels}px` }}
-        className="relative w-full bg-white overflow-x-scroll overflow-y-scroll overflow-hidden border-b border-gray-200">
+        style={{ height: `${parseInt(heightModulePixels)-50}px` }}
+        className="relative w-full bg-white overflow-x-scroll overflow-y-scroll overflow-hidden border-t border-r border-l border-b border-gray-200 rounded-xl">
         <table className="table-fixed border-collapse w-full">
           <thead className="w-full sticky top-0 left-0 right-0 z-50">
             <tr className="bg-white">
@@ -104,8 +107,8 @@ export function ListView({
             {data}
           </tbody>
         </table>
+        { !!actionsList && <>{actionsList}</> }
       </div>
-      { !!actionsList && <>{actionsList}</> }
       { !!controlTableActions && <>{controlTableActions}</> }
     </>
   );

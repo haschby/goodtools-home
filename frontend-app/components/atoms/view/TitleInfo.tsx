@@ -23,7 +23,7 @@ export default function TitleInfo(
     }
 
     return (
-        <div className="p-6 flex flex-col w-full">
+        <div className="flex flex-col w-full mt-6 mb-12">
             <h1 className="flex items-center text-2xl font-semibold text-gray-800 gap-4">
                 { title }
                 { printTotalRows() }

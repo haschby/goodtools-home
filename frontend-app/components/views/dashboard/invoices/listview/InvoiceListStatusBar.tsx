@@ -24,7 +24,7 @@ export default function InvoiceStatusBar() {
             after:left-0 after:content-[""] after:flex after:w-full after:h-1.5 after:bg-green-500
             bg-green-300/20 !text-black rounded-t-md`;
        
-        return 'border-b-2 border-transparent';
+        return 'border-transparent';
     }
 
     const scrollToStatus = useCallback(
@@ -57,7 +57,7 @@ export default function InvoiceStatusBar() {
         <ul
             ref={containerRef}
             role="tablist"
-            className={`${pickedRecord ? '' : 'pl-6'} relative flex flex-row overflow-hidden border-b border-gray-200 w-full`}>
+            className={`relative flex flex-row overflow-hidden border-b border-gray-200 w-full`}>
             { pickedRecord && (
                 <li
                     onClick={() => handleForwardStatus(activeStatus ?? 'All', 'backward') }

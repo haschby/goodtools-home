@@ -9,18 +9,16 @@ import InvoiceDetailView from './details/InvoiceDetailView';
 import { ArrowRightCircleSolid, Train3Bulk } from '@lineiconshq/free-icons';
 import { useDataTable } from '@/lib/contexts/DataTableCustomContext';
 import SearchBar from './search/searchBar';
-import { statuses } from './details/configCard';
 import { MultiSelectProvider } from '@/components/providers/MultiSelectProvider';
 
 import { 
   InvoiceListHeaders, 
   InvoiceListRowItem,
-  InvoiceListStatusBar
+  InvoiceListStatusBar,
+  InvoiceDetailViewActions
 } from './listview/InvoiceListViewComponent';
 
 import TitleInfo from '@/components/atoms/view/TitleInfo';
-import { useMultiSelectContext } from '@/lib/contexts/MultiSelectContext';
-
 
 export default function InvoiceListView() {
 
@@ -38,11 +36,15 @@ export default function InvoiceListView() {
   const refStatus = useRef(activeStatus);
 
   const statusResetCallback = useCallback(() => {
+    if (pickedRecord) {
+      return true;
+    }
+
     if (refStatus.current !== activeStatus) {
       return true;
     }
     return false;
-  }, [activeStatus]);
+  }, [activeStatus, pickedRecord]);
 
   useEffect(() => {
       dataRef.current = data;
@@ -69,26 +71,28 @@ export default function InvoiceListView() {
   }, [handleScrollEnd]);
 
   const RowItems = useMemo(() => <InvoiceListRowItem />, []);
+  const ActionsList = useMemo(() => !pickedRecord && <InvoiceDetailViewActions /> || <></>, [pickedRecord]);
+  const StatusBar = useMemo(() => <InvoiceListStatusBar />, []);
+  const Filters = useMemo(() => <SearchBar />, []);
+  const Headers = useMemo(() => <InvoiceListHeaders />, []);
 
   return (
-    <>
+    <MultiSelectProvider reset={statusResetCallback}>
       <div className={`h-screen`}>
         <div className="flex flex-row">
-          <div className={`relative h-screen flex flex-col transition-all duration-300 ${ pickedRecord ? 'w-[35%] lg:flex hidden' : 'w-full'}`}>
+          <div className={`px-6 relative h-screen flex flex-col transition-all duration-300 ${ pickedRecord ? 'w-[35%] lg:flex hidden' : 'w-full'}`}>
       
             <TitleInfo
               title="Invoice Records"
               baseLineText="View detailed invoices records by clicking on the row."
               totalRows={totalRows}
             />
-
-            <MultiSelectProvider reset={statusResetCallback}>
               <ListView
                 onScrollEnd={handleScrollEndCallback}
-                filters={ <SearchBar /> }
-                actionsList={ <InvoiceDetailViewActions /> }
-                statuses={ <InvoiceListStatusBar /> }
-                headers={ <InvoiceListHeaders /> }
+                filters={ Filters }
+                actionsList={ ActionsList }
+                statuses={ StatusBar }
+                headers={ Headers }
                 data={ RowItems }
                 controlTableActions={
                   <div
@@ -104,7 +108,6 @@ export default function InvoiceListView() {
                   </div>
                 }
                 />
-            </MultiSelectProvider>
           </div>
           { 
             pickedRecord &&
@@ -127,50 +130,6 @@ export default function InvoiceListView() {
           }
         </div>
       </div>
-    </> 
-  )
-}
-
-
-export function InvoiceDetailViewActions () {
-
-  const { save, hasSelection, count } = useMultiSelectContext();
-  const [status, setStatus] = useState<string>('TBD');
-
-  const cssClass = hasSelection ? 'opacity-100 translate-y-0 duration-600' : 'opacity-0 translate-y-60 duration-100';
-
-  return (
-    <section className={`${cssClass} absolute bottom-20 left-24 right-4 z-[99999] flex justify-start`}>
-      <div className="w-full shadow-2xl bg-gray-50 rounded-md border border-gray-200 flex flex-row items-center gap-2 w-[300px] p-4 text-black">
-        <p className={`flex items-center gap-2 text-xl font-bold text-green-500 px-2 rounded-md ${count === 0 ? 'bg-orange-300/20 text-orange-500' : 'bg-green-300/20 text-green-500'}`}>
-          {count}
-          <span className="text-xs">{count === 0 ? 'Any records available to process' : 'records selected to process'}</span>
-        </p> 
-        <div className="relative flex flex-row gap-4 justify-between text-gray-900">
-          <Select
-            isEditable={count > 0}
-            label=""
-            options={statuses}
-            register={{
-                onChange: (newValue: string) => {
-                  setStatus(newValue);
-                },
-                name: 'status',
-                value:  status,
-                className: `${count > 0 ? '' : 'opacity-30 !cursor-not-allowed'} rounded-md focus:outline-none transition-all p-2 bg-white border border-gray-200 w-full text-gray-900 text-sm`
-            }}
-            name="status" />
-            
-        </div>   
-        <div className="flex gap-2 items-center justify-start">
-          <button
-            disabled={count === 0}
-            onClick={() => save(status)}
-            className={`font-bold bg-green-300/20 text-green-500 px-4 py-1 rounded-md ${count === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
-              save
-          </button>
-        </div>
-      </div>
-    </section>
+    </MultiSelectProvider>
   )
 }

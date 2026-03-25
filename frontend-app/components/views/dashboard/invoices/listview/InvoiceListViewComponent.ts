@@ -3,11 +3,13 @@ import InvoiceListHeaders from './InvoiceListHeaders';
 import InvoiceListTitleInfo from './InvoiceListTitleInfo';
 import InvoiceListViewTableControl from './InvoiceListViewTableControl';
 import InvoiceListRowItem from './InvoiceListRowItem';
+import InvoiceDetailViewActions from './InvoiceListActions';
 
 export {  
     InvoiceListStatusBar, 
     InvoiceListHeaders, 
     InvoiceListTitleInfo, 
     InvoiceListViewTableControl,
-    InvoiceListRowItem
+    InvoiceListRowItem,
+    InvoiceDetailViewActions
 };

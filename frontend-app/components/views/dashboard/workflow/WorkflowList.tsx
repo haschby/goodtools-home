@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { getWorkflows } from "@/actions/workflow";
 import { ListView } from "@/components/atoms/listview/ListView";
-import WorkflowListRowItem from "@/components/views/workflow/listview/WorkflowListRowItem";
+import WorkflowListRowItem from "@/components/views/dashboard/workflow/listview/WorkflowListRowItem";
 import { Workflow } from "@/lib/types/workflow";
 import TitleInfo from "@/components/atoms/view/TitleInfo";
 
@@ -22,7 +22,7 @@ export default function WorkflowList() {
 
     return (
         <div className="h-screen bg-white">
-            <div className="flex flex-col h-full text-gray-700 gap-4 w-full">
+            <div className="px-6 flex flex-col h-full text-gray-700 gap-4 w-full">
 
                 <TitleInfo
                     title="Workflows"
