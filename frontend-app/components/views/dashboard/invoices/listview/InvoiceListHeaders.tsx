@@ -34,7 +34,7 @@ export default function InvoiceListHeaders() {
                             key={index}
                             style={{ width: maxWidth, minWidth: maxWidth }}
                             className={`sticky left-0 bg-gray-50 text-gray-800`}>
-                            <span className="h-14 flex items-center justify-center border-r border-b border-gray-200">
+                            <span className="h-13 flex items-center justify-center border-r border-b border-gray-200">
                             {
                                 activeStatus !== 'All' && activeStatus ? 
                                 <CheckBoxfilter id={'All'} /> 
@@ -50,7 +50,7 @@ export default function InvoiceListHeaders() {
                         style={{ width: maxWidth, minWidth: maxWidth }}
                         className={`whitespace-nowrap text-sm font-bold bg-gray-100 text-gray-800`}>
                         <span
-                            className={`h-14 border-r border-b border-gray-200 px-6 ${paddingSide} flex py-4 ${isNumber ? 'justify-end' : 'justify-start'}`}>
+                            className={`border-r border-b border-gray-200 px-6 ${paddingSide} flex py-4 ${isNumber ? 'justify-end' : 'justify-start'}`}>
                             {label} 
                         </span>
                     </th>

@@ -90,7 +90,7 @@ export default function InvoiceListView() {
               <ListView
                 onScrollEnd={handleScrollEndCallback}
                 filters={ Filters }
-                actionsList={ ActionsList }
+                actionsList={ <></> }
                 statuses={ StatusBar }
                 headers={ Headers }
                 data={ RowItems }
@@ -108,6 +108,7 @@ export default function InvoiceListView() {
                   </div>
                 }
                 />
+              { ActionsList }
           </div>
           { 
             pickedRecord &&
