@@ -40,7 +40,7 @@ export default function InvoiceDetailViewActions () {
   
     return (
       <section
-        className={`${classNames} bottom-6 mx-auto sticky z-[99999] flex flex-col w-1/2`}>
+        className={`${classNames} bottom-4 left-0 right-0 mx-auto absolute z-[99999] flex flex-col w-1/2`}>
         <div className="w-full shadow-[0_0_20px_-8px_rgba(0,0,0,0.5)] flex flex-col w-[300px] text-black rounded-md">
           <div className="bg-white w-full flex flex-row items-end pb-4 px-4 justify-between border border-gray-200 rounded-t-md">
             <div className="relative text-gray-900 flex flex-row gap-4">
