@@ -12,11 +12,11 @@ import { Select } from "@/components/atoms/form/items/Select";
 import { statuses } from "./configCard";
 import { patchInvoice } from "@/actions/invoice.actions";
 import { SearchQueryMockData } from "@/mockData/common";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 
 export default function InvoiceDetailCard() {
     
-    const router = useRouter();
+    // const router = useRouter();
     const { pickedRecord, setPickedRecord } = useDataTable<Invoice>();
     const [ isEditing, setIsEditing ] = useState<boolean>(false);
 
@@ -27,11 +27,11 @@ export default function InvoiceDetailCard() {
             if (response.data) {
                 console.log('@RESPONSE', response.data);
                 setIsEditing(false);
-                setPickedRecord(response.data);
-                router.push(`/invoices?status=${response.data.status}`);
+                setPickedRecord(response.data as Invoice);
+                // router.push(`/invoices?status=${response.data?.status?.toString()}`);
             }
         }
-    }, [pickedRecord, setIsEditing, setPickedRecord, router]);
+    }, [pickedRecord, setIsEditing, setPickedRecord]);
 
     return (
         <div className="bg-white relative flex flex-col gap-4 w-[40%] border-t border-gray-200 text-gray-800">
@@ -67,7 +67,7 @@ export default function InvoiceDetailCard() {
                 </p>
                 <StatusRow
                     className="text-sm px-2 py-1"
-                    status={pickedRecord?.status || 'TBD'} />
+                    status={pickedRecord?.status?.toString() || 'TBD'} />
             </aside>
 
             <form
@@ -153,7 +153,7 @@ export default function InvoiceDetailCard() {
                                     setPickedRecord({ ...pickedRecord, status: newValue } as Invoice);
                                 },
                                 name: 'status',
-                                value: pickedRecord?.status || 'TBD',
+                                value: pickedRecord?.status?.toString() || 'TBD',
                                 className: `text-right rounded-md focus:outline-none transition-all p-2 ${isEditing && 'active:bg-white active:p-2 border border-gray-200' || 'border border-gray-50 bg-gray-100 text-gray-500'} w-full text-gray-900 text-sm`
                             }}
                             name="status"

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { SearchBox } from "./searchBox";
 import { SearchFilters } from "./searchFiltersContainer";
-import { searchInvoices, getInvoices } from '@/actions/invoice.actions';
+// import { searchInvoices, getInvoices } from '@/actions/invoice.actions';
 import { useDataTable } from "@/lib/contexts/DataTableCustomContext";
 import { Invoice } from "@/lib/types/invoice";
 import { useQueryClient } from "@/lib/contexts/QueryClientContext";
@@ -12,38 +12,44 @@ export default function SearchBar() {
 
     const [isOpenFilters, setIsOpenFilters] = useState(false);
 
-    const { setData, fetchData: fetchDataCallback } = useDataTable<Invoice>();
+    const { fetchData, activeStatus, pagination } = useDataTable<Invoice>();
     const { queryParams } = useQueryClient();
 
     useEffect(() => {
-        let isMounted = true;
-        const fetchData = async () => {
-            if (!queryParams) {
-                const response = await getInvoices({
-                    label: 'All',
-                    options: {
-                        cursor: '',
-                        id: ''
-                    }
-                });
-                if (isMounted) {
-                    setData(response.data ?? []);
-                }
-                return;
-            }
+        console.log('@QUERY PARAMS : ', queryParams);
+        console.log('@ACTIVE STATUS : ', activeStatus);
+        console.log('@PAGINATION : ', pagination);
+    }, [queryParams, activeStatus, pagination]);
 
-            const response = await searchInvoices(
-                `${queryParams}`
-            );
-            if (isMounted) {
-                setData(response.data ?? []);
-            }
-        };
-        fetchData();
-        return () => {
-            isMounted = false;
-        };
-    }, [setData, queryParams, fetchDataCallback]);
+    // useEffect(() => {
+    //     let isMounted = true;
+    //     const fetchData = async () => {
+    //         if (!queryParams) {
+    //             const response = await getInvoices({
+    //                 label: 'All',
+    //                 options: {
+    //                     cursor: '',
+    //                     id: ''
+    //                 }
+    //             });
+    //             if (isMounted) {
+    //                 // setData(response.data ?? []);
+    //             }
+    //             return;
+    //         }
+
+    //         const response = await searchInvoices(
+    //             `${queryParams}`
+    //         );
+    //         if (isMounted) {
+    //             // setData(response.data ?? []);
+    //         }
+    //     };
+    //     fetchData();
+    //     return () => {
+    //         isMounted = false;
+    //     };
+    // }, [setData, queryParams, fetchDataCallback]);
 
 
 

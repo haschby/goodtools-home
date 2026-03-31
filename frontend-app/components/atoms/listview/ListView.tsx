@@ -1,25 +1,23 @@
 "use client";
 
-import { ReactNode, useEffect, useRef, useState, useCallback } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 
 interface ListViewProps {
   statuses?: ReactNode | undefined;
   filters?: ReactNode | undefined;
   data?: ReactNode | undefined;
-  actionsList?: ReactNode | undefined;
+  paginationActions?: ReactNode | undefined;
   headers?: ReactNode | undefined;
   controlTableActions?: ReactNode | undefined;
-  onScrollEnd?: (isEndOfList: boolean) => void;
 }
 
 export function ListView({
   filters = <></>,
-  actionsList = <></>,
+  paginationActions = <></>,
   statuses = undefined,
   data,
   headers,
   controlTableActions = undefined,
-  onScrollEnd = () => {}
 }: ListViewProps) {
 
   const listviewContainerRef = useRef<HTMLDivElement>(null);
@@ -27,65 +25,11 @@ export function ListView({
 
   // ✅ Toujours à jour
   useEffect(() => {
-
     const windowHeight = window.innerHeight;
     const top = listviewContainerRef.current?.getBoundingClientRect().top;
     const availableHeight = windowHeight - (top || 0) - 57 - 12 + 15;
     setHeightModulePixels(`${Math.max(availableHeight, 0)}`);
-    
   }, []);
-
-  // const handleResize = useCallback(() => {
-  //   requestAnimationFrame(() => {
-  //     const container = listviewContainerRef.current;
-  //     if (!container) return;
-  //     container.style.height = 'auto';
-  //     requestAnimationFrame(() => {
-  //       const { top } = container.getBoundingClientRect();
-  //       const availableHeight = window.innerHeight - top - 57 - 12 + 15;
-  //       container.style.height = `${Math.max(availableHeight, 0)}px`;
-  //       setHeightModulePixels(`${Math.max(availableHeight, 0)}`);
-  //     });
-  //   });
-  // }, []);
-
-  // const scrollToBottom = useCallback((e: Event) => {
-  //   const container = e.target as HTMLDivElement;
-  //   const { scrollTop, scrollHeight, clientHeight } = container;
-  //   const pourcentage = Math.round((scrollTop / (scrollHeight - clientHeight)) * 100);
-
-  //   if (pourcentage === 100) {
-  //     savedScrollTopRef.current = scrollTop; // ✅ sauvegarde
-
-  //     const tbody = container.querySelector('tbody');
-  //     if (!tbody) return;
-
-  //     const observer = new MutationObserver(() => {
-  //       const newScrollHeight = container.scrollHeight;
-  //       if (newScrollHeight <= scrollHeight) return; // attend que les nouvelles lignes soient là
-
-  //       container.scrollTop = savedScrollTopRef.current; // ✅ restaure
-  //       observer.disconnect();
-  //     });
-
-  //     observer.observe(tbody, { childList: true, subtree: true });
-  //     onScrollEndRef.current(true); // ✅ appelé une seule fois
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   const container = listviewContainerRef.current;
-  //   if (!container) return;
-
-  //   // handleResize();
-  //   container.addEventListener('scroll', scrollToBottom);
-  //   // window.addEventListener('resize', handleResize, { passive: true });
-
-  //   return () => {
-  //     container.removeEventListener('scroll', scrollToBottom);
-  //     // window.removeEventListener('resize', handleResize);
-  //   };
-  // }, []);
 
   return (
     <>
@@ -95,21 +39,26 @@ export function ListView({
       <div
         id="listview-container"
         ref={listviewContainerRef}
-        style={{ height: `${parseInt(heightModulePixels)-50}px` }}
-        className="relative w-full bg-white overflow-x-scroll overflow-y-scroll overflow-hidden border-t border-r border-l border-b border-gray-200 rounded-xl">
-        <table className="table-fixed border-collapse w-full">
-          <thead className="w-full sticky top-0 left-0 right-0 z-50">
-            <tr className="bg-white">
-              {headers}
-            </tr>
-          </thead>
-          <tbody>
-            {data}
-          </tbody>
-        </table>
-        { !!actionsList && <>{actionsList}</> }
+        style={{ height: `${parseInt(heightModulePixels)-100}px` }}
+        className="relative w-full bg-white border-t border-r border-l border-gray-200 rounded-t-xl h-full overflow-hidden">
+          <div className="overflow-x-scroll overflow-y-scroll overflow-hidden h-full"> 
+            <table className="table-fixed border-collapse w-full">
+              <thead className="w-full sticky top-0 left-0 right-0 z-50">
+                <tr className="bg-white">
+                  {headers}
+                </tr>
+              </thead>
+              <tbody>
+                {data}
+              </tbody>
+            </table>
+          </div>
+        { !!controlTableActions && <>{controlTableActions}</> }
       </div>
-      { !!controlTableActions && <>{controlTableActions}</> }
+      { !!paginationActions && <>{paginationActions}</> }
+      
+      {/* <div className="bg-white p-4 rounded-b-xl border border-gray-200"> */}
+      {/* </div> */}
     </>
   );
 }

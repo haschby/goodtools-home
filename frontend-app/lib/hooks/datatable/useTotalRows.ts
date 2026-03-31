@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { BaseResponse } from "@/lib/types/base";
+import { GenericResponseAPI } from "@/lib/types/base";
 
 interface UseTotalRowsProps {
-    fetchFunction: (entity: string) => Promise<BaseResponse<number>>;
+    fetchFunction: (entity: string) => Promise<GenericResponseAPI<number>>;
     entity: string;
 }
 

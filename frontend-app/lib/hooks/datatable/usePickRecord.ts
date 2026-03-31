@@ -1,24 +1,24 @@
 import { useState, useRef, useCallback } from "react";
-import { BaseResponse, BaseEntity } from "@/lib/types/base";
+import { BaseEntity, GenericResponseAPI } from "@/lib/types/base";
 
 interface UsePickRecordProps<T> {
     pickedRecord: T | null;
     pickedId: string | null;
     pickRecordById: (id: string | null) => void;
-    isLoading: boolean;
+    pickedIsLoading: boolean;
     fetchRecord: () => Promise<void>;
     setPickedRecord: (record: T | null) => void;
 }
 
 interface UsePickRecordParams<T> {
-    getRecordById: (id: string) => Promise<BaseResponse<T>>;
+    getRecordById: (id: string) => Promise<GenericResponseAPI<T>>;
 }
 
 export function usePickRecord<T extends BaseEntity>(
     { getRecordById }: UsePickRecordParams<T>
 ): UsePickRecordProps<T> {
 
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [pickedIsLoading, setPickedIsLoading] = useState<boolean>(false);
     const [pickedRecord, setPickedRecord] = useState<T | null>(null);
     const [pickedId, setPickedId] = useState<string | null>(null);
     const pickedRecordIdRef = useRef<string | undefined>(undefined);
@@ -30,37 +30,25 @@ export function usePickRecord<T extends BaseEntity>(
             return;
         };
 
-        setIsLoading(true);
+        setPickedIsLoading(true);
         try {
-            const { data: record } = await getRecordById(`${pickedRecordIdRef.current}`);
-            if (record) {
-                setPickedRecord(record as T);
-                setPickedId(record.id);
-                pickedRecordIdRef.current = record.id;
+            const response = await getRecordById(`${pickedRecordIdRef.current}`);
+            console.log('@RECORD : ', response);
+            if (response.status_code === 201) {
+                setPickedRecord(response.data as T);
+                setPickedId((response.data as T)?.id ?? null);
+                pickedRecordIdRef.current = (response.data as T)?.id ?? null;
             }
         } catch (error) {
             console.log('@ERROR', error);
             setPickedRecord(null);
             setPickedId(null);
+            setPickedIsLoading(false);
             pickedRecordIdRef.current = undefined;
         } finally {
-            setIsLoading(false);
+            setPickedIsLoading(false);
         }
     }, [getRecordById, pickedRecordIdRef]);
-
-//    useEffect(
-//     () => {
-//         let isMounted = true;
-//         if (isMounted) {
-//             fetchRecord();
-//         }
-//         return () => {
-//             isMounted = false;
-//         };
-
-//     }, [pickedId, fetchRecord]);
-
-    
 
     return {
         pickedRecord, 
@@ -69,7 +57,7 @@ export function usePickRecord<T extends BaseEntity>(
             pickedRecordIdRef.current = pickedId ?? undefined;  
             fetchRecord();
         },
-        isLoading,
+        pickedIsLoading,
         fetchRecord,
         setPickedRecord
     };

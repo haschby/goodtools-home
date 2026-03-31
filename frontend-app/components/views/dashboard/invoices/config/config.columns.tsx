@@ -14,11 +14,9 @@ export const invoicesColumns: ColumnProps<Invoice>[] = [
         isFirst: true,
         renderItem: (item: Invoice) =>
             <CheckBoxfilter
-            id={item.id}
-            disabled={!item.gc_booking} />
-            // <span className="p-1 bg-gray-300/20 font-semibold text-gray-500 text-xs rounded-md">
-                
-            // </span>
+                keyItems={item.gc_booking ? [item.id] : []}
+                id={item.id}
+                disabled={!item.gc_booking} />
     },
     {
         keyfield: 'id',
@@ -45,7 +43,7 @@ export const invoicesColumns: ColumnProps<Invoice>[] = [
         maxWidth: '150px',
         isNumber: false,
         renderItem: (item: Invoice) =>
-            <StatusRow className="px-2 py-1 rounded-md" status={item.status} />
+            <StatusRow className="px-2 py-1 rounded-md" status={item.status.toString()} />
     },
     {
         keyfield: 'provider',

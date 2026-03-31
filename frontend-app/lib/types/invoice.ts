@@ -7,8 +7,7 @@ export interface Invoice {
     comments: string | null;
     created_at: string;
     updated_at: string;
-    status: string;
-    images: string[];
+    status: EnumInvoiceStatus;
     invoice_date: string;
     issuer_name: string;
     construction_site_address: string;
@@ -16,8 +15,6 @@ export interface Invoice {
     amount_ht: number;
     amount_ttc: number;
     amount_tva: number;
-    extracted_data: InvoiceExtractedData;
-    images_url: string;
 }
 
 export interface InvoiceExtractedData {
@@ -66,6 +63,10 @@ export class EnumInvoiceStatus {
         return Object.entries(this).find(
             ([, v]) => v === status
         )?.[0];
+    }
+
+    static fromString(status: string): EnumInvoiceStatus {
+        return this.getStatusLabel(status) as EnumInvoiceStatus;
     }
 }
 

@@ -1,3 +1,6 @@
+import { PaginatedResponse } from "@/lib/types/base";
+import { EnumInvoiceStatus } from "@/lib/types/invoice";
+
 export interface SearchQueryMockData {
     name: string;
     label: string;
@@ -1593,4 +1596,66 @@ const searchQueryMockData = {
     employees: [],
 }
 
-export { searchQueryMockData };
+const paginatedResponseMockData = {
+    "items": [
+        {
+            "id": "01J8KZ2QP4X",
+            "external_id": "EXT-2024-00142",
+            "invoice_number": "FA-2024-00142",
+            "issuer_name": "Acme Corporation",
+            "status": EnumInvoiceStatus.TO_BE_TRAITED,
+            "amount_ht": 1250.99,
+            "amount_ttc": 1500.00,
+            "created_at": "2024-11-15T09:23:41.000Z",
+            "updated_at": "2024-11-15T09:23:41.000Z",
+            "name": "Invoice 1",
+            "path": "https://example.com/invoice1.pdf",
+            "gc_booking": "GC-2348",
+            "comments": "Invoice 1 comments",
+            "invoice_date": "2024-11-15",
+            "construction_site_address": "123 Main St, Anytown, USA",
+            "amount_tva": 250.00,
+        },
+        {
+            "id": "01J8KZ1MP3W",
+            "external_id": "EXT-2024-00141",
+            "invoice_number": "FA-2024-00141",
+            "issuer_name": "Globex Solutions",
+            "status": EnumInvoiceStatus.INVOICED,
+            "amount_ht": 4166.37,
+            "amount_ttc": 5000.00,
+            "created_at": "2024-11-14T14:05:12.000Z",
+            "updated_at": "2024-11-14T14:05:12.000Z",
+            "name": "Invoice 2",
+            "path": "https://example.com/invoice2.pdf",
+            "gc_booking": "GC-20864",
+            "comments": "Invoice 2 comments",
+            "invoice_date": "2024-11-14",
+            "construction_site_address": "456 Main St, Anytown, USA",
+            "amount_tva": 500.00,
+        },
+        {
+            "id": "01J8KZ0NL2V",
+            "external_id": "EXT-2024-00140",
+            "invoice_number": "FA-2024-00140",
+            "issuer_name": "Initech Ltd",
+            "status": EnumInvoiceStatus.VALIDATED,
+            "amount_ht": 833.55,
+            "amount_ttc": 1000.00,
+            "created_at": "2024-11-13T11:47:09.000Z",
+            "updated_at": "2024-11-13T11:47:09.000Z",
+            "name": "Invoice 3",
+            "path": "https://example.com/invoice3.pdf",
+            "gc_booking": "GC-202400",
+            "comments": "Invoice 3 comments",
+            "invoice_date": "2024-11-13",
+            "construction_site_address": "789 Main St, Anytown, USA",
+            "amount_tva": 166.67,
+        }
+    ],
+    "page": 12,
+    "limit": 400,
+    "total": 347,
+} as PaginatedResponse<unknown>;
+
+export { searchQueryMockData, paginatedResponseMockData };

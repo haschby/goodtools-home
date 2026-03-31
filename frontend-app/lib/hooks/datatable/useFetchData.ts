@@ -1,102 +1,78 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { BaseResponse } from "@/lib/types/base";
+import { GenericResponseAPI, GetSearchParams, PaginatedResponse } from "@/lib/types/base";
 
 interface FetchFunctionParams {
-    cursor?: string | null;
-    limit?: number;
-    id?: string | null;
-}
-
-interface FetchDataInputParams {
-    isEndOfList?: boolean;
-    cursor?: string | null;
-    id?: string | null;
-}
-
-interface FetchFunctionProps {
-    label: string | 'All';
-    options?: FetchFunctionParams;
+    status: string;
+    page: number;
+    limit: number;
 }
 
 interface UseFetchDataProps<MODEL> {
-    fetchFunction: (params: FetchFunctionProps) => Promise<BaseResponse<MODEL[]>>;
+    fetchFunction: (params: FetchFunctionParams) => Promise<GenericResponseAPI<PaginatedResponse<MODEL[] | MODEL>>>;
     status: string;
+    limit?: number;
 }
 
 interface UseFetchDataResponse<MODEL> {
     isLoading: boolean;
     error: string | undefined;
-    data: MODEL[] | [];
-    fetchData: (params?: FetchDataInputParams) => Promise<void>;
-    setData: (data: MODEL[]) => void;
+    pagination: PaginatedResponse<MODEL> | null;
+    fetchData: (params: GetSearchParams) => void;
     hasMore: boolean;
     setHasMore: (hasMore: boolean) => void;
 }
 
 export function useFetchData<MODEL>(
-    { fetchFunction, status }: UseFetchDataProps<MODEL>
+    { fetchFunction, status, limit = 30 }: UseFetchDataProps<MODEL>
 ): UseFetchDataResponse<MODEL> {
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [page, setPagesRaw] = useState<number>(1);
+    const [pagination, setPagination] = useState<PaginatedResponse<MODEL> | null>(null);
     const [error, setError] = useState<string | undefined>(undefined);
-    const [data, setData] = useState<MODEL[]>([]);
-    const [hasMore, setHasMore] = useState<boolean>(true);
 
-    const fetchFunctionRef = useRef(fetchFunction);
-    const statusRef = useRef(status);
+    useEffect(() => { setPagesRaw(1) }, [limit, status]);
 
-    useEffect(() => {
-        fetchFunctionRef.current = fetchFunction;
-    }, [fetchFunction]);
+    const fetchDataFnRef = useRef(fetchFunction);
+    useEffect(() => { fetchDataFnRef.current = fetchFunction }, [fetchFunction]);
 
-    useEffect(() => {
-        statusRef.current = status;
-    }, [status]);
-
-    const fetchData = useCallback(
-        async (params: FetchDataInputParams = {}): Promise<void> => {
+    const fetcher = useCallback(
+        async (params: GetSearchParams) => {
             setIsLoading(true);
+            setError(undefined);
             try {
-                const response = await fetchFunctionRef.current({ 
-                    label: statusRef.current, // ✅ via ref
-                    options: { 
-                        cursor: params?.cursor, 
-                        id: params?.id,
-                        limit: 20
-                    }
+                const response = await fetchDataFnRef.current({
+                    status: params.status,
+                    page: params.page,
+                    limit: params.limit
                 });
 
-                const items = response.data ?? [];
-                setHasMore(items.length === 20);
-                setData(prev =>
-                    params?.isEndOfList
-                        ? [...(prev ?? []), ...items]
-                        : items
-                );
+                if (response?.status_code !== 201) {
+                    throw new Error(response?.message ?? 'Failed to fetch data');
+                }
+
+                console.log('@RESPONSE : ', response);
+
+                setPagination(response?.data as PaginatedResponse<MODEL>);
             } catch (error) {
                 setError(String(error));
             } finally {
                 setIsLoading(false);
             }
-        }, []
-    );
-
+        },[fetchDataFnRef])
+    
     useEffect(() => {
-        if (!status) return;
-        // setData([]);
-        setHasMore(true);
-        fetchData();
-    }, [status]);
+        fetcher({ status, page: page, limit: limit });
+    }, [status, page, limit, fetcher]);
 
     return {
         isLoading,
         error,
-        data,
-        fetchData,
-        hasMore,
-        setData,
+        pagination,
+        hasMore: true,
         setHasMore: (bool: boolean) => {
             console.log('@setHasMore : ', bool);
-        }
+        },
+        fetchData: (params: GetSearchParams) => fetcher(params),
     }
 }

@@ -5,13 +5,18 @@ import { useRef } from "react";
 import { useCallback } from "react";
 import Icon from "@/components/atoms/Icon";
 import { CheckStroke, Spinner3Bulk } from "@lineiconshq/free-icons";
-import { useDataTable } from "@/lib/contexts/DataTableCustomContext";
-import { Invoice } from "@/lib/types/invoice";
 
-export function CheckBoxfilter ({ id, disabled = false }: { id: string, disabled?: boolean }) {
+interface CheckBoxfilterProps {
+    id: string;
+    disabled?: boolean;
+    keyItems: string[];
+}
+
+export function CheckBoxfilter(
+    { id, disabled = false, keyItems }: CheckBoxfilterProps ) {
 
     const { actions, recordBucket, isSaving } = useMultiSelectContext();
-    const { data } = useDataTable<Invoice>();
+    // const { data } = useDataTable<T>();
     const checkBoxRef = useRef<HTMLInputElement>(null);
     const selectRef = useRef<HTMLSpanElement>(null);
 
@@ -25,15 +30,11 @@ export function CheckBoxfilter ({ id, disabled = false }: { id: string, disabled
         event.stopPropagation();
 
         if (id === 'All') {
-            // Si "All" est coché (via flag ou via 'All' dans le bucket) → tout vider
             if (isChecked) {
                 actions.clear();
             } else {
-                // Cocher toutes les lignes + 'All'
                 actions.addNewRecord('All');
-                const filteredData = (data as Invoice[]).filter(d => d.gc_booking);
-                filteredData.forEach(
-                    d => actions.addNewRecord(d.id));
+                keyItems.forEach(key => actions.addNewRecord(key));
             }
             return;
         }
@@ -43,7 +44,7 @@ export function CheckBoxfilter ({ id, disabled = false }: { id: string, disabled
         } else {
             actions.removeRecord(id);
         }
-    }, [id, isChecked, actions, data]);
+    }, [id, isChecked, actions, keyItems]);
 
     if (disabled) {
         return (

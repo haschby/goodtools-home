@@ -1,5 +1,5 @@
 "use client";
-import { ReactNode, useCallback, useEffect } from "react";
+import { ReactNode } from "react";
 import { useDataTable } from "@/lib/contexts/DataTableCustomContext";
 import InvoiceDetailCard from "./InvoiceDetailCard";
 import { Invoice } from "@/lib/types/invoice";
@@ -19,43 +19,42 @@ export default function InvoiceDetailView(
     }: InvoiceDetailViewProps
 ) {
 
-    const { pickedRecord, data, pickRecordById } = useDataTable<Invoice>();
-    const invoiceIds = data.map((invoice: Invoice) => invoice.id);
-    const invoiceIndex = invoiceIds.indexOf(pickedRecord?.id || '');
+    const { pickedRecord, pickedIsLoading } = useDataTable<Invoice>();
+    // const items = pagination?.items as Invoice[] | undefined ?? [];
+    // const invoiceIds = items?.map((invoice: Invoice) => invoice.id);
+    // const invoiceIndex = invoiceIds?.indexOf(pickedRecord?.id || '');
 
-    const handlePickRecordById = useCallback(
-        (invoice: Invoice | null) => {
-        if (invoice) {
-            pickRecordById(invoice.id);
-        }
-    }, [pickRecordById]);
+    // const handlePickRecordById = useCallback(
+    //     (invoice: Invoice | null) => {
+    //     if (invoice) {
+    //         pickRecordById(invoice.id);
+    //     }
+    // }, [pickRecordById]);
 
-    useEffect(() => {
-        const handleUpOrDown = (event: KeyboardEvent) => {
-            if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-                event.preventDefault();
-                event.stopPropagation();
-                switch (event.key) {
-                    case 'ArrowUp':
-                        if (invoiceIndex > 0) {
-                            handlePickRecordById(data[invoiceIndex - 1]);
-                        }
-                        break;
-                    case 'ArrowDown':
-                        if (invoiceIndex < data.length - 1) {
-                            handlePickRecordById(data[invoiceIndex + 1]);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-        };
-        window.addEventListener('keydown', handleUpOrDown);
-        return () => window.removeEventListener('keydown', handleUpOrDown);
-    }, [data, invoiceIndex, handlePickRecordById]); 
-
-    
+    // useEffect(() => {
+    //     const handleUpOrDown = (event: KeyboardEvent) => {
+    //         if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+    //             event.preventDefault();
+    //             event.stopPropagation();
+    //             switch (event.key) {
+    //                 case 'ArrowUp':
+    //                     if (invoiceIndex > 0) {
+    //                         handlePickRecordById(data[invoiceIndex - 1]);
+    //                     }
+    //                     break;
+    //                 case 'ArrowDown':
+    //                     if (invoiceIndex < data.length - 1) {
+    //                         handlePickRecordById(data[invoiceIndex + 1]);
+    //                     }
+    //                     break;
+    //                 default:
+    //                     break;
+    //             }
+    //         }
+    //     };
+    //     window.addEventListener('keydown', handleUpOrDown);
+    //     return () => window.removeEventListener('keydown', handleUpOrDown);
+    // }, [handlePickRecordById]);     
 
     return (
         <div className="w-full h-full bg-white flex flex-col border-l border-gray-200 shadow-lg relative">
@@ -63,7 +62,7 @@ export default function InvoiceDetailView(
                 {closeButton}
                 <aside className="w-[60%] absolute bottom-0 left-0 right-0 p-4 flex flex-row items-center justify-center gap-4 text-sm">
                     <button
-                        onClick={() => handlePickRecordById(data[invoiceIndex - 1])}
+                        // onClick={() => handlePickRecordById(items?.[invoiceIndex - 1])}
                         className="shadow-md cursor-pointer flex items-center gap-1 flex-row bg-white text-black px-3 py-2 font-semibold rounded-md">
                         <Icon
                             Icon={ArrowUpwardSolid}
@@ -72,7 +71,7 @@ export default function InvoiceDetailView(
                         Previous
                     </button>
                     <button
-                        onClick={() => handlePickRecordById(data[invoiceIndex + 1])}
+                        // onClick={() => handlePickRecordById(items?.[invoiceIndex + 1])}
                         className="shadow-md cursor-pointer flex items-center gap-1 flex-row bg-white text-black px-3 py-2 font-semibold rounded-md">
                         <Icon
                             Icon={ArrowDownwardSolid}
@@ -86,7 +85,7 @@ export default function InvoiceDetailView(
             <aside className="flex flex-row">
                 <div className="flex overflow-auto w-[60%] border-r border-gray-200 h-full">
                     {
-                        pickedRecord?.path &&
+                        !pickedIsLoading &&
                         <iframe
                             id="invoice-iframe"
                             key={pickedRecord?.path}
@@ -96,7 +95,9 @@ export default function InvoiceDetailView(
                             title={pickedRecord?.name || 'Invoice'}
                             width="100%"
                             className="h-[calc(-55px+100vh)] w-full bg-black" />
-                        ||
+                    }
+                    {
+                        pickedIsLoading &&
                         <div className="flex items-center justify-center bg-black h-screen w-full">
                             <Icon
                                 Icon={Spinner2SacleBulk}

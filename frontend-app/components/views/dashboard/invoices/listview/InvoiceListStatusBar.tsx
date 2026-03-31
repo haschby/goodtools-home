@@ -10,7 +10,11 @@ import { ArrowLeftCircleSolid, ArrowRightCircleSolid } from '@lineiconshq/free-i
 export default function InvoiceStatusBar() {
 
     const { 
-        activeStatus, statuses, pickedRecord, setActiveStatus } = useDataTable<Invoice>();
+        activeStatus, statuses,
+        pickedRecord, setActiveStatus,
+        fetchData, pagination
+    } = useDataTable<Invoice>();
+
     const router = useRouter();
     
 
@@ -53,6 +57,18 @@ export default function InvoiceStatusBar() {
             }
         }, [statusesValues, scrollToStatus, router]);
     
+    const handleSelectStatus = useCallback(
+        (status: string) => {
+            setActiveStatus(status);
+            fetchData({
+                status: status,
+                page: 1,
+                limit: pagination?.limit ?? 30
+            })
+        },
+        [fetchData, pagination?.limit, setActiveStatus]
+    );
+
     return (
         <ul
             ref={containerRef}
@@ -80,7 +96,7 @@ export default function InvoiceStatusBar() {
                                     aria-label={status}
                                     className={`cursor-pointer flex items-center justify-center whitespace-nowrap text-black relative py-2 ${ isActiveTab(status) }`}
                                     style={{ width: `auto` }}
-                                    onClick={() => setActiveStatus(status)}>
+                                    onClick={() => handleSelectStatus(status)}>
                                     {/* // onClick={() => router.replace(`/invoices?status=${status}`) } */}
                                     <span className={`font-semibold text-sm px-6`}>{status}</span>
                                 </li>

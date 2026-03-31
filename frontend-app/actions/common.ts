@@ -1,16 +1,16 @@
 "use server";
 
 import { gatewayService } from "@/lib/services/gateway";
-import { BaseResponse } from "@/lib/types/base";
+import { BaseResponse, GenericResponseAPI } from "@/lib/types/base";
 import { searchQueryMockData } from "@/mockData/common";
 
 
 export async function getTotalRecordsByEntity(
     entity: string
-): Promise<BaseResponse<number>> {
+): Promise<GenericResponseAPI<number>> {
     
     const apiPath = `/client/${entity}/count`;
-    const response: BaseResponse<number> = await gatewayService<number>(
+    const response: GenericResponseAPI<number> = await gatewayService<number>(
         apiPath, {
         method: "GET",
         cache: 'no-store' });

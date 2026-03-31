@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import { Select } from '@/components/atoms/form/items/Select';
+import { useCallback, useEffect, useRef, useMemo } from 'react';
 import { Invoice } from '@/lib/types/invoice';
 import { ListView } from '@/components/atoms/listview/ListView';
 import Icon from '@/components/atoms/Icon';
@@ -15,7 +14,8 @@ import {
   InvoiceListHeaders, 
   InvoiceListRowItem,
   InvoiceListStatusBar,
-  InvoiceDetailViewActions
+  InvoiceDetailViewActions,
+  InvoiceListViewTableControl
 } from './listview/InvoiceListViewComponent';
 
 import TitleInfo from '@/components/atoms/view/TitleInfo';
@@ -25,14 +25,11 @@ export default function InvoiceListView() {
   const {
     pickedRecord,
     pickRecordById, 
-    fetchData, 
-    data, 
+    pagination, 
     isLoading, 
-    totalRows,
-    hasMore,
     activeStatus } = useDataTable<Invoice>();
 
-  const dataRef = useRef(data);
+  const dataRef = useRef(pagination);
   const refStatus = useRef(activeStatus);
 
   const statusResetCallback = useCallback(() => {
@@ -47,68 +44,47 @@ export default function InvoiceListView() {
   }, [activeStatus, pickedRecord]);
 
   useEffect(() => {
-      dataRef.current = data;
-  }, [data]);
-
-  const handleScrollEnd = useCallback(
-    (isEndOfList: boolean) => {
-      if (!isEndOfList || isLoading || !hasMore) return;
-
-      const lastItem = dataRef.current?.[dataRef.current.length - 1];
-      if (!lastItem) return;
-
-      fetchData({ 
-          isEndOfList: true, 
-          cursor: lastItem.created_at as string,
-          id: lastItem.id as string
-      });
-    },
-    [fetchData, isLoading, hasMore] );
-
-  const handleScrollEndCallback = useCallback(
-    (isEndOfList: boolean) => {
-    handleScrollEnd(isEndOfList);
-  }, [handleScrollEnd]);
+      dataRef.current = pagination;
+  }, [pagination]);
 
   const RowItems = useMemo(() => <InvoiceListRowItem />, []);
   const ActionsList = useMemo(() => !pickedRecord && <InvoiceDetailViewActions /> || <></>, [pickedRecord]);
   const StatusBar = useMemo(() => <InvoiceListStatusBar />, []);
   const Filters = useMemo(() => <SearchBar />, []);
   const Headers = useMemo(() => <InvoiceListHeaders />, []);
+  const TableControl = useMemo(() => <InvoiceListViewTableControl />, []);
 
   return (
     <MultiSelectProvider reset={statusResetCallback}>
       <div className={`h-screen`}>
         <div className="flex flex-row">
           <div className={`px-6 relative h-screen flex flex-col transition-all duration-300 ${ pickedRecord ? 'w-[35%] lg:flex hidden' : 'w-full'}`}>
-      
             <TitleInfo
               title="Invoice Records"
               baseLineText="View detailed invoices records by clicking on the row."
-              totalRows={totalRows}
+              totalRows={pagination?.total}
             />
               <ListView
-                onScrollEnd={handleScrollEndCallback}
                 filters={ Filters }
-                actionsList={ <></> }
+                paginationActions={ TableControl }
                 statuses={ StatusBar }
                 headers={ Headers }
                 data={ RowItems }
-                controlTableActions={
-                  <div
-                    id="footer-loader-container"
-                    className="bg-white border-t border-gray-200 absolute bottom-0 left-0 right-0 flex items-center w-full gap-4 justify-center p-4 text-gray-700">
-                    GOOD
-                    <Icon
-                      className={`${isLoading ? 'animate-spin text-blue-500' : 'text-gray-700'}`}
-                      Icon={Train3Bulk}
-                      size={20}
-                      strokeWidth={2} />
-                    COLLECT
-                  </div>
+                controlTableActions={ 
+                  ActionsList
                 }
                 />
-              { ActionsList }
+                <div
+                  id="footer-loader-container"
+                  className="bg-white border-t border-gray-200 absolute bottom-0 left-0 right-0 flex items-center w-full gap-4 justify-center p-4 text-gray-700">
+                  GOOD
+                  <Icon
+                    className={`${isLoading ? 'animate-spin text-blue-500' : 'text-gray-700'}`}
+                    Icon={Train3Bulk}
+                    size={20}
+                    strokeWidth={2} />
+                  COLLECT
+                </div>
           </div>
           { 
             pickedRecord &&

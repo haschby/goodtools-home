@@ -1,30 +1,24 @@
 import { createContext, useContext } from "react";
-
-interface FetchDataInputParams {
-  isEndOfList?: boolean;
-  cursor?: string | null;
-  id?: string | null;
-}
+import { GenericResponseAPI, GetSearchParams, PaginatedResponse } from "@/lib/types/base";
 
 type BaseEntity = {
   id: string;
 }
-
 
 export interface DataTableContextType<T> {
   totalRows: number;
   pickedRecord: T | null;
   pickedId: string | null;
   pickRecordById: (id: string | null) => void;
+  pickedIsLoading: boolean;
   activeStatus: string | null;
   statuses: string[];
   isLoading: boolean;
   error: string | undefined;
-  data: T[] | [];
+  pagination: PaginatedResponse<T> | null;
   columns: unknown[];
-  fetchData: (params?: FetchDataInputParams) => Promise<void>;
+  fetchData: (params: GetSearchParams) => void;
   fetchRecord: () => Promise<void>;
-  setData: (data: T[]) => void;
   setPickedRecord: (record: T | null) => void;
   setActiveStatus: (status: string) => void;
   hasMore: boolean;

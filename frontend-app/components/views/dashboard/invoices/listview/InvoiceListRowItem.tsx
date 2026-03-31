@@ -11,14 +11,22 @@ import SkeletonListViewItem from '@/components/atoms/listview/SkeletonListViewIt
 export default function InvoiceListRowItem () {
 
     const {
-        data: filteredData,
+        pagination,
         pickedRecord,
         pickRecordById, isLoading } = useDataTable<Invoice>();
+    
+    const items: Invoice[] = pagination?.items as Invoice[] | undefined ?? [];
+
+    if (isLoading) {
+        return (
+            <SkeletonListViewItem nbColumns={invoicesColumns.length} />
+        );
+    }
 
     return (
         <>
             { 
-                filteredData.map(
+                items?.map(
                 (invoice: Invoice, index: number) => {
                     const isPicked = pickedRecord?.id === invoice.id;
                     return (
@@ -47,11 +55,6 @@ export default function InvoiceListRowItem () {
                     )
                 })
             }
-            { isLoading && (
-                Array.from({ length: 5 }).map((_, i) => (
-                    <SkeletonListViewItem key={`skeleton-${i}`} />
-                ))
-            )}
         </>
     );
         
