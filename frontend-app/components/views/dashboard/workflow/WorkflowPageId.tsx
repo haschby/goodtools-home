@@ -145,7 +145,7 @@ export default function WorkflowPageId() {
                         headers={<Headers />}
                         statuses={<></>}
                         filters={<></>}
-                        actionsList={<></>}
+                        paginationActions={<></>}
                     />
                     <div className="w-5/6 bg-white border border-gray-200 p-6 flex flex-col gap-4">
                         <h2 className="text-lg font-semibold">
