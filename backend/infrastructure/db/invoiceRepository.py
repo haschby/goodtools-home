@@ -2,7 +2,7 @@ from domain.models.invoice import Invoice, EnumInvoiceStatus
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc, or_, and_, text
 from decimal import Decimal, InvalidOperation
-from typing import Optional
+from typing import Optional, Tuple, List
 from datetime import datetime
 from .queries.invoices import (
     QUERY_GET_ALL_INVOICES,
@@ -20,25 +20,19 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
     async def get_all(
         self,
         status: Optional[str] = "All",
-        cursor: Optional[dict] = None,
-        limit: Optional[int] = 30
-    ) -> list[Invoice]:
+        page: int = 1,
+        limit: int = 30
+    ) -> Tuple[List[Invoice] | None, int]:
         
+        offset = (page - 1) * limit
         conditions = []
-        params = {"limit": limit}
+        params = {"limit": limit, "offset": offset}
 
         # STATUS FILTER
         if status and status != "All":
             conditions.append("status = :status")
             params["status"] = status
-
-        # CURSOR PAGINATION
-        if cursor and cursor.get("created_at") and cursor.get("id"):
-            cursor_created_at = datetime.fromisoformat(cursor["created_at"])
-            conditions.append("(created_at, id) < (:cursor_created_at, :cursor_id)")
-            params["cursor_created_at"] = cursor_created_at
-            params["cursor_id"] = cursor["id"]
-
+            
         # WHERE CLAUSE
         where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
 
@@ -46,15 +40,29 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
         {QUERY_GET_ALL_INVOICES}
         {where_clause}
         ORDER BY created_at DESC, id DESC
-        LIMIT :limit
+        LIMIT :limit OFFSET :offset
         """
         
+        
+        count_query = f"""
+        SELECT COUNT(*) AS total_by_status FROM invoice WHERE status = :status
+        """
         async with self._session() as session:
-            result = await session.execute(text(query), params)
-            invoices = result.mappings().all()
-            print(len(invoices))
+            result_items = await session.execute(text(query), params)
+            invoices_rows = result_items.mappings().all()
             
-        return [Invoice(**row) for row in invoices] 
+            if status and status != "All":
+                result_count = await session.execute(text(count_query), params)    
+                total_by_status = result_count.scalar_one()
+            else:
+                total_by_status = await self.count()
+            
+            print('@TOTAL BY STATUS : ', total_by_status)
+                
+        return [
+            Invoice(**row)
+            for row in invoices_rows
+        ] if invoices_rows else None, total_by_status
 
     async def get_by_id(
         self,

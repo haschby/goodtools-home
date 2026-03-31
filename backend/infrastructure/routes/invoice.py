@@ -14,7 +14,9 @@ from application.dtos.invoiceDto import (
     InvoiceResponseSchema, 
     InvoiceCreateSchema, 
     InvoiceUpdateSchema,
-    InvoiceBulkUpdateSchema
+    InvoiceDetailResponseSchema,
+    InvoiceListResponseSchema,
+    InvoiceUpdateResponseSchema
 )
 
 INVOICES_STATUS_DICT = {
@@ -53,31 +55,27 @@ def invoice_routes() -> APIRouter:
     
     @router.get(
     '/all',
-    response_model=BaseResponseSchema[InvoiceResponseSchema],
+    response_model=InvoiceListResponseSchema,
     status_code=201)
     @inject
     async def invoices(
         status: Optional[str] = Query(default="All", description="Filter invoices by status"),
-        cursor: Optional[str|None] = Query(default=None, description="Cursor Selector"),
-        id: Optional[str|None] = Query(default=None, description="ID Selector"),
-        limit: Optional[int] = Query(default=50, description="Limit Selector"),
+        page: Optional[int] = Query(default=1, description="Page Selector"),
+        limit: Optional[int] = Query(default=30, description="Limit Selector"),
         useCase: BaseUsecase = Depends(
             Provide[AppContainer.invoice_container.getAllInvoicesUsecase]
         )
     ):
         params = {
             "status": status,
-            "cursor": {
-                "created_at": cursor,
-                "id": id
-            },
+            "page": page,
             "limit": limit
         }
         return await useCase.execute(params)
 
     @router.post(
     '/',
-    response_model=BaseResponseSchema[InvoiceResponseSchema],
+    response_model=InvoiceUpdateResponseSchema,
     status_code=201)
     @inject
     async def create(
@@ -90,7 +88,7 @@ def invoice_routes() -> APIRouter:
     
     @router.get(
     '/{id:str}',
-    response_model=BaseResponseSchema[InvoiceResponseSchema],
+    response_model=InvoiceDetailResponseSchema,
     status_code=201)
     @inject
     async def invoice(
@@ -103,7 +101,7 @@ def invoice_routes() -> APIRouter:
     
     @router.patch(
     '/{id:str}',
-    response_model=BaseResponseSchema[InvoiceResponseSchema],
+    response_model=InvoiceUpdateResponseSchema,
     status_code=201)
     @inject
     async def update(
@@ -117,12 +115,14 @@ def invoice_routes() -> APIRouter:
             Provide[AppContainer.orchestrator_container.localWorkflowLauncher]
         )
     ):      
+        
         updated_invoice = await useCase.execute(update_invoice)
-        if updated_invoice['data'].status == EnumInvoiceStatus.VALIDATED.value:
+        
+        if updated_invoice.data.status == EnumInvoiceStatus.VALIDATED.value:
             command = SyncUpdateInvoiceToPennylaneCommand(
                 workflow_id='INTERNAL',
                 workflow_name="updateInvoiceToPennylaneWorkflow",
-                invoice_id=updated_invoice['data'].id
+                invoice_id=updated_invoice.data.id
             )
             background_tasks.add_task(orchestrator.startWorkflow, command)
         

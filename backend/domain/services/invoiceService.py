@@ -3,7 +3,7 @@ from domain.models.invoice import Invoice
 from application.ports.invoiceRepository import InvoiceRepositoryPort
 from application.ports.StorageGateway import StorageFileGateway
 from application.ports.providers.accountingGateway import AccountingGateway
-from typing import Optional
+from typing import Optional, Tuple, List
 
 class InvoiceService:
     def __init__(self,
@@ -41,16 +41,16 @@ class InvoiceService:
     
     async def get_all(self,
         params: Optional[dict] = None
-    ) -> list[Invoice]:
+    ) -> Tuple[list[Invoice] | None, int, int]:
+    
         
-        if not params:
-            return await self.repository.get_all()
-        
-        return await self.repository.get_all(
+        invoices, total_by_status = await self.repository.get_all(
             status=params['status'],
-            cursor=params['cursor'],
+            page=params['page'],
             limit=params['limit']
         )
+        
+        return invoices if invoices else None, total_by_status, await self.repository.count()
     
     # async def get_stats(self) -> StatsInvoices:
     #     return await self.invoiceRepository.get_stats()
