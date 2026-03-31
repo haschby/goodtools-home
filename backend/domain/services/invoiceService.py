@@ -47,7 +47,8 @@ class InvoiceService:
         invoices, total_by_status = await self.repository.get_all(
             status=params['status'],
             page=params['page'],
-            limit=params['limit']
+            limit=params['limit'],
+            query=params['query']
         )
         
         return invoices if invoices else None, total_by_status, await self.repository.count()

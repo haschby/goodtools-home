@@ -21,48 +21,79 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
         self,
         status: Optional[str] = "All",
         page: int = 1,
-        limit: int = 30
+        limit: int = 30,
+        query: Optional[str] = None
     ) -> Tuple[List[Invoice] | None, int]:
         
         offset = (page - 1) * limit
         conditions = []
         params = {"limit": limit, "offset": offset}
 
-        # STATUS FILTER
+        # --- Status filter ---
         if status and status != "All":
             conditions.append("status = :status")
-            params["status"] = status
-            
-        # WHERE CLAUSE
-        where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+            params.update({"status": status})
 
-        query = f"""
+        # --- Search query filter ---
+        if query:
+            search_conditions = [
+                "search_vector @@ plainto_tsquery(:q)",
+                "issuer_name ILIKE :like",
+                "invoice_number ILIKE :like",
+                "external_id ILIKE :like",
+                "id ILIKE :like"
+            ]
+            params.update({"q": query, "like": f"%{query}%"})
+
+            # Numeric detection (amount_ht / amount_ttc)
+            try:
+                num = Decimal(query)
+                search_conditions.append("amount_ht = :num OR amount_ttc = :num")
+                params.update({"num": num})
+            except InvalidOperation:
+                pass
+
+            # Ajouter le search_conditions à la clause WHERE
+            conditions.append("(" + " OR ".join(search_conditions) + ")")
+
+        print('@CONDITIONS : ', conditions)
+        print('@PARAMS : ', params)
+        # --- Construire le WHERE complet ---
+        where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+        
+        print('@QUERY SQL : ', where_clause)
+        print('@PARAMS : ', params)
+
+        # --- Requête principale avec pagination ---
+        query_sql = f"""
         {QUERY_GET_ALL_INVOICES}
         {where_clause}
         ORDER BY created_at DESC, id DESC
         LIMIT :limit OFFSET :offset
         """
         
-        
-        count_query = f"""
-        SELECT COUNT(*) AS total_by_status FROM invoice WHERE status = :status
+        print('@QUERY SQL : ', text(query_sql))
+
+        # --- Requête count pour total ---
+        count_sql = f"""
+        SELECT COUNT(*) AS total_count FROM invoice
+        {where_clause}
         """
+
         async with self._session() as session:
-            result_items = await session.execute(text(query), params)
+            result_items = await session.execute(text(query_sql), params)
             invoices_rows = result_items.mappings().all()
-            
-            if status and status != "All":
-                result_count = await session.execute(text(count_query), params)    
-                total_by_status = result_count.scalar_one()
-            else:
-                total_by_status = await self.count()
-            
-            print('@TOTAL BY STATUS : ', total_by_status)
+            print('@INVOICES ROWS : ', invoices_rows)
+
+            # Fetch total count
+            result_count = await session.execute(text(count_sql), params)
+            total_count = result_count.scalar_one()
+            print('@TOTAL COUNT : ', total_count)
                 
         return [
             Invoice(**row)
             for row in invoices_rows
-        ] if invoices_rows else None, total_by_status
+        ] if invoices_rows else None, total_count
 
     async def get_by_id(
         self,

@@ -11,6 +11,7 @@ class GetInvoicesParams:
     page: int
     limit: int
     status: Optional[str] = "All"
+    query: Optional[str] = None
 
 class GetInvoices(BaseUsecase):
     def __init__(self,

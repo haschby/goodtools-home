@@ -62,6 +62,7 @@ def invoice_routes() -> APIRouter:
         status: Optional[str] = Query(default="All", description="Filter invoices by status"),
         page: Optional[int] = Query(default=1, description="Page Selector"),
         limit: Optional[int] = Query(default=30, description="Limit Selector"),
+        query: Optional[str] = Query(default=None, description="Query Selector"),
         useCase: BaseUsecase = Depends(
             Provide[AppContainer.invoice_container.getAllInvoicesUsecase]
         )
@@ -69,8 +70,10 @@ def invoice_routes() -> APIRouter:
         params = {
             "status": status,
             "page": page,
-            "limit": limit
+            "limit": limit,
+            "query": query
         }
+        
         return await useCase.execute(params)
 
     @router.post(
