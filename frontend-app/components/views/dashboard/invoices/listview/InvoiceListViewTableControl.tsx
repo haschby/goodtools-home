@@ -48,20 +48,20 @@ export default function InvoiceListViewTableControl() {
     
     return (
         <section className="rounded-b-xl bg-gray-50 p-3 flex flex-row gap-2 items-center justify-between border border-gray-200">
-            <div className="flex flex-row gap-2">
-                <span>Rows per page:</span>
-                <Select
-                    isEditable={true}
-                    label=""
-                    options={options}
-                    register={{
-                        onChange: (newValue: string) => handleSelectLimit(newValue),
-                        name: '',
-                        value: `${pagination?.limit?.toString() ?? '30'}`,
-                        className: `w-12 font-bold w-full text-right bg-white rounded-md focus:outline-none transition-all p-1 border border-gray-200 text-gray-900 text-sm`
-                    }}
-                    name=""
-                />
+            <div className="flex flex-row gap-2 items-center">
+                <div className="font-bold text-sm flex flex-row gap-2 items-center bg-gray-200 rounded-md p-1 border border-gray-200">
+                { options.map(
+                    (option) => (
+                    <button
+                        key={option.value}
+                        onClick={() => handleSelectLimit(option.value.toString()) }
+                        className={`cursor-pointer ${pagination?.limit.toString() === option.value ? 'shadow-md bg-white text-gray-800' : 'text-gray-500'} rounded-md p-1`}
+                    >
+                        {option.label}
+                    </button>
+                ))}
+                </div>
+                <span className="text-xs">Invoices per page</span>
             </div>
             <div className="flex flex-row gap-2 items-center text-gray-600">
                 <button

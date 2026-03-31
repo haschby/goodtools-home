@@ -14,12 +14,14 @@ export function QueryClientProvider(
 
     const { queryParams, setQueryParams } = useQuerySearch();
 
+    const queryString = queryParams?.toString() ?? null;
+
     // useEffect(() => {
     //     console.log("queryParams", queryParams, entity);
     // }, [queryParams, entity]);
 
     const contextValue: QueryClientContextType = {
-        queryParams: queryParams,
+        queryParams: queryString,
         setQueryParams
     }
 

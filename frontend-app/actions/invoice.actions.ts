@@ -5,14 +5,15 @@ import { Invoice } from "@/lib/types/invoice";
 import { GenericResponseAPI, GetSearchParams, PaginatedResponse } from "@/lib/types/base";
 
 export async function getInvoices(
-    { status, page, limit }: GetSearchParams
+    { status, page, limit, query = null }: GetSearchParams
 ): Promise<GenericResponseAPI<PaginatedResponse<Invoice[]>>> {
 
     console.log('@getInvoices', status, page, limit);
     const params = new URLSearchParams({
         status: status,
         page: page?.toString(),
-        limit: limit?.toString()
+        limit: limit?.toString(),
+        query: query ?? ''
     });
 
     const api_url = `/client/invoice/all?${params.toString()}`;

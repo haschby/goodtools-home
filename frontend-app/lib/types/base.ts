@@ -23,6 +23,7 @@ export interface GetSearchParams extends StatusInput {
     status: string;
     page: number;
     limit: number;
+    query?: string | null;
 }
 
 export type GenericResponseAPI<T> = BaseResponse<PaginatedResponse<T> | T> | BaseResponse<T>;

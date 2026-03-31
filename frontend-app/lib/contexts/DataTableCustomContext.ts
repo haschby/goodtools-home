@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { GenericResponseAPI, GetSearchParams, PaginatedResponse } from "@/lib/types/base";
+import { GetSearchParams, PaginatedResponse } from "@/lib/types/base";
 
 type BaseEntity = {
   id: string;

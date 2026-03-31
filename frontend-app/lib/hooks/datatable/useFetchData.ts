@@ -1,14 +1,9 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { GenericResponseAPI, GetSearchParams, PaginatedResponse } from "@/lib/types/base";
 
-interface FetchFunctionParams {
-    status: string;
-    page: number;
-    limit: number;
-}
 
 interface UseFetchDataProps<MODEL> {
-    fetchFunction: (params: FetchFunctionParams) => Promise<GenericResponseAPI<PaginatedResponse<MODEL[] | MODEL>>>;
+    fetchFunction: (params: GetSearchParams) => Promise<GenericResponseAPI<PaginatedResponse<MODEL[] | MODEL>> | GenericResponseAPI<MODEL[] | MODEL>>;
     status: string;
     limit?: number;
 }
@@ -44,7 +39,8 @@ export function useFetchData<MODEL>(
                 const response = await fetchDataFnRef.current({
                     status: params.status,
                     page: params.page,
-                    limit: params.limit
+                    limit: params.limit,
+                    query: params.query
                 });
 
                 if (response?.status_code !== 201) {
@@ -59,7 +55,7 @@ export function useFetchData<MODEL>(
             } finally {
                 setIsLoading(false);
             }
-        },[fetchDataFnRef])
+        },[])
     
     useEffect(() => {
         fetcher({ status, page: page, limit: limit });

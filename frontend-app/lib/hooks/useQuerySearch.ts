@@ -15,21 +15,6 @@ export function useQuerySearch() {
         setSearchQuery(value);
     }, [setSearchQuery]);
 
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         console.log("FETCHING DATA");
-    //     }
-
-    //     if (isSearching) {
-    //         fetchData();
-    //     }
-
-    //     return () => {
-    //         setIsSearching(false);
-    //     }
-    // }, [isSearching]);
-
-
     return {
         queryParams: searchQuery,
         setQueryParams: setQueryParamsCallback

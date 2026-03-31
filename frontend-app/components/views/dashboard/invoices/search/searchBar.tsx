@@ -14,44 +14,16 @@ export default function SearchBar() {
 
     const { fetchData, activeStatus, pagination } = useDataTable<Invoice>();
     const { queryParams } = useQueryClient();
+    const queryString = queryParams?.toString() ?? null;
 
     useEffect(() => {
-        console.log('@QUERY PARAMS : ', queryParams);
-        console.log('@ACTIVE STATUS : ', activeStatus);
-        console.log('@PAGINATION : ', pagination);
-    }, [queryParams, activeStatus, pagination]);
-
-    // useEffect(() => {
-    //     let isMounted = true;
-    //     const fetchData = async () => {
-    //         if (!queryParams) {
-    //             const response = await getInvoices({
-    //                 label: 'All',
-    //                 options: {
-    //                     cursor: '',
-    //                     id: ''
-    //                 }
-    //             });
-    //             if (isMounted) {
-    //                 // setData(response.data ?? []);
-    //             }
-    //             return;
-    //         }
-
-    //         const response = await searchInvoices(
-    //             `${queryParams}`
-    //         );
-    //         if (isMounted) {
-    //             // setData(response.data ?? []);
-    //         }
-    //     };
-    //     fetchData();
-    //     return () => {
-    //         isMounted = false;
-    //     };
-    // }, [setData, queryParams, fetchDataCallback]);
-
-
+        fetchData({
+            status: activeStatus ?? 'All',
+            page: pagination?.page ?? 1,
+            limit: pagination?.limit ?? 30,
+            query: queryString
+        });
+    }, [queryString]);
 
     return (
         <div className="flex flex-col relative my-4">
