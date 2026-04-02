@@ -120,13 +120,16 @@ def invoice_routes() -> APIRouter:
     ):      
         
         updated_invoice = await useCase.execute(update_invoice)
-        
+        print('@UPDATED INVOICE', updated_invoice)
+        print('@UPDATED INVOICE STATUS', updated_invoice.data.status)
+        print('@VALIDATED', EnumInvoiceStatus.VALIDATED.value)
         if updated_invoice.data.status == EnumInvoiceStatus.VALIDATED.value:
             command = SyncUpdateInvoiceToPennylaneCommand(
                 workflow_id='INTERNAL',
                 workflow_name="updateInvoiceToPennylaneWorkflow",
                 invoice_id=updated_invoice.data.id
             )
+            print('@COMMAND', command)
             background_tasks.add_task(orchestrator.startWorkflow, command)
         
         return updated_invoice

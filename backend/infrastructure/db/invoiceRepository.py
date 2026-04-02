@@ -23,7 +23,7 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
         page: int = 1,
         limit: int = 30,
         query: Optional[str] = None
-    ) -> Tuple[List[Invoice] | None, int]:
+    ) -> Tuple[List[Invoice] | None, List[dict]]:
         
         offset = (page - 1) * limit
         conditions = []
@@ -75,19 +75,24 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
         print('@QUERY SQL : ', text(query_sql))
 
         # --- Requête count pour total ---
-        count_sql = f"""
-        SELECT COUNT(*) AS total_count FROM invoice
-        {where_clause}
-        """
+        # count_sql = f"""
+        # SELECT COUNT(*) AS total_count FROM invoice
+        # {where_clause}
+        # """
+        
+        count_sql = """SELECT   status,
+         COUNT(*) AS total
+        FROM     invoice
+        GROUP BY status
+        ORDER BY status"""
 
         async with self._session() as session:
             result_items = await session.execute(text(query_sql), params)
             invoices_rows = result_items.mappings().all()
-            print('@INVOICES ROWS : ', invoices_rows)
 
             # Fetch total count
             result_count = await session.execute(text(count_sql), params)
-            total_count = result_count.scalar_one()
+            total_count = result_count.mappings().all()
             print('@TOTAL COUNT : ', total_count)
                 
         return [

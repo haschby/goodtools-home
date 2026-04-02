@@ -52,23 +52,32 @@ class SyncPennyLaneWorkflow(BaseUsecase):
         workflow.message = f"Workflow aborted: {message}"
         workflow.params = {**(workflow.params or {}), "fetched_invoices": []}
         await update_workflow.execute(workflow)
-        await session.commit()
+        # await session.commit()
 
     async def _complete_step(self, workflow, update_workflow, session) -> None:
         workflow.steps[0].status = StatusWorkflow.COMPLETED
         workflow.steps[0].ended_at = datetime.now()
         await update_workflow.execute(workflow)
-        await session.commit()
+        # await session.commit()
 
-    async def _complete_workflow(self, workflow, update_workflow, session, invoice_ids: list[str]) -> None:
+    async def _complete_workflow(
+        self,
+        workflow,
+        update_workflow,
+        session,
+        invoice_ids: list[str]
+    ) -> None:
         workflow.status = StatusWorkflow.COMPLETED
         workflow.ended_at = datetime.now()
         workflow.message = "Workflow completed with success"
         workflow.params = {**(workflow.params or {}), "fetched_invoices": invoice_ids}
         await update_workflow.execute(workflow)
-        await session.commit()
+        # await session.commit()
 
-    async def execute(self, command: WorkflowCommand) -> None:
+    async def execute(
+        self,
+        command: WorkflowCommand
+    ) -> None:
         async with self.session_factory() as session:
             try:
                 await self._run(command, session)
@@ -76,12 +85,17 @@ class SyncPennyLaneWorkflow(BaseUsecase):
                 await session.rollback()
                 raise SyncPennyLaneWorkflowError(str(e)) from e
 
-    async def _run(self, command: WorkflowCommand, session) -> None:
+    async def _run(
+        self,
+        command: WorkflowCommand,
+        session
+    ) -> None:
         create_workflow, update_workflow = self._build_workflow_usecases(session)
 
-        command.steps = [WorkflowStepCommand(name="fetch_pennylane_supplier_invoices")]
+        command.steps = [
+            WorkflowStepCommand(name="fetch_pennylane_supplier_invoices")
+        ]
         workflow = await create_workflow.execute(command)
-        await session.commit()
 
         invoices = await self.fetch_pennylane_usecase.execute()
         if not invoices:

@@ -9,6 +9,7 @@ class SearchInvoice(BaseUsecase):
 
     async def execute(self, q: str, limit: int = 30, offset: int = 0) -> list[InvoiceResponseSchema]:
         invoices = await self.invoiceService.search(q, limit, offset)
+        print('@INVOICES', invoices)
         return BaseResponseSchema.response(
             message="Search query",
             status_code=201,

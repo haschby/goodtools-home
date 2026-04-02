@@ -14,7 +14,6 @@ class UpdateInvoice(BaseUsecase):
 
     async def execute(self, invoice: InvoiceUpdateSchema) -> InvoiceUpdateResponseSchema:
         invoice = await self.invoiceService.update_invoice(invoice)
-        print('@UPDATED INVOICE IN USECASE', invoice)
         return InvoiceUpdateResponseSchema(
             message="Invoice updated" if invoice else "Invoice not updated",
             status_code=201,

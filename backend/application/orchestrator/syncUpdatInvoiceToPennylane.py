@@ -22,11 +22,11 @@ class SyncUpdateInvoiceToPennylane(BaseActivity):
     def __init__(
         self,
         session_factory: Callable,
-        search_invoice_usecase: BaseActivity,
+        get_invoice_usecase: BaseActivity,
         update_pennylane_supplier_invoice_usecase: BaseActivity,
     ) -> None:
         self.session_factory = session_factory
-        self.search_invoice = search_invoice_usecase
+        self.get_invoice = get_invoice_usecase
         self.update_pennylane_supplier_invoice = update_pennylane_supplier_invoice_usecase
 
     def _build_workflow_usecases(self, session):
@@ -45,6 +45,7 @@ class SyncUpdateInvoiceToPennylane(BaseActivity):
                 return False
 
     async def _run(self, command: SyncUpdateInvoiceToPennylaneCommand, session) -> bool:
+        
         create_workflow, update_workflow = self._build_workflow_usecases(session)
         local_workflows: dict[str, Workflow] = {}
         workflow = None
@@ -55,32 +56,32 @@ class SyncUpdateInvoiceToPennylane(BaseActivity):
                 WorkflowStepCommand(name="update_pennylane_supplier_invoice")
             ]
             workflow = await create_workflow.execute(command)
-            await session.commit()
             local_workflows[workflow.id] = workflow
 
-            external_invoice_id = await self.search_invoice.execute(command.invoice_id)
-            if external_invoice_id and not external_invoice_id['data']:
+            invoice = await self.get_invoice.execute(command.invoice_id)
+            if invoice.status_code != 201:
                 workflow.steps[0].status = StatusWorkflow.FAILED
                 workflow.steps[0].ended_at = datetime.now()
-                workflow.steps[0].message = "No invoice found"
+                workflow.steps[0].message = f"No invoice found: {invoice.message}"
                 workflow.status = StatusWorkflow.ABORT
                 workflow.ended_at = datetime.now()
                 workflow.params = {**(workflow.params or {}), "external_invoice_id": None}
                 local_workflows[workflow.id] = workflow
                 raise SyncUpdateInvoiceToPennylaneError("No invoice found")
 
+            external_invoice_id = invoice.data.external_id
             workflow.steps[0].status = StatusWorkflow.COMPLETED
             workflow.steps[0].ended_at = datetime.now()
-            workflow.steps[0].message = "External invoice id found"
+            workflow.steps[0].message = f"External invoice id found: {external_invoice_id}"
             workflow.params = {
                 **(workflow.params or {}),
-                "data": external_invoice_id['data'][0].model_dump(mode='json')
+                "data": [external_invoice_id]
             }
             local_workflows[workflow.id] = workflow
-
+            
             try:
                 success = await self.update_pennylane_supplier_invoice.execute(
-                    external_invoice_id['data'][0].external_id
+                    external_invoice_id
                 )
             except Exception as e:
                 workflow.steps[1].status = StatusWorkflow.FAILED

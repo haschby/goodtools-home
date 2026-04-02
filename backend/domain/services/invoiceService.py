@@ -41,17 +41,17 @@ class InvoiceService:
     
     async def get_all(self,
         params: Optional[dict] = None
-    ) -> Tuple[list[Invoice] | None, int, int]:
+    ) -> Tuple[list[Invoice] | None, List[dict], int]:
     
         
-        invoices, total_by_status = await self.repository.get_all(
+        invoices, total_by_status_count = await self.repository.get_all(
             status=params['status'],
             page=params['page'],
             limit=params['limit'],
             query=params['query']
         )
         
-        return invoices if invoices else None, total_by_status, await self.repository.count()
+        return invoices if invoices else None, total_by_status_count, await self.repository.count()
     
     # async def get_stats(self) -> StatsInvoices:
     #     return await self.invoiceRepository.get_stats()

@@ -23,6 +23,7 @@ class PaginatedResponseSchema(BaseModel, Generic[R]):
     limit: int
     total: int
     total_pages: int
+    total_by_status: Optional[dict] = None
 
     class Config:
         from_attributes = True

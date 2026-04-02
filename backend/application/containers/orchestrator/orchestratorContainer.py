@@ -36,7 +36,7 @@ class OrchestratorContainer(containers.DeclarativeContainer):
         SyncUpdateInvoiceToPennylane,
         session_factory=session_factory,
         update_pennylane_supplier_invoice_usecase=activities_container.updatePennyLaneSupplierInvoice,
-        search_invoice_usecase=invoice_container.invoiceFacade.provided.searchInvoiceUsecase
+        get_invoice_usecase=invoice_container.invoiceFacade.provided.getInvoiceUsecase
     )
     
     _workflows = providers.Dict(
