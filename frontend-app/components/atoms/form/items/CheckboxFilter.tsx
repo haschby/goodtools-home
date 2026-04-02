@@ -10,10 +10,11 @@ interface CheckBoxfilterProps {
     id: string;
     disabled?: boolean;
     keyItems: string[];
+    click?: (state: boolean) => void;
 }
 
 export function CheckBoxfilter(
-    { id, disabled = false, keyItems }: CheckBoxfilterProps ) {
+    { id, disabled = false, keyItems, click }: CheckBoxfilterProps ) {
 
     const { actions, recordBucket, isSaving } = useMultiSelectContext();
     // const { data } = useDataTable<T>();
@@ -36,6 +37,8 @@ export function CheckBoxfilter(
                 actions.addNewRecord('All');
                 keyItems.forEach(key => actions.addNewRecord(key));
             }
+            console.log('recordBucket.size : ', isChecked);
+            click?.(!isChecked);
             return;
         }
 
@@ -44,7 +47,10 @@ export function CheckBoxfilter(
         } else {
             actions.removeRecord(id);
         }
-    }, [id, isChecked, actions, keyItems]);
+
+        click?.(isChecked);
+
+    }, [id, isChecked, actions, keyItems, click]);
 
     if (disabled) {
         return (
@@ -54,7 +60,9 @@ export function CheckBoxfilter(
     }
 
     return (
-        <label className="cursor-pointer w-full h-full flex items-center justify-center" onClick={handleCheckBoxClick}>
+        <label
+            className="cursor-pointer w-full h-full flex items-center justify-center"
+            onClick={handleCheckBoxClick}>
             <input
                 id={`checkbox-${id}`}
                 ref={checkBoxRef}

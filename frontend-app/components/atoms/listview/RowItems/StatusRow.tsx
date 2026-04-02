@@ -13,6 +13,11 @@ interface StatusRowProps {
 const StatusRow = ({ status, className } :StatusRowProps ): ReactNode => {
     const cssClasses = `rounded-full font-semibold ${className} flex items-center gap-1`;
     switch (status) {
+        case 'Failed':
+            return <span className={`${cssClasses} bg-red-300/20 text-red-500 text-xs`}>
+                <Icon Icon={Ticket1Solid} size={16} strokeWidth={2} />
+                {status}
+            </span>
         case 'Skipped':
         case 'Aborted':
         case EnumInvoiceStatus.TO_BE_TRAITED:

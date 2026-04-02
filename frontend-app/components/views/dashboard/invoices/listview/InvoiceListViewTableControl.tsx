@@ -51,15 +51,21 @@ export default function InvoiceListViewTableControl() {
             <div className="flex flex-row gap-2 items-center">
                 <div className="font-bold text-sm flex flex-row gap-2 items-center bg-gray-200 rounded-md p-1 border border-gray-200">
                 { options.map(
-                    (option) => (
-                    <button
-                        key={option.value}
-                        onClick={() => handleSelectLimit(option.value.toString()) }
-                        className={`cursor-pointer ${pagination?.limit.toString() === option.value ? 'shadow-md bg-white text-gray-800' : 'text-gray-500'} rounded-md p-1`}
-                    >
-                        {option.label}
-                    </button>
-                ))}
+                    (option) => {
+
+                    const isDisabled = pagination?.total_by_status && pagination?.total_by_status < parseInt(option.value);
+
+                    return (   
+                        <button
+                            key={option.value}
+                            disabled={isDisabled ? true : false}
+                            onClick={() => handleSelectLimit(option.value.toString()) }
+                            className={`${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer' } ${pagination?.limit.toString() === option.value ? 'shadow-md bg-white text-gray-800' : 'text-gray-500'} rounded-md p-1`}
+                        >
+                            {option.label}
+                        </button>
+                    )
+                })}
                 </div>
                 <span className="text-xs">Invoices per page</span>
             </div>

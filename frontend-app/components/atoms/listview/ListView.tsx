@@ -13,7 +13,7 @@ interface ListViewProps {
 
 export function ListView({
   filters = <></>,
-  paginationActions = <></>,
+  paginationActions = undefined,
   statuses = undefined,
   data,
   headers,
@@ -31,6 +31,8 @@ export function ListView({
     setHeightModulePixels(`${Math.max(availableHeight, 0)}`);
   }, []);
 
+  const cssHeader = paginationActions ? undefined :'border-b rounded-b-xl';
+
   return (
     <>
       { !!statuses && <>{statuses}</> }
@@ -40,7 +42,7 @@ export function ListView({
         id="listview-container"
         ref={listviewContainerRef}
         style={{ height: `${parseInt(heightModulePixels)-100}px` }}
-        className="relative w-full bg-white border-t border-r border-l border-gray-200 rounded-t-xl h-full overflow-hidden">
+        className={`${cssHeader ? cssHeader : ''} border-t relative w-full bg-white border-r border-l border-gray-200 rounded-t-xl h-full overflow-hidden`}>
           <div className="overflow-x-scroll overflow-y-scroll overflow-hidden h-full"> 
             <table className="table-fixed border-collapse w-full">
               <thead className="w-full sticky top-0 left-0 right-0 z-50">

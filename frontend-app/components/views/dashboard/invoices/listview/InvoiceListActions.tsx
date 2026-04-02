@@ -9,7 +9,7 @@ import { Invoice } from "@/lib/types/invoice";
 
 export default function InvoiceDetailViewActions () {
 
-    const { save, hasSelection, count, recordBucket } = useMultiSelectContext();
+    const { hasSelection, count, recordBucket } = useMultiSelectContext();
     const { pagination } = useDataTable<Invoice>();
     const items = pagination?.items as Invoice[] | undefined ?? [];
     const filteredData = items?.filter((invoice: Invoice) => recordBucket.has(invoice.id) );

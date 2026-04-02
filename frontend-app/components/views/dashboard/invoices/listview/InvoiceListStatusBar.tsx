@@ -16,7 +16,6 @@ export default function InvoiceStatusBar() {
     } = useDataTable<Invoice>();
 
     const router = useRouter();
-    
 
     const statusesValues = statuses.map(status => status);
     const containerRef = useRef<HTMLUListElement>(null);
@@ -88,6 +87,8 @@ export default function InvoiceStatusBar() {
                 {
                     statuses.map(
                         (status: string, index: number) => {
+                            const { total_by_status, total } = pagination ?? {};
+                            const totalByStatus = total_by_status?.[status as keyof typeof total_by_status] ?? '0';
                             return (
                                 <li
                                     key={status}
@@ -97,10 +98,17 @@ export default function InvoiceStatusBar() {
                                     className={`cursor-pointer flex items-center justify-center whitespace-nowrap text-black relative py-2 ${ isActiveTab(status) }`}
                                     style={{ width: `auto` }}
                                     onClick={() => handleSelectStatus(status)}>
-                                    {/* // onClick={() => router.replace(`/invoices?status=${status}`) } */}
-                                    <span className={`font-semibold text-sm px-6`}>{status}</span>
+                                    <p className={`flex flex-row items-center font-semibold gap-2 px-6`}>
+                                        {status}
+                                        <span className={` ${activeStatus === status ? 'text-green-600 font-semibold' : 'text-gray-900'} flex items-center justify-center px-1 py-1 text-[11px] rounded-lg`}>
+                                            {
+                                                status === 'All' ? total : totalByStatus.toString()
+                                            }
+                                        </span>
+                                    </p>
                                 </li>
-                        )}
+                            )
+                        }
                     )
                 }
             </ul>

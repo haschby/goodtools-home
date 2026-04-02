@@ -17,6 +17,7 @@ export interface PaginatedResponse<T> {
     page: number;
     total_pages: number;
     total: number;
+    total_by_status?: number | null;
 }
 
 export interface GetSearchParams extends StatusInput {

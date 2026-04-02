@@ -14,7 +14,7 @@ interface ColumnProps {
 
 export default function InvoiceListHeaders() {
 
-    const { columns, activeStatus, pagination } = useDataTable<Invoice>();
+    const { columns, activeStatus, pagination, pickRecordById } = useDataTable<Invoice>();
 
     const items: Invoice[] = pagination?.items as Invoice[] | undefined ?? [];
 
@@ -40,6 +40,12 @@ export default function InvoiceListHeaders() {
                             {
                                 activeStatus !== 'All' && activeStatus ? 
                                 <CheckBoxfilter
+                                    click={
+                                        (state: boolean) => {
+                                        if (state) {
+                                            pickRecordById(null);
+                                        }
+                                    }}
                                     keyItems={items?.filter( (invoice: Invoice) => invoice.gc_booking).map( (invoice: Invoice) => invoice.id) ?? []}
                                     id={'All'} /> 
                                 :  <>{label}</>
