@@ -2,7 +2,7 @@
 import { ComponentType, SVGProps,  } from "react";
 import { Lineicons } from "@lineiconshq/react-lineicons";
 
-interface IconData {
+export interface IconData {
     svg: string;
     viewBox: string;
     hasFill: boolean;
@@ -10,7 +10,7 @@ interface IconData {
     hasStrokeWidth: boolean;
 }
 
-interface IconProps {
+export interface IconProps {
     Icon: ComponentType<SVGProps<SVGSVGElement>> & IconData;
     size?: number | string;
     color?: string;

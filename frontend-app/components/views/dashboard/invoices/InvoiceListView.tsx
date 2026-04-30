@@ -64,27 +64,24 @@ export default function InvoiceListView() {
               baseLineText="View detailed invoices records by clicking on the row."
               totalRows={pagination?.total}
             />
-              <ListView
-                filters={ Filters }
-                paginationActions={ TableControl }
-                statuses={ StatusBar }
-                headers={ Headers }
-                data={ RowItems }
-                controlTableActions={ 
-                  ActionsList
-                }
-                />
-                <div
-                  id="footer-loader-container"
-                  className="bg-white border-t border-gray-200 absolute bottom-0 left-0 right-0 flex items-center w-full gap-4 justify-center p-4 text-gray-700">
-                  GOOD
-                  <Icon
-                    className={`${isLoading ? 'animate-spin text-blue-500' : 'text-gray-700'}`}
-                    Icon={Train3Bulk}
-                    size={20}
-                    strokeWidth={2} />
-                  COLLECT
-                </div>
+            <ListView
+              filters={ Filters }
+              paginationActions={ TableControl }
+              statuses={ StatusBar }
+              headers={ Headers }
+              data={ RowItems }
+              controlTableActions={ ActionsList } />
+            <div
+              id="footer-loader-container"
+              className="bg-white border-t border-gray-200 absolute bottom-0 left-0 right-0 flex items-center w-full gap-4 justify-center p-4">
+              GOOD
+              <Icon
+                className={`${isLoading ? 'animate-spin text-blue-500' : ''}`}
+                Icon={Train3Bulk}
+                size={20}
+                strokeWidth={2} />
+              COLLECT
+            </div>
           </div>
           { 
             pickedRecord &&
