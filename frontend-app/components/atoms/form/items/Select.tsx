@@ -51,7 +51,7 @@ const Select = ({
                 </label>
             )
         }
-        <div ref={containerRef} className="relative w-full"> 
+        <div ref={containerRef} className="relative"> 
             <input
                 onFocus={handleFocus}
                 onBlur={() => setIsOpen(false)}
@@ -64,7 +64,7 @@ const Select = ({
             />
             {
                 (isOpen) && (
-                <ul className={`border border-gray-300 bg-white shadow-lg absolute ${dropdownPosition === 'top' ? 'bottom-[calc(100%+10px)]' : 'top-[calc(100%+10px)]'} rounded-md left-0 w-full max-h-[200px] overflow-y-auto z-[9999]`}
+                <ul className={`border border-gray-300 bg-white shadow-lg absolute ${dropdownPosition === 'top' ? 'bottom-[calc(100%+10px)]' : 'top-[calc(100%+10px)]'} rounded-md left-0 w-full max-h-[80px] overflow-y-auto z-[99999]`}
                     id={name}
                 >
                     {
