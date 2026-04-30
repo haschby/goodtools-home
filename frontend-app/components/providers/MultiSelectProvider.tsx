@@ -13,7 +13,7 @@ interface MultiSelectProviderProps {
 export function MultiSelectProvider(
     { children, reset }: MultiSelectProviderProps
 ) {
-    const [isSaving, setIsSaving] = useState(false);
+    const [isSaving, setIsSaving] = useState<boolean>(false);
     const multiSelectComponent = useMultiSelect();
     const multiSelectRef = useRef(multiSelectComponent);
 
@@ -28,20 +28,33 @@ export function MultiSelectProvider(
     }, [reset]);
 
     const save = useCallback(
-        async (status: string) => {
+        async (status: string): Promise<boolean | undefined> => {
 
         if (!multiSelectRef.current.hasSelection) return;
 
         setIsSaving(true);
+        let success: boolean = false;
+
         try {
-            await bulkUpdateInvoices({ ids: Array.from(multiSelectRef.current.recordBucket).filter(id => id !== 'All'), status });
-            // multiSelectComponent.actions.clear();
+            const ids =
+                Array
+                .from(multiSelectRef.current.recordBucket)
+                .filter(id => id !== 'All');
+
+            const response = await bulkUpdateInvoices({ ids, status });
+            
+            if (response.status_code === 201) {
+                success = true;
+            }
+
         } catch (error) {
             console.error('Error saving records:', error);
         } finally {
             setIsSaving(false);
             multiSelectRef.current.actions.clear();
         }
+
+        return success;
         
         }, []);
 

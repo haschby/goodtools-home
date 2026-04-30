@@ -5,7 +5,7 @@ import { MultiSelectReturnType } from "@/lib/hooks/form/useMultiSelect"
 
 interface MultiSelectContextType extends MultiSelectReturnType {
     isSaving: boolean;
-    save: (status: string) => Promise<void>;
+    save: (status: string) => Promise<void | boolean>;
 }
 
 export const MultiSelectCTX = createContext<MultiSelectContextType | null>(null);
