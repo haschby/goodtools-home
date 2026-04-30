@@ -148,7 +148,7 @@ def invoice_routes() -> APIRouter:
 
     @router.patch(
     '/bulk/update/{status:str}',
-    response_model=None,
+    response_model=InvoiceUpdateResponseSchema,
     status_code=201)
     @inject
     async def bulk(
