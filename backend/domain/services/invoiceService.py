@@ -1,3 +1,4 @@
+import sys
 from application.dtos.invoiceDto import InvoiceCreateSchema, InvoiceUpdateSchema
 from domain.models.invoice import Invoice
 from application.ports.invoiceRepository import InvoiceRepositoryPort
@@ -60,15 +61,23 @@ class InvoiceService:
         return await self.repository.search(q, limit, offset)
     
     
-    async def update_invoice(self, invoice: InvoiceUpdateSchema) -> Invoice:
-        existing_invoice = await self.get_by_id(invoice.id)
-        if not existing_invoice:
-            raise ValueError("Invoice not found")
+    async def update_invoice(self, invoices: List[InvoiceUpdateSchema]) -> List[Invoice]:
         
-        # update_invoice = invoice.model_dump(exclude_unset=True)
+        invoice_ids = [ invoice.id for invoice in invoices ]
+        existing_invoices = await self.repository.get_by_external_ids(invoice_ids)
+        existing_map = { inv.id: inv for inv in existing_invoices }
         
-        for field, value in invoice.model_dump(exclude_unset=True).items():
-            setattr(existing_invoice, field, value)
+        to_update = []
+        for inv in invoices:
+            existing_invoice = existing_map.get(inv.id)
+            if not existing_invoice:
+                continue
+            
+            for field, value in inv.model_dump(exclude_unset=True).items():
+                setattr(existing_invoice, field, value)
+            
+            to_update.append(existing_invoice)
         
-        updated_invoice = await self.repository.update([existing_invoice])
-        return updated_invoice[0]
+        updated_invoices = await self.repository.update(to_update)
+        
+        return updated_invoices

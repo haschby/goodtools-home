@@ -56,13 +56,8 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
             # Ajouter le search_conditions à la clause WHERE
             conditions.append("(" + " OR ".join(search_conditions) + ")")
 
-        print('@CONDITIONS : ', conditions)
-        print('@PARAMS : ', params)
         # --- Construire le WHERE complet ---
         where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
-        
-        print('@QUERY SQL : ', where_clause)
-        print('@PARAMS : ', params)
 
         # --- Requête principale avec pagination ---
         query_sql = f"""
@@ -72,19 +67,12 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
         LIMIT :limit OFFSET :offset
         """
         
-        print('@QUERY SQL : ', text(query_sql))
-
-        # --- Requête count pour total ---
-        # count_sql = f"""
-        # SELECT COUNT(*) AS total_count FROM invoice
-        # {where_clause}
-        # """
-        
         count_sql = """SELECT   status,
-         COUNT(*) AS total
-        FROM     invoice
-        GROUP BY status
-        ORDER BY status"""
+            COUNT(*) AS total
+            FROM     invoice
+            GROUP BY status
+            ORDER BY status
+        """
 
         async with self._session() as session:
             result_items = await session.execute(text(query_sql), params)
@@ -125,7 +113,8 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
     ) -> list[Invoice]:
         query = f"""
         {QUERY_GET_INVOICE_BY_ID}
-        WHERE external_id = ANY(:external_ids)
+        WHERE id = ANY(:external_ids)
+        OR external_id = ANY(:external_ids)
         """
         async with self._session() as session:
             result = await session.execute(

@@ -119,11 +119,8 @@ def invoice_routes() -> APIRouter:
         )
     ):      
         
-        updated_invoice = await useCase.execute(update_invoice)
-        print('@UPDATED INVOICE', updated_invoice)
-        print('@UPDATED INVOICE STATUS', updated_invoice.data.status)
-        print('@VALIDATED', EnumInvoiceStatus.VALIDATED.value)
-        if updated_invoice.data.status == EnumInvoiceStatus.VALIDATED.value:
+        response = await useCase.execute([update_invoice])
+        if response.data.status == EnumInvoiceStatus.VALIDATED.value:
             command = SyncUpdateInvoiceToPennylaneCommand(
                 workflow_id='INTERNAL',
                 workflow_name="updateInvoiceToPennylaneWorkflow",
@@ -132,7 +129,7 @@ def invoice_routes() -> APIRouter:
             print('@COMMAND', command)
             background_tasks.add_task(orchestrator.startWorkflow, command)
         
-        return updated_invoice
+        return response
     
     
     @router.post(
@@ -151,7 +148,7 @@ def invoice_routes() -> APIRouter:
 
     @router.patch(
     '/bulk/update/{status:str}',
-    response_model=BaseResponseSchema[InvoiceResponseSchema],
+    response_model=None,
     status_code=201)
     @inject
     async def bulk(
@@ -166,25 +163,20 @@ def invoice_routes() -> APIRouter:
         )
         
     ):
-        invoices = []
-        for id in ids:
-            invoices.append(
-                await useCase.execute(
-                    InvoiceUpdateSchema(id=id, status=status)))
-
-        if status == EnumInvoiceStatus.VALIDATED.value:
-            for invoice in invoices:
-                command = SyncUpdateInvoiceToPennylaneCommand(
-                    workflow_id='INTERNAL',
-                    workflow_name="updateInvoiceToPennylaneWorkflow",
-                    invoice_id=invoice.get('data').id
-                )
-                background_tasks.add_task(orchestrator.startWorkflow, command)
+    
+        invoice_with_status = [ InvoiceUpdateSchema(id=id, status=status) for id in ids ]
+        response = await useCase.execute(invoice_with_status)
+        
+        # if status == EnumInvoiceStatus.VALIDATED.value:
+        #     for invoice in response.data:
+        #         command = SyncUpdateInvoiceToPennylaneCommand(
+        #             workflow_id='INTERNAL',
+        #             workflow_name="updateInvoiceToPennylaneWorkflow",
+        #             invoice_id=invoice.id
+        #         )
+        #         background_tasks.add_task(orchestrator.startWorkflow, command)
                 
-        return BaseResponseSchema.response(
-            message="Invoice bulk updated",
-            status_code=201,
-            data=[]
-        )
+        return response
+        
     
     return router

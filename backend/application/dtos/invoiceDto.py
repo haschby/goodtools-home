@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime, date
 from application.dtos.baseDto import PaginatedResponseSchema, BaseResponseSchema
 
@@ -81,7 +81,7 @@ class InvoiceDetailResponseSchema(
     pass
 
 class InvoiceUpdateResponseSchema(
-    BaseResponseSchema[InvoiceUpdateSchema]):
+    BaseResponseSchema[InvoiceResponseSchema | List[InvoiceResponseSchema]]):
     pass
 
 class InvoiceListResponseSchema(

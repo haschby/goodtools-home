@@ -2,7 +2,7 @@ from application.ports.baseRepository import BaseRepositoryPort
 from domain.models.baseModel import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc
-from typing import TypeVar, Optional, Type, Callable
+from typing import TypeVar, Optional, Type, Callable, List
 
 MODEL = TypeVar('MODEL', bound=BaseModel)
 
@@ -22,7 +22,7 @@ class BaseRepository(BaseRepositoryPort[MODEL]):
             )
             return result.scalar_one()
     
-    async def create(self, models: list[MODEL]) -> list[MODEL]:
+    async def create(self, models: List[MODEL]) -> List[MODEL]:
         async with self._session() as session:
             session.add_all(models)
             await session.commit()
@@ -30,7 +30,7 @@ class BaseRepository(BaseRepositoryPort[MODEL]):
                 await session.refresh(item)
             return models
     
-    async def update(self, models: list[MODEL]) -> list[MODEL]:
+    async def update(self, models: List[MODEL]) -> List[MODEL]:
         async with self._session() as session:
             merged = [await session.merge(model) for model in models]
             await session.flush()
