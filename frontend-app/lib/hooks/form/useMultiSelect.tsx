@@ -18,11 +18,6 @@ export function useMultiSelect (): MultiSelectReturnType {
   
     const [recordBucket, setRecordBucket] = useState<Set<string>>(new Set());
 
-    // const hasRecord = useCallback(
-    //     (recordId: string) => {
-    //         return recordBucket.has(recordId);
-    //     }, []);
-
     const addNewRecord = useCallback(
         (recordId: string) => {
         setRecordBucket(
