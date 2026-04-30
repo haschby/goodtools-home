@@ -18,8 +18,6 @@ export default function InvoiceDetailViewActions () {
     const [status, setStatus] = useState<string>('TBD');
     const [shouldRender, setShouldRender] = useState<boolean>(false);
     const [classNames, setClassNames] = useState<string>('translate-y-0 duration-100');
-
-    console.log('@pagination : ', pagination);
   
     useEffect(() => {
       let timer: ReturnType<typeof setTimeout>;
