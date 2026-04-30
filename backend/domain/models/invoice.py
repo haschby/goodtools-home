@@ -11,6 +11,7 @@ from sqlalchemy import Index
 class EnumInvoiceStatus(Enum):
     ALL = "All"
     TBD = "TBD"
+    ARCHIVED = "Archivé"
     TO_BE_TRAITED = "A Traiter"
     NEED_TO_CHECK = "Avoiriser"
     TO_BE_INVOICED = "A Facturer"

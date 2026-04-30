@@ -31,7 +31,7 @@ class GetInvoices(BaseUsecase):
             ]
         
         total_by_status = { total["status"]: total['total'] for total in total_by_status_count }
-        total_current_status = int(total_by_status.get(params.get('status', 'All'), 0))
+        total_current_status = int(total_by_status.get(params.get('status', 'All'), count))
             
         return InvoiceListResponseSchema(
             message="Invoices found" if items else "No invoices found",
