@@ -12,7 +12,7 @@ class UpdateInvoice(BaseUsecase):
     ):
         self.invoiceService = invoiceService
 
-    async def execute(self, invoices: List[InvoiceUpdateSchema]) -> List[InvoiceUpdateResponseSchema] | InvoiceUpdateResponseSchema:
+    async def execute(self, invoices: List[InvoiceUpdateSchema]) -> InvoiceUpdateResponseSchema:
         
         updated_invoices = await self.invoiceService.update_invoice(invoices)
         
