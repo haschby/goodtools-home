@@ -6,7 +6,8 @@ from .columns import (
 from typing import List, Dict, BinaryIO
 from datetime import date
 from enum import Enum
-from sqlalchemy import Index
+from sqlalchemy import Index, Column, Computed
+from sqlalchemy.dialects.postgresql import TSVECTOR
 
 class EnumInvoiceStatus(Enum):
     ALL = "All"
@@ -37,6 +38,23 @@ class Invoice(BaseModel):
     extracted_data: dict = JSONBColumn(nullable=True)
     comments: str = TextColumn(nullable=True)
     
+    search_vector = Column(
+        TSVECTOR,
+        Computed(
+            """
+            to_tsvector(
+                'simple',
+                coalesce(name,'') || ' ' ||
+                coalesce(issuer_name,'') || ' ' ||
+                coalesce(invoice_number,'') || ' ' ||
+                coalesce(external_id,'') || ' ' ||
+                coalesce(gc_booking,'')
+            )
+            """,
+            persisted=True
+        )
+    )
+    
     __table_args__ = (
         Index(
             "ix_invoices_status_created_at_id",
@@ -45,6 +63,11 @@ class Invoice(BaseModel):
         Index(
             "ix_invoices_created_at_id",
             "created_at", "id"
+        ),
+        Index(
+            "ix_invoice_search_vector",
+            "search_vector",
+            postgresql_using="gin"
         ),
     )
     
