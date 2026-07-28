@@ -25,6 +25,7 @@ class SyncUpdateInvoiceToPennylane(BaseActivity):
         get_invoice_usecase: BaseActivity,
         update_pennylane_supplier_invoice_usecase: BaseActivity,
     ) -> None:
+        print(f"SyncUpdateInvoiceToPennylane - Session factory: {session_factory}")
         self.session_factory = session_factory
         self.get_invoice = get_invoice_usecase
         self.update_pennylane_supplier_invoice = update_pennylane_supplier_invoice_usecase

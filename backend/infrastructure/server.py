@@ -1,23 +1,51 @@
 from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from application.containers.appContainer import AppContainer
-from infrastructure.db.engine import init_models
 from infrastructure.router import RouterHandler
 from infrastructure.middleware.routeLoggerMiddleware import RouteLoggerMiddleware
+from contextlib import asynccontextmanager
+
+from domain.models.baseModel import BaseMain, GCBase
+
+def create_lifespan():
+
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+
+        container = app.state.container
+
+        await container.main_db_uri().init_models(BaseMain)
+        # await container.gc_db_uri().init_models(GCBase)
+
+        container.logger().info(
+            "Database initialized"
+        )
+
+        yield
+
+        container.logger().info(
+            "Application shutdown"
+        )
+
+    return lifespan
+
+    
 
 def bootstrap() -> FastAPI:
     
     container = AppContainer()
     container.init_resources()
-    
-    settings = container.config
+
+    settings = container.settings()
     
     app = FastAPI(
-        title=settings.application_name(),
-        version=settings.application_version(),
-        description=settings.application_description(),
+        title=settings.application_name,
+        version=settings.application_version,
+        description=settings.application_description,
+        lifespan=create_lifespan(),
     )
-    app.container = container
+    
+    app.state.container = container
     
     app.add_middleware(
         RouteLoggerMiddleware,
@@ -32,24 +60,15 @@ def bootstrap() -> FastAPI:
         allow_headers=["*"],
     )
     
-    api_router = APIRouter(prefix="/api")
-    
-    router_handler = RouterHandler(api_router)
-    router_handler = router_handler.load_routers()
-    app.include_router(router_handler)
-    app.include_router(api_router)
-    
-    container.wire(
-        packages=["infrastructure.routes"]   # <<< ajout obligatoire
+    base_router = APIRouter(prefix="/api")
+    router = RouterHandler(base_router, container.logger())
+    router.load_routers()
+    app.include_router(
+        base_router
     )
     
-    @app.on_event("startup")
-    async def startup_event():
-        await init_models()
-        print("✅ App démarrée (async)")
-
-    @app.on_event("shutdown")
-    async def shutdown_event():
-        print("🛑 App arrêtée proprement")
+    container.wire(
+        packages=["infrastructure.routes"]   # <<< ajout obligatoire    
+    )
         
     return app

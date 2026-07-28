@@ -17,7 +17,8 @@ if config.config_file_name is not None:
     
     
 from infrastructure.config.settings import settings
-DATABASE_URL = settings.database_uri
+
+DATABASE_URL = f"postgresql+asyncpg://{settings.db_user}:{settings.db_pass}@{settings.db_host}:{settings.db_port}/{settings.db_name}"
 
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL environment variable missing")
@@ -31,8 +32,13 @@ else:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from domain.models.baseModel import Base
-target_metadata = Base.metadata
+from domain.models.baseModel import BaseMain
+from domain.models.invoice import Invoice
+from domain.models.workflow import Workflow, Workflow_Step
+from domain.models.user import User
+from domain.models.buyback import Buyback
+
+target_metadata = BaseMain.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

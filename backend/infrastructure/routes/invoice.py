@@ -118,8 +118,15 @@ def invoice_routes() -> APIRouter:
             Provide[AppContainer.orchestrator_container.localWorkflowLauncher]
         )
     ):      
-        
-        response = await useCase.execute([update_invoice])
+        try:
+            response = await useCase.execute([update_invoice])
+        except Exception as e:
+            print('@ERROR', e)
+            return BaseResponseSchema.response(
+                message=f"Error updating invoice: {str(e)}",
+                status_code=500,
+                data=None
+            )
         if response.data.status == EnumInvoiceStatus.VALIDATED.value:
             command = SyncUpdateInvoiceToPennylaneCommand(
                 workflow_id='INTERNAL',
@@ -161,20 +168,29 @@ def invoice_routes() -> APIRouter:
         orchestrator: WorkflowLauncher = Depends(
             Provide[AppContainer.orchestrator_container.localWorkflowLauncher]
         )
-        
     ):
     
         invoice_with_status = [ InvoiceUpdateSchema(id=id, status=status) for id in ids ]
         response = await useCase.execute(invoice_with_status)
         
-        # if status == EnumInvoiceStatus.VALIDATED.value:
-        #     for invoice in response.data:
+        # match status:
+        #     case EnumInvoiceStatus.VALIDATED.value:
         #         command = SyncUpdateInvoiceToPennylaneCommand(
         #             workflow_id='INTERNAL',
         #             workflow_name="updateInvoiceToPennylaneWorkflow",
-        #             invoice_id=invoice.id
+        #             invoice_id=response.data.id
         #         )
         #         background_tasks.add_task(orchestrator.startWorkflow, command)
+                
+        #     case EnumInvoiceStatus.ARCHIVED.value:
+        #         command = SyncArchiveInvoiceToPennylaneCommand(
+        #             workflow_id='INTERNAL',
+        #             workflow_name="archiveInvoiceToPennylaneWorkflow",
+        #             invoice_id=response.data.id
+        #         )
+        #         background_tasks.add_task(orchestrator.startWorkflow, command)
+        #     case _:
+        #         pass
                 
         return response
         

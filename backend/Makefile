@@ -12,5 +12,8 @@ migrate-downgrade:
 migrate-history:
 	alembic history
 
+alembic-current:
+	alembic current && alembic heads --verbose
+
 run-app: 
 	uv run uvicorn main:app --reload --port $(PORT)

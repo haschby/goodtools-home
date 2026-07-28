@@ -1,14 +1,17 @@
-from fastapi import APIRouter
 from dependency_injector.wiring import inject, Provide
 from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import Optional
 
 from application.containers.appContainer import AppContainer
 
-def user_routes() -> APIRouter:
+def user_routes(
+    prefix: str = "/client/user",
+    tags: list[str] = ["user"]
+) -> APIRouter:
+    
     router = APIRouter(
-        prefix="/client/user",
-        tags=["user"]
+        prefix=prefix,
+        tags=tags
     )
     
     @router.get(
