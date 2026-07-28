@@ -1,6 +1,7 @@
 class EnumBuybackStatus {
     static readonly TO_BE_TREATED = 'A Traiter';
     static readonly VALIDATED = 'Valider';
+    static readonly REJECTED = 'Rejeter';
 }
 
 interface DocumentStorage {
