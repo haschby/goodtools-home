@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { DataTableCTX, DataTableContextType } from "@/lib/contexts/DataTableCustomContext";
 import { useFetchData } from "@/lib/hooks/datatable/useFetchData";
 import { GenericResponseAPI, GetSearchParams, PaginatedResponse } from "@/lib/types/base";
@@ -55,6 +55,12 @@ export function DataListProvider<T extends CursorEntity & BaseEntity>({
         status: activeStatus
     });
 
+    useEffect(() => {
+        if (activeStatus !== 'All') {
+            setPickedRecord(pagination?.items[0] as T);
+        }
+    }, [pagination, setPickedRecord, activeStatus]);
+
     const contextValue: DataTableContextType<T> = {
         totalRows: 0,
         pickedRecord,
@@ -72,7 +78,8 @@ export function DataListProvider<T extends CursorEntity & BaseEntity>({
         setPickedRecord,
         setActiveStatus: (status: string) => setActiveStatus(status),
         hasMore,
-        setHasMore
+        setHasMore,
+        refreshTableData: () => fetchData({ status: activeStatus, page: 1, limit: 10 })
     };
 
     return (

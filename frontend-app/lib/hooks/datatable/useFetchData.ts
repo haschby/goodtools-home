@@ -43,12 +43,11 @@ export function useFetchData<MODEL>(
                     query: params.query
                 });
 
+                console.log('@RESPONSE : ', response);
+
                 if (response?.status_code !== 201) {
                     throw new Error(response?.message ?? 'Failed to fetch data');
                 }
-
-                console.log('@RESPONSE : ', response);
-
                 setPagination(response?.data as PaginatedResponse<MODEL>);
             } catch (error) {
                 setError(String(error));
@@ -58,6 +57,7 @@ export function useFetchData<MODEL>(
         },[])
     
     useEffect(() => {
+        console.log('@useEffect : ', status, page, limit);
         fetcher({ status, page: page, limit: limit });
     }, [status, page, limit, fetcher]);
 

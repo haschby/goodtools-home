@@ -4,7 +4,7 @@ export const configHeaders = {
     columns: [
         { label: '#', align: 'left', maxWidth: '80px', isNumber: false, canSticky: true },
         { label: 'Ref. Invoice', align: 'left', maxWidth: '120px', isNumber: false },
-        { label: 'External ID', align: 'left', maxWidth: '120px', isNumber: false },
+        { label: 'External ID', align: 'left', maxWidth: '180px', isNumber: false },
         { label: 'Status', align: 'left', maxWidth: '180px', isNumber: false },
         { label: 'Provider', align: 'left', maxWidth: '400px', isNumber: false },
         { label: 'Last Modified', align: 'left', maxWidth: '180px', isNumber: false },
@@ -23,5 +23,6 @@ export const configHeaders = {
         EnumInvoiceStatus.TO_BE_INVOICED,
         EnumInvoiceStatus.INVOICED,
         EnumInvoiceStatus.VALIDATED,
+        EnumInvoiceStatus.VALIDATED_ONLY,
     ].map(s => s.toString()),
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useDataTable } from "@/lib/contexts/DataTableCustomContext";
 import { Invoice } from "@/lib/types/invoice";
 import Icon from "@/components/atoms/Icon";
@@ -12,26 +12,66 @@ import { Select } from "@/components/atoms/form/items/Select";
 import { statuses } from "./configCard";
 import { patchInvoice } from "@/actions/invoice.actions";
 import { SearchQueryMockData } from "@/mockData/common";
+import { getRentabilitiesByBookingId, Rentability } from "@/actions/invoice.actions";
 // import { useRouter } from "next/navigation";
 
 export default function InvoiceDetailCard() {
     
     // const router = useRouter();
-    const { pickedRecord, setPickedRecord } = useDataTable<Invoice>();
+    const { 
+        pickedRecord, 
+        setPickedRecord,
+        fetchData,
+        pagination, activeStatus
+    } = useDataTable<Invoice>();
+
+    const [ rentabilities, setRentabilities ] = useState<Rentability[] | null>(null);
+
+    const gcBooking = pickedRecord?.gc_booking;
+    console.log('gcBooking: ', gcBooking);
+
+    useEffect(() => {
+        if (!gcBooking) { return; }
+
+        let cancelled = false;
+        (async () => {
+            if (!cancelled && gcBooking) {
+                try {
+                    const response = await getRentabilitiesByBookingId(620);
+                    console.log(response);
+                    setRentabilities(response.data as Rentability[]);
+                } catch (error) {
+                    console.error(error);
+                    setRentabilities(null);
+                }
+            }
+        })();
+
+        return () => { cancelled = true; };
+    }, [gcBooking]);
+
+
+
     const [ isEditing, setIsEditing ] = useState<boolean>(false);
+    const gcRefBooking = useRef<string>(pickedRecord?.gc_booking);
 
     const handlePatchInvoice = useCallback(
         async () => {
         if (pickedRecord) {
             const response = await patchInvoice(pickedRecord);  
             if (response.data) {
-                console.log('@RESPONSE', response.data);
                 setIsEditing(false);
-                setPickedRecord(response.data as Invoice);
+                if (!gcRefBooking.current) {
+                    fetchData({
+                        status:  activeStatus || 'All',
+                        page: pagination?.page ?? 1,
+                        limit: pagination?.limit ?? 30
+                    });
+                }
                 // router.push(`/invoices?status=${response.data?.status?.toString()}`);
             }
         }
-    }, [pickedRecord, setIsEditing, setPickedRecord]);
+    }, [pickedRecord, setIsEditing, fetchData, pagination, activeStatus]);
 
     return (
         <div className="bg-white relative flex flex-col gap-4 w-[40%] border-t border-gray-200 text-gray-800">
@@ -234,7 +274,13 @@ export default function InvoiceDetailCard() {
             }
 
             <aside className="h-full p-3">
-                <div className="flex flex-col gap-2 h-full bg-gray-50 p-3"></div>
+                <div className="flex flex-col gap-2 h-full bg-gray-50 p-3">
+                    {rentabilities && rentabilities.map((rentability) => (
+                        <div key={rentability.id}>
+                            <h3>{rentability.priceHT}</h3>
+                        </div>
+                    ))}
+                </div>
             </aside>
             
         </div>

@@ -83,7 +83,7 @@ class SyncPennyLaneWorkflow(BaseUsecase):
                 await self._run(command, session)
             except Exception as e:
                 await session.rollback()
-                raise SyncPennyLaneWorkflowError(str(e)) from e
+                raise SyncPennyLaneWorkflowError(str(e))
 
     async def _run(
         self,

@@ -79,3 +79,21 @@ export async function bulkUpdateInvoices(payload: InvoiceBulkUpdateSchema): Prom
     });
     return response;
 }
+
+export interface Rentability {
+    id: string;
+    priceHT: number;
+    bookingId: string;
+    assetId: string;
+}
+
+export async function getRentabilitiesByBookingId(bookingId: number): Promise<GenericResponseAPI<Rentability[]>> {
+    const api_url = `/client/gc/booking/${bookingId}/rentabilities`;
+    const response: GenericResponseAPI<Rentability[]> = await gatewayService(api_url, {
+        method: "GET",
+        cache: 'no-store',
+        headers: { 'Content-Type': 'application/json' }
+    });
+    console.log('Response rentabilities : ', response);
+    return response;
+}

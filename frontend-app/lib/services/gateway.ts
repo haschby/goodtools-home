@@ -1,6 +1,9 @@
 import { BaseResponse } from "../types/base";
 
-const GATEWAY_URL = process.env.ENV === 'local' ? process.env.BACKEND_URL : process.env.NEXT_PUBLIC_GATEWAY_API_URL;
+const GATEWAY_URL =
+    process.env.ENV === 'local' ?
+    process.env.BACKEND_URL : 
+    process.env.NEXT_PUBLIC_GATEWAY_API_URL;
 
 export async function gatewayService<T>(
     path: string, 
@@ -11,6 +14,10 @@ export async function gatewayService<T>(
 
     const controller = new AbortController();
     const { signal } = controller;
+
+    console.log("GATEWAY_URL", GATEWAY_URL);
+    console.log("path", path);
+    console.log("options", options);
 
     try {  
         const response = await fetch(
@@ -28,6 +35,7 @@ export async function gatewayService<T>(
         const data: BaseResponse<T> = await response.json();
         return data;
     } catch (error) {
+
         throw new Error(`${String(error)}`);
         // return {
         //     message: 'Error fetching data',

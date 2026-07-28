@@ -34,7 +34,7 @@ export function usePickRecord<T extends BaseEntity>(
         try {
             const response = await getRecordById(`${pickedRecordIdRef.current}`);
             console.log('@RECORD : ', response);
-            if (response.status_code === 201) {
+            if (response.status_code === 201 || response.status_code === 200) {
                 setPickedRecord(response.data as T);
                 setPickedId((response.data as T)?.id ?? null);
                 pickedRecordIdRef.current = (response.data as T)?.id ?? null;

@@ -52,7 +52,7 @@ export default function InvoiceDetailViewActions () {
     if (!shouldRender) return null;
   
     return (
-      <section className={`${classNames} px-8 absolute z-[8888] right-30 left-30 w-[50%] mx-auto bottom-0`}>
+      <section className={`${classNames} px-8 absolute z-[8888] right-0 left-0 w-full max-w-[70%] mx-auto bottom-0`}>
         <div className="flex flex-col bg-white rounded-lg shadow-md border border-gray-200">
           <div className="flex flex-row p-2 gap-2 justify-between">
             <div className="flex flex-row gap-2"> 

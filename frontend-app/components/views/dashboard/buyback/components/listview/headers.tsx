@@ -1,8 +1,7 @@
-"use client";
-
-import { useDataTable } from '@/lib/contexts/DataTableCustomContext';
-import { Invoice } from '@/lib/types/invoice';
+import { useDataTable } from "@/lib/contexts/DataTableCustomContext";
+import { Buyback } from "@/lib/types/buyback";
 import { CheckBoxfilter } from '@/components/atoms/form/items/CheckboxFilter';
+import { BaseEntity } from "@/lib/types/base";
 
 interface ColumnProps {
     label: string;
@@ -12,11 +11,19 @@ interface ColumnProps {
     canSticky?: boolean;
 }
 
-export default function InvoiceListHeaders() {
+interface HeadersProps<T> {
+    getSelectableIds?: (items: T[]) => string[] | undefined;
+}
 
-    const { columns, activeStatus, pagination, pickRecordById } = useDataTable<Invoice>();
+type headersModel = BaseEntity & { id: string };
 
-    const items: Invoice[] = pagination?.items as Invoice[] | undefined ?? [];
+export function ListHeaders<T extends headersModel>(
+    { getSelectableIds }: HeadersProps<T>
+) {
+
+    const { columns, activeStatus, pagination, pickRecordById } = useDataTable<T>();
+
+    const items: T[] = pagination?.items as T[] | undefined ?? [];
 
     return (
         <>
@@ -38,7 +45,9 @@ export default function InvoiceListHeaders() {
                             className={`sticky left-0 bg-gray-50 text-gray-800`}>
                             <span className="h-13 flex items-center justify-center border-r border-b border-gray-200">
                             {
-                                activeStatus !== 'All' && activeStatus ? 
+                                activeStatus !== 'All'
+                                && activeStatus
+                                && getSelectableIds ? 
                                 <CheckBoxfilter
                                     click={
                                         (state: boolean) => {
@@ -46,7 +55,9 @@ export default function InvoiceListHeaders() {
                                             pickRecordById(null);
                                         }
                                     }}
-                                    keyItems={items?.filter( (invoice: Invoice) => invoice.gc_booking).map( (invoice: Invoice) => invoice.id) ?? []}
+                                    keyItems={
+                                        getSelectableIds(items) ?? []
+                                    }
                                     id={'All'} /> 
                                 :  <>{label}</>
                             }
