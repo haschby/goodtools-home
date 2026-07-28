@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, useMemo } from "react";
 
 interface RegisterProps {
     onChange: (item:string) => void;
@@ -13,10 +13,14 @@ interface RegisterProps {
 
 interface SelectProps {
     isEditable?: boolean;
-    label: string;
+    label?: string;
     options: { label: string, value: string }[];
     register: RegisterProps;
     name: string;
+    icon?: {
+        position: 'left' | 'right';
+        icon: React.ReactNode;
+    } | null;
 }
 
 const Select = ({
@@ -24,7 +28,8 @@ const Select = ({
     label,
     options,
     register,
-    name
+    name,
+    icon = null
 }: SelectProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -42,17 +47,28 @@ const Select = ({
         setIsOpen(true);
     },[])
 
+    const labelOrIcon = useMemo(() => {
+        const isPosition = Boolean(icon?.position);
+        return (
+            <label
+                htmlFor={`${name}`}
+                className={` ${isPosition ? 'mb-3' : undefined } text-sm py-2 flex flex-row items-center gap-2`}>
+                { icon && 
+                    <span className="px-2">
+                        { icon?.icon && icon.icon }
+                    </span>
+                }
+                { label && <span className="w-full font-semibold">{label}</span> }
+            </label>
+        );
+    }, [icon, label, name]);
+
     return (
     <>
-        {
-            label && (
-                <label className="text-sm py-2" htmlFor={name}>
-                    <span className="w-full font-semibold">{label}</span>
-                </label>
-            )
-        }
-        <div ref={containerRef} className="relative"> 
+        {labelOrIcon}
+        <div ref={containerRef} className="relative mb-3"> 
             <input
+                id={name}
                 onFocus={handleFocus}
                 onBlur={() => setIsOpen(false)}
                 onChange={() => {}}

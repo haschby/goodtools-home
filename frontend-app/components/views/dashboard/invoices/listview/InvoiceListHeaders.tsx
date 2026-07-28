@@ -70,39 +70,3 @@ export default function InvoiceListHeaders() {
         </>
     );
 }
-
-
-
-// const CheckBoxfilter = () => {
-//     const checkBoxRef = useRef<HTMLInputElement>(null);
-//     const selectRef = useRef<HTMLSpanElement>(null);
-//     const [isChecked, setIsChecked] = useState(false);
-
-//     return (
-//         <>
-//             <input
-//                 ref={checkBoxRef}
-//                 type="checkbox"
-//                 checked={isChecked}
-//                 hidden
-//                 readOnly
-//                 data-id="all-records" />
-            
-//             <span
-//                 ref={selectRef}
-//                 className={`p-1 rounded-md bg-white shadow-md `}
-//                 onClick={
-//                     () => {
-//                         setIsChecked(!isChecked);
-//                     }
-//                 }>
-//                     <Icon
-//                         Icon={CheckStroke}
-//                         size={18}
-//                         strokeWidth={4}
-//                         className={`${isChecked ? 'bg-green-300/20 text-green-500 transform scale-120 transition-transform duration-300' : 'transform scale-0 transition-transform duration-300'}`} />
-                
-//             </span>
-//         </>
-//     )
-// }

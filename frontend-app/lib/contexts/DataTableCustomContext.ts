@@ -23,6 +23,7 @@ export interface DataTableContextType<T> {
   setActiveStatus: (status: string) => void;
   hasMore: boolean;
   setHasMore: (hasMore: boolean) => void;
+  refreshTableData: () => void;
 }
 
 const DataTableCTX = createContext<DataTableContextType<unknown> | null>(null);

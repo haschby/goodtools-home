@@ -54,11 +54,13 @@ export default function InvoiceListView() {
   const Headers = useMemo(() => <InvoiceListHeaders />, []);
   const TableControl = useMemo(() => <InvoiceListViewTableControl />, []);
 
+  const isPickedRecord = useMemo(() => pickedRecord && pickedRecord.path !== null, [pickedRecord]);
+
   return (
     <MultiSelectProvider reset={statusResetCallback}>
       <div className={`h-screen`}>
         <div className="flex flex-row">
-          <div className={`px-6 relative h-screen flex flex-col transition-all duration-300 ${ pickedRecord ? 'w-[35%] lg:flex hidden' : 'w-full'}`}>
+          <div className={`px-6 relative h-screen flex flex-col transition-all duration-300 ${ isPickedRecord ? 'w-[35%] lg:flex hidden' : 'w-full'}`}>
             <TitleInfo
               title="Invoice Records"
               baseLineText="View detailed invoices records by clicking on the row."
@@ -84,7 +86,7 @@ export default function InvoiceListView() {
             </div>
           </div>
           { 
-            pickedRecord &&
+            isPickedRecord &&
             <InvoiceDetailView
               closeButton={
                 <button

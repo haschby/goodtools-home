@@ -5,12 +5,16 @@ from application.ports.baseRepository import BaseRepositoryPort
 from application.ports.baseUsecase import BaseUsecase
 from application.ports.orchestrator.workflowLauncher import WorkflowLauncher
 from application.dtos.workflow import SyncPennyLaneWorkflowCommand
+from typing import Optional
 
-def workflow_routes() -> APIRouter:
+def workflow_routes(
+    prefix: str = "/client/workflow",
+    tags: list[str] = ["workflow"]
+) -> APIRouter:
     
     router = APIRouter(
-        prefix="/client/workflow",
-        tags=["workflow"]
+        prefix=prefix,
+        tags=tags
     )
     
     @router.get("/",
@@ -45,7 +49,7 @@ def workflow_routes() -> APIRouter:
     )
     @inject
     async def start_workflow(
-        id: str,
+        id: str | None,
         provider: str,
         request: Request,
         background_tasks: BackgroundTasks,
@@ -53,6 +57,10 @@ def workflow_routes() -> APIRouter:
             Provide[AppContainer.orchestrator_container.localWorkflowLauncher]
         )
     ):
+        
+        if not request.headers.get('workflow-name'):
+            return { "message": "Workflow name is required", "status_code": 400 }
+        
         workflow_name = request.headers.get('workflow-name')
         command = SyncPennyLaneWorkflowCommand(
             workflow_name=workflow_name,

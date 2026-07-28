@@ -37,3 +37,12 @@ class SyncPennyLaneWorkflowCommand(WorkflowCommand):
 @dataclass(frozen=False)
 class SyncUpdateInvoiceToPennylaneCommand(WorkflowCommand):
     invoice_id: str
+
+
+@dataclass(frozen=False)
+class SyncBuybackToGcCommand(WorkflowCommand):
+    buyback_id: str
+    gc_booking: str
+    amount: float
+    file_path: Optional[str] = None
+    steps: Optional[list[WorkflowStepCommand]] = None

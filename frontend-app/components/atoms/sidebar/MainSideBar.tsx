@@ -11,8 +11,8 @@ const routes = [
         icon: DollarCircleSolid
     },
     {
-        label: 'Purchases',
-        href: '/purchases',
+        label: 'buyback',
+        href: '/buyback',
         icon: Cart2Solid
     },
     {

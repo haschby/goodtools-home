@@ -41,7 +41,8 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
                 "issuer_name ILIKE :like",
                 "invoice_number ILIKE :like",
                 "external_id ILIKE :like",
-                "id ILIKE :like"
+                "gc_booking ILIKE :like",
+                "CAST(id AS TEXT) ILIKE :like"
             ]
             params.update({"q": query, "like": f"%{query}%"})
 
@@ -60,16 +61,18 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
         where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
 
         # --- Requête principale avec pagination ---
+        order_by = "ts_rank(search_vector, plainto_tsquery(:q))" if query else "created_at, id"
         query_sql = f"""
         {QUERY_GET_ALL_INVOICES}
         {where_clause}
-        ORDER BY created_at DESC, id DESC
+        ORDER BY { order_by } DESC
         LIMIT :limit OFFSET :offset
         """
         
         count_sql = """SELECT   status,
             COUNT(*) AS total
             FROM     invoice
+            WHERE status NOT IN ('archived')
             GROUP BY status
             ORDER BY status
         """

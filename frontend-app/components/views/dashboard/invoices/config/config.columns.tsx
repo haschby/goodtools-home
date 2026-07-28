@@ -4,6 +4,9 @@ import { Invoice } from "@/lib/types/invoice";
 import { StatusRow } from '@/components/atoms/listview/RowItems/StatusRow';
 import { ColumnProps } from "@/lib/types/common";
 import { CheckBoxfilter } from "@/components/atoms/form/items/CheckboxFilter";
+import Link from "next/link";
+import Icon from "@/components/atoms/Icon";
+import { AnchorBulk } from "@lineiconshq/free-icons";
 
 export const invoicesColumns: ColumnProps<Invoice>[] = [
     {
@@ -30,7 +33,7 @@ export const invoicesColumns: ColumnProps<Invoice>[] = [
     {
         keyfield: 'external_id',
         align: 'left',
-        maxWidth: '150px',
+        maxWidth: '180px',
         isNumber: false,
         renderItem: (item: Invoice) =>
             <span className="text-sm font-normal text-gray-500">
@@ -93,10 +96,37 @@ export const invoicesColumns: ColumnProps<Invoice>[] = [
         align: 'left',
         maxWidth: '150px',
         isNumber: false,
-        renderItem: (item: Invoice) =>
-            <span className="text-sm font-normal text-gray-500">
-                {item.gc_booking}
-            </span>
+        renderItem: (item: Invoice) => {
+            return (
+                <>
+                {
+                    item?.url && (
+                        <Link
+                            href={item.url}
+                            target="_blank"
+                            className="relative z-900 flex items-center gap-2 text-sm font-normal text-gray-500 underline">
+                            <Icon
+                                Icon={AnchorBulk}
+                                size={16}
+                                strokeWidth={2}
+                                 />
+                            {item.gc_booking}
+                        </Link>
+                    ) || (
+                        <span className="text-sm font-normal text-gray-500">
+                            {item.gc_booking}
+                        </span>
+                    )
+                }
+                </>
+                // <span className="text-sm font-normal text-gray-500">
+                //     {item.gc_booking}
+                // </span>
+            )
+        }
+            // <span className="text-sm font-normal text-gray-500">
+            //     {item.gc_booking}
+            // </span>
     },
     {
         keyfield: 'amount_ht',

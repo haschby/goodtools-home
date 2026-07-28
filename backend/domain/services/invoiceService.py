@@ -21,6 +21,7 @@ class InvoiceService:
         return None
         
     async def create_invoice(self, invoices: list[InvoiceCreateSchema]) -> list[Invoice]:
+        print('@INVOICES IN CREATE INVOICE SERVICE')
         external_ids = [
             invoice.external_id
             for invoice in invoices

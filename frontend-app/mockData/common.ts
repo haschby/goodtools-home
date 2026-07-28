@@ -1,5 +1,6 @@
 import { PaginatedResponse } from "@/lib/types/base";
 import { EnumInvoiceStatus } from "@/lib/types/invoice";
+import { Buyback } from "@/lib/types/buyback";
 
 export interface SearchQueryMockData {
     name: string;
@@ -1585,6 +1586,57 @@ const searchQueryMockData = {
             "id": 315
         },
     ],
+    buybacks: [
+        {
+            "id": "01J8KZ2QP4X",
+            "gc_booking": "GC-2348",
+            "amount": 1250.99,
+            "status": "A Traiter",
+            "created_at": "2024-11-15T09:23:41.000Z",
+            "updated_at": "2024-11-15T09:23:41.000Z",
+        },
+        {
+            "id": "01J8KZ2QP4Y",
+            "gc_booking": "GC-2349",
+            "amount": 1250.99,
+            "status": "A Traiter",
+            "created_at": "2024-11-15T09:23:41.000Z",
+            "updated_at": "2024-11-15T09:23:41.000Z",
+        },
+        {
+            "id": "01J8KZ2QP4Z",
+            "gc_booking": "GC-2350",
+            "amount": 1250.99,
+            "status": "A Traiter",
+            "created_at": "2024-11-15T09:23:41.000Z",
+            "updated_at": "2024-11-15T09:23:41.000Z",
+            "file_path": "https://cdn.prod.website-files.com/609d5d3c4d120e9c52e52b07/64371cbad86b2c8d3b8fe4d5_invoice-lp-click-to-edit.png",
+        },
+        {
+            "id": "01J8KZ2QP4A",
+            "gc_booking": "GC-2351",
+            "amount": 1250.99,
+            "status": "Valider",
+            "created_at": "2024-11-15T09:23:41.000Z",
+            "updated_at": "2024-11-15T09:23:41.000Z",
+        },
+        {
+            "id": "01J8KZ2QP4B",
+            "gc_booking": "GC-2352",
+            "amount": 1250.99,
+            "status": "A Traiter",
+            "created_at": "2024-11-15T09:23:41.000Z",
+            "updated_at": "2024-11-15T09:23:41.000Z",
+        },
+        {
+            "id": "01J8KZ2QP4C",
+            "gc_booking": "GC-2353",
+            "amount": 1250.99,
+            "status": "Valider",
+            "created_at": "2024-11-15T09:23:41.000Z",
+            "updated_at": "2024-11-15T09:23:41.000Z",
+        }
+    ] as Buyback[],
     bookings: [],
     invoices: [],
     projects: [],

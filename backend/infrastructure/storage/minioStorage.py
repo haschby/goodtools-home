@@ -30,20 +30,29 @@ class MinioStorage(StorageFileGateway):
         self.bucket_name = bucket_name
     
     async def upload_file(
-        self, 
-        file_byte: str,
-        file_name: str
+        self,
+        file: "UploadFile | bytes",
+        folder: str,
+        file_name: str | None = None,
+        content_type: str = "application/octet-stream",
     ) -> str:
-        
-        file_name = f"invoices/{uuid.uuid4()}_{file_name}"
-        file_id = self.client.put_object(
+
+        if isinstance(file, (bytes, bytearray)):
+            file_byte = bytes(file)
+        else:
+            file_byte = await file.read()
+            file_name = file_name or getattr(file, "filename", None)
+            content_type = getattr(file, "content_type", None) or content_type
+
+        object_name = f"{folder}/{uuid.uuid4()}_{file_name}"
+        self.client.put_object(
             bucket_name=self.bucket_name,
-            object_name=file_name,
+            object_name=object_name,
             data=io.BytesIO(file_byte),
             length=len(file_byte),
-            content_type="application/pdf"
+            content_type=content_type,
         )
-        return file_name
+        return object_name
 
     async def download_file(self, file_name: str) -> bytes:
         pass

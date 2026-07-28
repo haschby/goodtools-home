@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Invoice } from '@/lib/types/invoice';
 import { useDataTable } from '@/lib/contexts/DataTableCustomContext';
@@ -68,12 +68,14 @@ export default function InvoiceStatusBar() {
         [fetchData, pagination?.limit, setActiveStatus]
     );
 
+    const isPickedRecord = useMemo(() => pickedRecord && pickedRecord.path !== null, [pickedRecord]);
+
     return (
         <ul
             ref={containerRef}
             role="tablist"
             className={`relative flex flex-row overflow-hidden border-b border-gray-200 w-full`}>
-            { pickedRecord && (
+            { isPickedRecord && (
                 <li
                     onClick={() => handleForwardStatus(activeStatus ?? 'All', 'backward') }
                     className="opacity-10 hover:opacity-100 transition-all duration-300 h-full text-gray-700 cursor-pointer bg-white flex items-center justify-center sticky top-0 left-0 z-50 px-4">
@@ -113,7 +115,7 @@ export default function InvoiceStatusBar() {
                 }
             </ul>
 
-            { pickedRecord && (        
+            { isPickedRecord && (        
                 <li
                     onClick={() => handleForwardStatus(activeStatus ?? 'All', 'forward') }
                     className="opacity-10 hover:opacity-100 transition-opacity duration-300 h-full text-gray-700 cursor-pointer bg-white flex items-center justify-center sticky top-0 right-0 px-4 z-50">

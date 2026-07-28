@@ -28,6 +28,7 @@ class SyncPennyLaneWorkflow(BaseUsecase):
         store_pdf_invoice_usecase: BaseUsecase,
         create_invoice_usecase: BaseUsecase
     ) -> None:
+        print(f"Session factory: {session_factory}")
         self.session_factory = session_factory
         self.fetch_pennylane_usecase = fetch_pennylane_supplier_invoices_usecase
         self.store_pdf_invoice_usecase = store_pdf_invoice_usecase
@@ -83,7 +84,7 @@ class SyncPennyLaneWorkflow(BaseUsecase):
                 await self._run(command, session)
             except Exception as e:
                 await session.rollback()
-                raise SyncPennyLaneWorkflowError(str(e)) from e
+                raise SyncPennyLaneWorkflowError(str(e))
 
     async def _run(
         self,

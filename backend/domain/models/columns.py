@@ -54,8 +54,24 @@ def NumericColumn(nullable: bool = True, precision: int = 10, scale: int = 2) ->
 def JSONBColumn(nullable: bool = True) -> Mapped[dict]:
     return mapped_column(JSONB, nullable=nullable)
 
-def EnumColumn(enum: type[Enum], nullable: bool = True, default: Enum = None) -> Mapped[Enum]:
-    return mapped_column(Enum(enum), nullable=nullable, default=default)
+def EnumColumn(
+    enum: type[Enum],
+    nullable: bool = True,
+    default: Enum = None,
+    use_values: bool = False,
+) -> Mapped[Enum]:
+    enum_kwargs = {}
+    if use_values:
+        # Persist / read the enum *value* (e.g. "A Traiter") instead of the
+        # member name, so the stored representation matches the API contract.
+        enum_kwargs["values_callable"] = lambda enum_cls: [
+            member.value for member in enum_cls
+        ]
+    return mapped_column(
+        Enum(enum, **enum_kwargs),
+        nullable=nullable,
+        default=default,
+    )
 
 def EmailColumn() -> Mapped[str]:
     

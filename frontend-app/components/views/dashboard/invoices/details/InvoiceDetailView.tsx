@@ -19,42 +19,13 @@ export default function InvoiceDetailView(
     }: InvoiceDetailViewProps
 ) {
 
-    const { pickedRecord, pickedIsLoading } = useDataTable<Invoice>();
-    // const items = pagination?.items as Invoice[] | undefined ?? [];
-    // const invoiceIds = items?.map((invoice: Invoice) => invoice.id);
-    // const invoiceIndex = invoiceIds?.indexOf(pickedRecord?.id || '');
-
-    // const handlePickRecordById = useCallback(
-    //     (invoice: Invoice | null) => {
-    //     if (invoice) {
-    //         pickRecordById(invoice.id);
-    //     }
-    // }, [pickRecordById]);
+    const { pickedRecord, pickedIsLoading, fetchRecord } = useDataTable<Invoice>();
 
     // useEffect(() => {
-    //     const handleUpOrDown = (event: KeyboardEvent) => {
-    //         if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-    //             event.preventDefault();
-    //             event.stopPropagation();
-    //             switch (event.key) {
-    //                 case 'ArrowUp':
-    //                     if (invoiceIndex > 0) {
-    //                         handlePickRecordById(data[invoiceIndex - 1]);
-    //                     }
-    //                     break;
-    //                 case 'ArrowDown':
-    //                     if (invoiceIndex < data.length - 1) {
-    //                         handlePickRecordById(data[invoiceIndex + 1]);
-    //                     }
-    //                     break;
-    //                 default:
-    //                     break;
-    //             }
-    //         }
-    //     };
-    //     window.addEventListener('keydown', handleUpOrDown);
-    //     return () => window.removeEventListener('keydown', handleUpOrDown);
-    // }, [handlePickRecordById]);     
+    //     while (!pickedRecord?.path) {
+    //         fetchRecord();
+    //     }
+    // }, [pickedRecord?.path, fetchRecord]);
 
     return (
         <div className="w-full h-full bg-white flex flex-col border-l border-gray-200 shadow-lg relative">
