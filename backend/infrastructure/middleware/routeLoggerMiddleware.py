@@ -3,6 +3,7 @@ from fastapi import FastAPI, Request
 from application.ports.logger.loggerPort import LoggerPort
 from typing import Callable
 import time
+import json
 
 class RouteLoggerMiddleware(BaseHTTPMiddleware):
     """

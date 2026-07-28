@@ -5,13 +5,13 @@ from typing import (
     Any
 )
 
-T = TypeVar('T', bound=BaseModel)
+T = TypeVar('T')
 R = TypeVar('R', bound=BaseModel)
 
 class BaseResponseSchema(BaseModel, Generic[T]):
     message: str
     status_code: int
-    data: Optional[T] = None
+    data: T | None = None
     
     class Config:
         from_attributes = True

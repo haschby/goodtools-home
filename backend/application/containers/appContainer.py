@@ -1,7 +1,7 @@
 from dependency_injector import containers, providers
 
-from infrastructure.config.settings import settings
-from infrastructure.db.engine import AsyncSessionLocal, get_session
+from infrastructure.config.settings import Settings, DatabaseSchema, build_database_uri
+from infrastructure.db.engine import Database
 from infrastructure.gateways.GrokGateway import GrokGateway
 from infrastructure.storage.minioStorage import MinioStorage
 from infrastructure.db.workflowRepository import WorkflowRepositoryImpl
@@ -9,20 +9,22 @@ from infrastructure.gateways.accounting.pennylane import PennyLaneAccountingGate
 from infrastructure.logger.logger import LoggerImplement
 
 from application.containers.invoiceContainer import InvoiceContainer
+from application.containers.buybackContainer import BuybackContainer
 from application.containers.userContainer import UserContainer
 from application.containers.orchestrator.orchestratorContainer import OrchestratorContainer
 from application.containers.workflowContainer import WorkflowContainer
 from application.containers.orchestrator.activitiesContainer import ActivitiesContainer
+from application.containers.gcContainer import GCContainer
 
 
 
 class AppContainer(containers.DeclarativeContainer):
+    
     wiring_config = containers.WiringConfiguration(
         packages=["infrastructure.routes"]
     )
     
-    config = providers.Configuration()
-    config.from_pydantic(settings)
+    settings = providers.Singleton(Settings)    
     
     logger = providers.Factory(
         LoggerImplement,
@@ -31,12 +33,38 @@ class AppContainer(containers.DeclarativeContainer):
     
     # # LAUNCH OF THE DATABASE SESSION
     # # THIS IS A RESOURCE BECAUSE IT IS A CONTEXT MANAGER
-    session_factory = providers.Object(AsyncSessionLocal)
+    # session_factory = providers.Object(AsyncSessionLocal)
+    
+    main_database_schema = DatabaseSchema(
+        db_user=settings().db_user,
+        db_pass=settings().db_pass,
+        db_host=settings().db_host,
+        db_port=settings().db_port,
+        db_name=settings().db_name
+    )
+    
+    gc_database_schema = DatabaseSchema(
+        db_user=settings().gc_db_user,
+        db_pass=settings().gc_db_pass,
+        db_host=settings().gc_db_host,
+        db_port=settings().gc_db_port,
+        db_name=settings().gc_db_name
+    )
+    
+    main_database_uri = providers.Callable(build_database_uri, main_database_schema)
+    gc_database_uri = providers.Callable(build_database_uri, gc_database_schema)
+    
+    main_db_uri = providers.Resource(Database, database_uri=main_database_uri)
+    gc_db_uri = providers.Resource(
+        Database,
+        database_uri=gc_database_uri,
+        extra_args={"server_settings": {"search_path": "public"}}
+    )
     
     pennylane_gateway = providers.Resource(
         PennyLaneAccountingGateway,
-        api_token=config.pennylane_api_token(),
-        api_url=config.pennylane_api_public_url()
+        api_token=settings().pennylane_api_token,
+        api_url=settings().pennylane_api_public_url
     )
     # redis_client = providers.Resource(
     #     lambda: redis.Redis(
@@ -49,24 +77,30 @@ class AppContainer(containers.DeclarativeContainer):
     # OPENAI CLIENT
     grokClient = providers.Resource(
         GrokGateway,
-        api_key=config.grok_api_key(),
-        model=config.grok_api_model()
+        api_key=settings().grok_api_key,
+        model=settings().grok_api_model
     )
     
     #STORAGE CLIENT
     minioClient = providers.Resource(
         MinioStorage,
-        host=config.minio_host(),
-        access_key=config.minio_access_key(),
-        secret_key=config.minio_secret_key(),
-        bucket_name=config.minio_bucket(),
-        region=config.minio_region(),
+        host=settings().minio_host,
+        access_key=settings().minio_access_key,
+        secret_key=settings().minio_secret_key,
+        bucket_name=settings().minio_bucket,
+        region=settings().minio_region,
+    )
+    
+    goodcollect_container = providers.Container(
+        GCContainer,
+        session=gc_db_uri.provided.session_factory,
+        logger=logger
     )
     
     invoice_container = providers.Container(
         InvoiceContainer,
         storage=minioClient,
-        session=session_factory,
+        session=main_db_uri.provided.session_factory,
         pennylane_gateway=pennylane_gateway,
         logger=logger
     )
@@ -92,12 +126,12 @@ class AppContainer(containers.DeclarativeContainer):
     
     user_container = providers.Container(
         UserContainer,
-        postgres=session_factory
+        postgres=main_db_uri.provided.session_factory
     )
     
     workflow_container = providers.Container(
         WorkflowContainer,
-        session=session_factory,
+        session=main_db_uri.provided.session_factory,
         logger=logger
     )
     
@@ -111,11 +145,20 @@ class AppContainer(containers.DeclarativeContainer):
     
     orchestrator_container = providers.Container(
         OrchestratorContainer,
+        main_session=main_db_uri.provided.session_factory,
         pennylane_gateway=pennylane_gateway,
         invoice_container=invoice_container,
         workflow_container=workflow_container,
         activities_container=activities_container,
         storage=minioClient,
+        goodcollect_gateway=goodcollect_container.goodcollect_gateway,
+    )
+    
+    buyback_container = providers.Container(
+        BuybackContainer,
+        session=main_db_uri.provided.session_factory,
+        storage=minioClient,
+        workflow_launcher=orchestrator_container.localWorkflowLauncher,
     )
     
     

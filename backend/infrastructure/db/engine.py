@@ -6,31 +6,61 @@ from sqlalchemy.ext.asyncio import (
     AsyncEngine
 )
 from typing import AsyncGenerator
-from domain.models.baseModel import Base
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from infrastructure.config.settings import settings
 
-engine = create_async_engine(
-    settings.database_uri, 
-    echo=False, 
-    pool_pre_ping=True
-)
+class Database:
+    def __init__(self, database_uri: str, extra_args: dict = None):
+        self.engine = create_async_engine(
+            database_uri,
+            echo=False,
+            pool_pre_ping=True,
+            connect_args=extra_args if extra_args else {},
+        )
+        
+        self.session_factory = async_sessionmaker(
+            self.engine,
+            expire_on_commit=False,
+            class_=AsyncSession
+        )
+    
+    
+    async def get_session(self) -> AsyncGenerator[AsyncSession, None]:
+        async with self.session_factory() as session:
+            try:
+                yield session
+            except Exception:
+                await session.rollback()
+                raise
+            finally:
+                await session.close()
+    
+    async def init_models(self, base: DeclarativeMeta) -> None:
+        async with self.engine.begin() as conn:
+            await conn.run_sync(base.metadata.create_all)
 
-AsyncSessionLocal = async_sessionmaker(
-    engine, 
-    expire_on_commit=False,
-    class_=AsyncSession
-)
+# engine = create_async_engine(
+#     settings.database_uri, 
+#     echo=False, 
+#     pool_pre_ping=True
+# )
 
-async def get_session() -> AsyncGenerator[AsyncSession, None]:
-    async with AsyncSessionLocal() as session:
-        try:
-            yield session
-        except Exception:
-            await session.rollback()
-            raise
-        finally:
-            await session.close()
+# AsyncSessionLocal = async_sessionmaker(
+#     engine, 
+#     expire_on_commit=False,
+#     class_=AsyncSession
+# )
 
-async def init_models() -> None:
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+# async def get_session() -> AsyncGenerator[AsyncSession, None]:
+#     async with AsyncSessionLocal() as session:
+#         try:
+#             yield session
+#         except Exception:
+#             await session.rollback()
+#             raise
+#         finally:
+#             await session.close()
+
+# async def init_models() -> None:
+#     async with engine.begin() as conn:
+#         await conn.run_sync(Base.metadata.create_all)

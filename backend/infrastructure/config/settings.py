@@ -1,4 +1,5 @@
 import os
+from dataclasses import dataclass
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field, BaseModel
 
@@ -37,8 +38,23 @@ class Settings(BaseSettings):
     pennylane_api_token: str = Field(..., env="PENNYLANE_API_TOKEN")
     pennylane_api_public_url: str = Field(..., env="PENNYLANE_API_PUBLIC_URL")
     
-    @property
-    def database_uri(self) -> str:
-        return f"postgresql+asyncpg://{self.db_user}:{self.db_pass}@{self.db_host}:{self.db_port}/{self.db_name}"
+    goodcollect_base_url: str = Field(..., env="GOODCOLLECT_BASE_URL")
     
+    gc_db_name: str = Field(..., env="GC_DB_NAME")
+    gc_db_host: str = Field(..., env="GC_DB_HOST")
+    gc_db_port: int = Field(..., env="GC_DB_PORT")
+    gc_db_user: str = Field(..., env="GC_DB_USER")
+    gc_db_pass: str = Field(..., env="GC_DB_PASS")
+
+@dataclass
+class DatabaseSchema:
+    db_user: str
+    db_pass: str
+    db_host: str
+    db_port: int
+    db_name: str
+
+def build_database_uri(schema: DatabaseSchema) -> str:
+    return f"postgresql+asyncpg://{schema.db_user}:{schema.db_pass}@{schema.db_host}:{schema.db_port}/{schema.db_name}"
+
 settings = Settings()

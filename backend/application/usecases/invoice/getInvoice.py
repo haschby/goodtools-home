@@ -26,11 +26,13 @@ class GetInvoice(BaseUsecase):
         
         _data = InvoiceCreateSchema(**invoice.__dict__)
         
-        public_url = await self.accountingGateway.fetch_invoice_public_url(_data.external_id)
-        print('@PUBLIC URL : ', public_url);
-        if public_url:
-            file_url = public_url.get("public_file_url")
+        pennylane_invoice = await self.accountingGateway.fetch_invoice_public_url(_data.external_id)
+        print('@PUBLIC URL : ', pennylane_invoice);
+        if pennylane_invoice:
+            file_url = pennylane_invoice.get("public_file_url")
             _data.path = file_url
+            
+        print('@DATA : ', _data);
         
         return InvoiceDetailResponseSchema(
             message="Invoice fetched" if invoice else "Invoice not fetched",

@@ -1,10 +1,19 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, computed_field
 from typing import Optional, List
 from datetime import datetime, date
 from application.dtos.baseDto import PaginatedResponseSchema, BaseResponseSchema
+from infrastructure.config.settings import settings
 
 class BaseInvoiceSchema(BaseModel):
     id: Optional[str] = None
+    
+    # @computed_field
+    # @property
+    # def url(self) -> Optional[str]:
+    #     print('@URL IN BASE INVOICE SCHEMA')
+    #     if self.gc_booking:
+    #         return f"{settings.goodcollect_base_url}/bookings/{self.gc_booking.split('-')[-1]}"
+    #     return None
     
     class Config:
         from_attributes = True
@@ -26,7 +35,7 @@ class InvoiceCreateSchema(BaseInvoiceSchema):
     images: Optional[list] = []
     extracted_data: Optional[dict] = {}
     created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None    
         
     class Config:
         from_attributes = True
@@ -51,6 +60,7 @@ class InvoiceResponseSchema(BaseInvoiceSchema):
     external_id: str | None = None
     invoice_number: str | None = None
     invoice_date: date | None = None
+    path: str | None = None
     amount_ht: float | None = None
     amount_ttc: float | None = None
     amount_tva: float | None = None
@@ -76,8 +86,12 @@ class PaginatedInvoiceResponseSchema(
     PaginatedResponseSchema[InvoiceResponseSchema]):
     pass
 
+class InvoiceListDetailResponseSchema(
+    BaseResponseSchema[list[InvoiceResponseSchema]]):
+    pass
+
 class InvoiceDetailResponseSchema(
-    BaseResponseSchema[InvoiceCreateSchema]):
+    BaseResponseSchema[InvoiceResponseSchema]):
     pass
 
 class InvoiceUpdateResponseSchema(

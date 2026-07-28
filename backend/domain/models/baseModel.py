@@ -6,12 +6,13 @@ from sqlalchemy import String, text
 import uuid
 
 
-Base = declarative_base()
+BaseMain = declarative_base()
+GCBase = declarative_base()
 
 class TimestampMixin:
     updated_at: Mapped[datetime]
 
-class BaseModel(Base, TimestampMixin):
+class BaseModel(BaseMain, TimestampMixin):
     
     __abstract__ = True
     __allow_unmapped__ = True
@@ -37,8 +38,4 @@ class BaseModel(Base, TimestampMixin):
             nullable=False,
             default=lambda: f"{prefix}{str(uuid.uuid4())[:10]}".replace("-", ""),
             server_default=text("gen_random_uuid()")
-        )   
-
-from .user import User
-from .invoice import Invoice
-from .workflow import Workflow, Workflow_Step
+        )
