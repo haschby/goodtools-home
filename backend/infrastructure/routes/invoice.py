@@ -117,7 +117,10 @@ def invoice_routes() -> APIRouter:
         orchestrator: WorkflowLauncher = Depends(
             Provide[AppContainer.orchestrator_container.localWorkflowLauncher]
         )
-    ):      
+    ):   
+        print('@ID', id)
+        print('@UPDATE_INVOICE', update_invoice)
+        
         try:
             response = await useCase.execute([update_invoice])
         except Exception as e:
@@ -131,9 +134,8 @@ def invoice_routes() -> APIRouter:
             command = SyncUpdateInvoiceToPennylaneCommand(
                 workflow_id='INTERNAL',
                 workflow_name="updateInvoiceToPennylaneWorkflow",
-                invoice_id=updated_invoice.data.id
+                invoice_id=updated_invoice.id
             )
-            print('@COMMAND', command)
             background_tasks.add_task(orchestrator.startWorkflow, command)
         
         return response

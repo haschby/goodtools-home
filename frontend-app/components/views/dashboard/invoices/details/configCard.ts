@@ -20,7 +20,8 @@ const configCard = [
 ];
 
 const statuses = [
-    { label: 'Valider', value: 'Valider' },
+    { label: 'Valider avec', value: 'Valider avec paiement' },
+    { label: 'Valider sans', value: 'Valider sans paiement' },
     { label: 'Facturer ticket', value: 'Facturer ticket' },
     { label: 'Avoiriser', value: 'Avoiriser' },
     { label: 'A Traiter', value: 'A Traiter' },
