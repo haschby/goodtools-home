@@ -17,7 +17,8 @@ class EnumInvoiceStatus(Enum):
     NEED_TO_CHECK = "Avoiriser"
     TO_BE_INVOICED = "A Facturer"
     INVOICED = "Facturer ticket"
-    VALIDATED = "Valider"
+    VALIDATED = "Valider avec paiement"
+    VALIDATED_ONLY = "Valider sans paiement"
 
 class Invoice(BaseModel):
     prefix: str = "INV"

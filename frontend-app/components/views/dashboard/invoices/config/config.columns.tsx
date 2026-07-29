@@ -21,25 +21,25 @@ export const invoicesColumns: ColumnProps<Invoice>[] = [
                 id={item.id}
                 disabled={!item.gc_booking} />
     },
-    {
-        keyfield: 'id',
-        align: 'left',
-        maxWidth: '0',
-        renderItem: (item: Invoice) =>
-            <span className="p-1 bg-gray-300/20 font-semibold text-gray-500 text-xs rounded-md">
-                {item.id.substring(3)}
-            </span>
-    },
-    {
-        keyfield: 'external_id',
-        align: 'left',
-        maxWidth: '180px',
-        isNumber: false,
-        renderItem: (item: Invoice) =>
-            <span className="text-sm font-normal text-gray-500">
-                {item.external_id}
-            </span>
-    },
+    // {
+    //     keyfield: 'id',
+    //     align: 'left',
+    //     maxWidth: '0',
+    //     renderItem: (item: Invoice) =>
+    //         <span className="p-1 bg-gray-300/20 font-semibold text-gray-500 text-xs rounded-md">
+    //             {item.id.substring(3)}
+    //         </span>
+    // },
+    // {
+    //     keyfield: 'external_id',
+    //     align: 'left',
+    //     maxWidth: '180px',
+    //     isNumber: false,
+    //     renderItem: (item: Invoice) =>
+    //         <span className="text-sm font-normal text-gray-500">
+    //             {item.external_id}
+    //         </span>
+    // },
     {
         keyfield: 'status',
         align: 'left',
@@ -58,19 +58,19 @@ export const invoicesColumns: ColumnProps<Invoice>[] = [
                 {item.issuer_name}
             </span>
     },
-    {
-        keyfield: 'last_modified',
-        align: 'left',
-        maxWidth: '150px',
-        isNumber: false,
-        renderItem: (item: Invoice) => {
-            return (
-                <span className="text-sm font-normal text-gray-500">
-                    {new Date(item.updated_at).toLocaleDateString('fr-FR')}
-                </span>
-            )
-        }
-    },
+    // {
+    //     keyfield: 'last_modified',
+    //     align: 'left',
+    //     maxWidth: '150px',
+    //     isNumber: false,
+    //     renderItem: (item: Invoice) => {
+    //         return (
+    //             <span className="text-sm font-normal text-gray-500">
+    //                 {new Date(item.updated_at).toLocaleDateString('fr-FR')}
+    //             </span>
+    //         )
+    //     }
+    // },
     {
         keyfield: 'invoice_number',
         align: 'left',
@@ -81,16 +81,16 @@ export const invoicesColumns: ColumnProps<Invoice>[] = [
                 {item.invoice_number}
             </span>
     },
-    {
-        keyfield: 'invoice_date',
-        align: 'left',
-        maxWidth: '150px',
-        isNumber: false,
-        renderItem: (item: Invoice) =>
-            <span className="text-sm font-normal text-gray-500">
-                {new Date(item.invoice_date).toLocaleDateString('fr-FR')}
-            </span>
-    },
+    // {
+    //     keyfield: 'invoice_date',
+    //     align: 'left',
+    //     maxWidth: '150px',
+    //     isNumber: false,
+    //     renderItem: (item: Invoice) =>
+    //         <span className="text-sm font-normal text-gray-500">
+    //             {new Date(item.invoice_date).toLocaleDateString('fr-FR')}
+    //         </span>
+    // },
     {
         keyfield: 'booking_number',
         align: 'left',

@@ -58,8 +58,8 @@ export class EnumInvoiceStatus {
     static readonly NEED_TO_CHECK = 'Avoiriser';
     static readonly TO_BE_INVOICED = 'A Facturer';
     static readonly INVOICED = 'Facturer ticket';
-    static readonly VALIDATED = 'Valider';
-    static readonly VALIDATED_ONLY = 'Valider uniquement';
+    static readonly VALIDATED = 'Valider avec paiement';
+    static readonly VALIDATED_ONLY = 'Valider sans paiement'; 
 
     static getStatusLabel(status: EnumInvoiceStatus): string | undefined {
         return Object.entries(this).find(

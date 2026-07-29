@@ -50,6 +50,7 @@ const StatusRow = ({ status, className } :StatusRowProps ): ReactNode => {
             </span>
         case 'Completed':
         case EnumInvoiceStatus.VALIDATED:
+        case EnumInvoiceStatus.VALIDATED_ONLY:
             return <span className={`${cssClasses} bg-green-400/20 text-green-600 text-xs`}>
                 <Icon Icon={Ticket1Solid} size={16} strokeWidth={2} />
                 {status}
