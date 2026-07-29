@@ -30,25 +30,25 @@ export default function InvoiceDetailCard() {
     const gcBooking = pickedRecord?.gc_booking;
     console.log('gcBooking: ', gcBooking);
 
-    useEffect(() => {
-        if (!gcBooking) { return; }
+    // useEffect(() => {
+    //     if (!gcBooking) { return; }
 
-        let cancelled = false;
-        (async () => {
-            if (!cancelled && gcBooking) {
-                try {
-                    const response = await getRentabilitiesByBookingId(620);
-                    console.log(response);
-                    setRentabilities(response.data as Rentability[]);
-                } catch (error) {
-                    console.error(error);
-                    setRentabilities(null);
-                }
-            }
-        })();
+    //     let cancelled = false;
+    //     (async () => {
+    //         if (!cancelled && gcBooking) {
+    //             try {
+    //                 const response = await getRentabilitiesByBookingId(620);
+    //                 console.log(response);
+    //                 setRentabilities(response.data as Rentability[]);
+    //             } catch (error) {
+    //                 console.error(error);
+    //                 setRentabilities(null);
+    //             }
+    //         }
+    //     })();
 
-        return () => { cancelled = true; };
-    }, [gcBooking]);
+    //     return () => { cancelled = true; };
+    // }, [gcBooking]);
 
 
 
