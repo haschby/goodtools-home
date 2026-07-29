@@ -61,13 +61,11 @@ export default function InvoiceDetailCard() {
             const response = await patchInvoice(pickedRecord);  
             if (response.data) {
                 setIsEditing(false);
-                if (!gcRefBooking.current) {
-                    fetchData({
-                        status:  activeStatus || 'All',
-                        page: pagination?.page ?? 1,
-                        limit: pagination?.limit ?? 30
-                    });
-                }
+                fetchData({
+                    status:  activeStatus || 'All',
+                    page: pagination?.page ?? 1,
+                    limit: pagination?.limit ?? 30
+                });
                 // router.push(`/invoices?status=${response.data?.status?.toString()}`);
             }
         }
