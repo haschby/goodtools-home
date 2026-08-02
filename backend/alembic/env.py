@@ -16,7 +16,9 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
     
     
-from infrastructure.config.settings import settings
+from infrastructure.config.settings import Settings
+
+settings = Settings()
 
 DATABASE_URL = f"postgresql+asyncpg://{settings.db_user}:{settings.db_pass}@{settings.db_host}:{settings.db_port}/{settings.db_name}"
 
