@@ -37,9 +37,13 @@ class GoodcollectGateway:
                 'VALUES (:id, :fileKey, :fileUrl) '
                 'RETURNING "id"'
             )
-            result = await session.execute(stmt, params)
-            await session.commit()
-            return result.mappings().one()
+            try:
+                result = await session.execute(stmt, params)
+                await session.commit()
+                return result.mappings().one()
+            except Exception as e:
+                logger.exception(f"GoodcollectGateway.createAsset failed: {str(e)}")
+                raise CreateAssetError(str(e))
     
     async def createRentabilityBooking(self, payload: RentabilityBooking) -> Any:
         async with self.session() as session:
