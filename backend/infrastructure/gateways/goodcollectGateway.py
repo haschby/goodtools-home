@@ -22,7 +22,7 @@ class GoodcollectGateway:
     async def getRentabilityBooking(self, id: int) -> Any:
         async with self.session() as session:
             stmt = text('SELECT id FROM "BookingRentabilityLine" WHERE "bookingId" = :id')
-            test = await session.execute(stmt, {"id": 750})
+            test = await session.execute(stmt, {"id": id})
             return test.scalars().all()
     
     async def createAsset(self, payload: Asset) -> Any:
@@ -42,7 +42,7 @@ class GoodcollectGateway:
                 await session.commit()
                 return result.mappings().one()
             except Exception as e:
-                logger.exception(f"GoodcollectGateway.createAsset failed: {str(e)}")
+                self.logger.exception(f"CREATE_ASSET failed: {str(e)}")
                 raise CreateAssetError(str(e))
     
     async def createRentabilityBooking(self, payload: RentabilityBooking) -> Any:
