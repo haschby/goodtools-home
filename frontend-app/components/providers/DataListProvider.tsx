@@ -55,11 +55,11 @@ export function DataListProvider<T extends CursorEntity & BaseEntity>({
         status: activeStatus
     });
 
-    useEffect(() => {
-        if (activeStatus !== 'All') {
-            setPickedRecord(pagination?.items[0] as T);
-        }
-    }, [pagination, setPickedRecord, activeStatus]);
+    // useEffect(() => {
+    //     if (activeStatus !== 'All') {
+    //         setPickedRecord(pagination?.items[0] as T);
+    //     }
+    // }, [pagination, setPickedRecord, activeStatus]);
 
     const contextValue: DataTableContextType<T> = {
         totalRows: 0,

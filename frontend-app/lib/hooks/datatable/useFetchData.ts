@@ -43,8 +43,6 @@ export function useFetchData<MODEL>(
                     query: params.query
                 });
 
-                console.log('@RESPONSE : ', response);
-
                 if (response?.status_code !== 201) {
                     throw new Error(response?.message ?? 'Failed to fetch data');
                 }

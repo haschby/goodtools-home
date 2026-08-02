@@ -3,6 +3,7 @@ from application.ports.orchestrator.workflowLauncher import WorkflowLauncher
 from application.orchestrator.syncPennyLaneWorkflow import SyncPennyLaneWorkflow
 from application.orchestrator.syncUpdatInvoiceToPennylane import SyncUpdateInvoiceToPennylane
 from application.orchestrator.syncBuybackToGcWorkflow import SyncBuybackToGcWorkflow
+from application.orchestrator.syncInvoiceToGcWorkflow import SyncInvoiceToGcWorkflow
 from infrastructure.db.workflowRepository import WorkflowRepositoryImpl
 from infrastructure.orchestrator.localWorkflowLauncher import LocalWorkflowLauncher
 from application.containers.orchestrator.activitiesContainer import ActivitiesContainer
@@ -41,10 +42,17 @@ class OrchestratorContainer(containers.DeclarativeContainer):
         goodcollect_gateway=goodcollect_gateway,
     )
     
+    sync_invoice_to_gc_workflow = providers.Factory(
+        SyncInvoiceToGcWorkflow,
+        session_factory=main_session,
+        goodcollect_gateway=goodcollect_gateway,
+    )
+    
     _workflows = providers.Dict(
         syncPennyLaneWorkflow=synchronize_pennylane_workflow,
         updateInvoiceToPennylaneWorkflow=update_invoice_to_pennylane_workflow,
         syncBuybackToGcWorkflow=sync_buyback_to_gc_workflow,
+        syncInvoiceToGcWorkflow=sync_invoice_to_gc_workflow,
     )
     
     localWorkflowLauncher = providers.Factory(

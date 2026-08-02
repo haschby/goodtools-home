@@ -1,5 +1,5 @@
 from dependency_injector.wiring import inject, Provide
-from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks, Body
+from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks, Body, Request
 from typing import Optional
 
 from application.containers.appContainer import AppContainer
@@ -7,7 +7,7 @@ from application.ports.baseUsecase import BaseUsecase
 from domain.models.invoice import EnumInvoiceStatus
 
 from application.ports.orchestrator.workflowLauncher import WorkflowLauncher
-from application.dtos.workflow import SyncUpdateInvoiceToPennylaneCommand
+from application.dtos.workflow import SyncUpdateInvoiceToPennylaneCommand, SyncInvoiceToGcCommand
 
 from application.dtos.baseDto import BaseResponseSchema
 from application.dtos.invoiceDto import ( 
@@ -39,7 +39,7 @@ def invoice_routes() -> APIRouter:
     @router.get(
     '/count',
     response_model=BaseResponseSchema[int],
-    status_code=201 )
+    status_code=201)
     @inject
     async def count(
         repository: any = Depends(
@@ -75,6 +75,7 @@ def invoice_routes() -> APIRouter:
         }
         
         return await useCase.execute(params)
+    
 
     @router.post(
     '/',
@@ -89,6 +90,7 @@ def invoice_routes() -> APIRouter:
     ):
         return await useCase.execute([new_invoice])
     
+    
     @router.get(
     '/{id:str}',
     response_model=InvoiceDetailResponseSchema,
@@ -101,6 +103,7 @@ def invoice_routes() -> APIRouter:
         )
     ):
         return await useCase.execute(id)
+    
     
     @router.patch(
     '/{id:str}',
@@ -117,9 +120,7 @@ def invoice_routes() -> APIRouter:
         orchestrator: WorkflowLauncher = Depends(
             Provide[AppContainer.orchestrator_container.localWorkflowLauncher]
         )
-    ):   
-        print('@ID', id)
-        print('@UPDATE_INVOICE', update_invoice)
+    ):
         
         try:
             response = await useCase.execute([update_invoice])
@@ -130,13 +131,22 @@ def invoice_routes() -> APIRouter:
                 status_code=500,
                 data=None
             )
+        print('@RESPONSE', response.data.status)
+        print('@ENUM_INVOICE_STATUS', EnumInvoiceStatus.VALIDATED.value)
         if response.data.status == EnumInvoiceStatus.VALIDATED.value:
             command = SyncUpdateInvoiceToPennylaneCommand(
                 workflow_id='INTERNAL',
                 workflow_name="updateInvoiceToPennylaneWorkflow",
-                invoice_id=updated_invoice.id
+                invoice_id=id
             )
             background_tasks.add_task(orchestrator.startWorkflow, command)
+
+            gc_command = SyncInvoiceToGcCommand(
+                workflow_id='INTERNAL',
+                workflow_name="syncInvoiceToGcWorkflow",
+                invoice_id=id
+            )
+            background_tasks.add_task(orchestrator.startWorkflow, gc_command)
         
         return response
     
@@ -164,6 +174,7 @@ def invoice_routes() -> APIRouter:
         status: str,
         ids: list[str],
         background_tasks: BackgroundTasks,
+        gc_booking: Optional[str] = Query(default=None),
         useCase: BaseUsecase = Depends(
             Provide[AppContainer.invoice_container.updateInvoiceUsecase]
         ),
@@ -171,30 +182,48 @@ def invoice_routes() -> APIRouter:
             Provide[AppContainer.orchestrator_container.localWorkflowLauncher]
         )
     ):
-    
-        invoice_with_status = [ InvoiceUpdateSchema(id=id, status=status) for id in ids ]
-        response = await useCase.execute(invoice_with_status)
+
+        normalized_status = None if status.lower() == "none" else status
+        fields = {}
+        if normalized_status:
+            fields["status"] = normalized_status
+        if gc_booking:
+            fields["gc_booking"] = gc_booking
+
+        if not fields:
+            raise HTTPException(
+                status_code=400,
+                detail="At least one of 'status' or 'gc_booking' must be provided",
+            )
+
+        invoice_updates = [
+            InvoiceUpdateSchema(id=id, **fields)
+            for id in ids
+        ]
         
-        # match status:
-        #     case EnumInvoiceStatus.VALIDATED.value:
-        #         command = SyncUpdateInvoiceToPennylaneCommand(
-        #             workflow_id='INTERNAL',
-        #             workflow_name="updateInvoiceToPennylaneWorkflow",
-        #             invoice_id=response.data.id
-        #         )
-        #         background_tasks.add_task(orchestrator.startWorkflow, command)
-                
-        #     case EnumInvoiceStatus.ARCHIVED.value:
-        #         command = SyncArchiveInvoiceToPennylaneCommand(
-        #             workflow_id='INTERNAL',
-        #             workflow_name="archiveInvoiceToPennylaneWorkflow",
-        #             invoice_id=response.data.id
-        #         )
-        #         background_tasks.add_task(orchestrator.startWorkflow, command)
-        #     case _:
-        #         pass
-                
-        return response
+        updated_invoices = await useCase.execute(invoice_updates)
         
+        jobs: List[WorkflowCommand] = []
+        if normalized_status == EnumInvoiceStatus.VALIDATED.value:
+            for invoice_id in ids:
+                command = SyncUpdateInvoiceToPennylaneCommand(
+                    workflow_id='UpdatePennylane',
+                    workflow_name="updateInvoiceToPennylaneWorkflow",
+                    invoice_id=invoice_id
+                )
+
+                gc_command = SyncInvoiceToGcCommand(
+                    workflow_id='SyncGoodCollect',
+                    workflow_name="syncInvoiceToGcWorkflow",
+                    invoice_id=invoice_id
+                )
+                jobs.append(command)
+                jobs.append(gc_command)
+                
+        if jobs != []:
+            orchestrator.registerWorkflows(jobs)    
+            await orchestrator.launchWorkflows()
+            
+        return updated_invoices
     
     return router

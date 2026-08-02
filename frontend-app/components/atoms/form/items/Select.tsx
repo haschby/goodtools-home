@@ -49,6 +49,7 @@ const Select = ({
 
     const labelOrIcon = useMemo(() => {
         const isPosition = Boolean(icon?.position);
+        console.log('@IS_POSITION', isPosition);
         return (
             <label
                 htmlFor={`${name}`}
@@ -66,7 +67,7 @@ const Select = ({
     return (
     <>
         {labelOrIcon}
-        <div ref={containerRef} className="relative mb-3"> 
+        <div ref={containerRef} className="relative"> 
             <input
                 id={name}
                 onFocus={handleFocus}
@@ -84,7 +85,9 @@ const Select = ({
                     id={name}
                 >
                     {
-                        options && options.length > 0 && options.map(
+                        options
+                        && options.length > 0
+                        && options.map(
                             (item: { label: string, value: string }, index: number) => {
                                 const isLast = index === options.length - 1;
                                 return (

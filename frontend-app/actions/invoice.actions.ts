@@ -65,12 +65,19 @@ export async function patchInvoice(invoice: Invoice): Promise<GenericResponseAPI
 
 interface InvoiceBulkUpdateSchema {
     ids: string[];
-    status: string;
+    status?: string;
+    gc_booking?: string;
 }
 
 export async function bulkUpdateInvoices(payload: InvoiceBulkUpdateSchema): Promise<GenericResponseAPI<Invoice[]>> {
     console.log('@payload : ', payload);
-    const api_url = `/client/invoice/bulk/update/${payload.status}`;
+
+    const status = payload.status ?? 'none';
+    const query = payload.gc_booking
+        ? `?${new URLSearchParams({ gc_booking: payload.gc_booking }).toString()}`
+        : '';
+
+    const api_url = `/client/invoice/bulk/update/${status}${query}`;
     const response: GenericResponseAPI<Invoice[]> = await gatewayService(api_url, {
         method: "PATCH",
         cache: 'no-store',

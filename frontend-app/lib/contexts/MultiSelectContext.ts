@@ -3,9 +3,14 @@
 import { createContext, useContext } from "react";
 import { MultiSelectReturnType } from "@/lib/hooks/form/useMultiSelect"
 
+export interface BulkUpdateFields {
+    status?: string;
+    gc_booking?: string;
+}
+
 interface MultiSelectContextType extends MultiSelectReturnType {
     isSaving: boolean;
-    save: (status: string) => Promise<void | boolean>;
+    save: (fields: BulkUpdateFields) => Promise<void | boolean>;
 }
 
 export const MultiSelectCTX = createContext<MultiSelectContextType | null>(null);

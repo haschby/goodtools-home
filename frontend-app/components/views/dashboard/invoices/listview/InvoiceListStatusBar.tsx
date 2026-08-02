@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useCallback, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
 import { Invoice } from '@/lib/types/invoice';
 import { useDataTable } from '@/lib/contexts/DataTableCustomContext';
 import Icon from '@/components/atoms/Icon';
@@ -14,8 +13,6 @@ export default function InvoiceStatusBar() {
         pickedRecord, setActiveStatus,
         fetchData, pagination
     } = useDataTable<Invoice>();
-
-    const router = useRouter();
 
     const statusesValues = statuses.map(status => status);
     const containerRef = useRef<HTMLUListElement>(null);
@@ -31,9 +28,8 @@ export default function InvoiceStatusBar() {
     }
 
     const scrollToStatus = useCallback(
-        () => {
-            if (!activeStatus) return;
-            const statusFoundRef = statusRef.current.find(el => el.id === activeStatus);
+        (status: string) => {
+            const statusFoundRef = statusRef.current.find(el => el?.id === status);
             if (statusFoundRef) {
                 statusFoundRef.scrollIntoView({
                     behavior: 'smooth',
@@ -41,21 +37,8 @@ export default function InvoiceStatusBar() {
                     inline: 'center'
                 });
             }
-    }, [activeStatus]);
+    }, []);
 
-    const handleForwardStatus = useCallback(
-        (status: string, state: 'forward' | 'backward') => {
-            const index = statusesValues.indexOf(status);
-            if (index === -1) return;
-
-            const nextStatus = state === 'forward' ? statusesValues[index + 1] : statusesValues[index - 1];
-            if (nextStatus) {
-                // setQueryParams('status', nextStatus);
-                router.push(`/invoices?status=${nextStatus}`);
-                scrollToStatus();
-            }
-        }, [statusesValues, scrollToStatus, router]);
-    
     const handleSelectStatus = useCallback(
         (status: string) => {
             setActiveStatus(status);
@@ -63,10 +46,24 @@ export default function InvoiceStatusBar() {
                 status: status,
                 page: 1,
                 limit: pagination?.limit ?? 30
-            })
+            });
+            scrollToStatus(status);
         },
-        [fetchData, pagination?.limit, setActiveStatus]
+        [fetchData, pagination?.limit, setActiveStatus, scrollToStatus]
     );
+
+    const handleForwardStatus = useCallback(
+        (status: string, state: 'forward' | 'backward') => {
+            const index = statusesValues.indexOf(status);
+            if (index === -1) return;
+
+            const nextStatus =
+                state === 'forward' ? statusesValues[index + 1] : statusesValues[index - 1];
+
+            if (nextStatus) {
+                handleSelectStatus(nextStatus);
+            }
+        }, [statusesValues, handleSelectStatus]);
 
     const isPickedRecord = useMemo(() => pickedRecord && pickedRecord.path !== null, [pickedRecord]);
 
@@ -78,7 +75,7 @@ export default function InvoiceStatusBar() {
             { isPickedRecord && (
                 <li
                     onClick={() => handleForwardStatus(activeStatus ?? 'All', 'backward') }
-                    className="opacity-10 hover:opacity-100 transition-all duration-300 h-full text-gray-700 cursor-pointer bg-white flex items-center justify-center sticky top-0 left-0 z-50 px-4">
+                    className="opacity-10 hover:opacity-100 transition-all duration-300 h-full text-gray-700 cursor-pointer flex items-center justify-center sticky top-0 left-0 z-50 px-4">
                     <Icon
                         Icon={ArrowLeftCircleSolid}
                         size={18}
@@ -118,7 +115,7 @@ export default function InvoiceStatusBar() {
             { isPickedRecord && (        
                 <li
                     onClick={() => handleForwardStatus(activeStatus ?? 'All', 'forward') }
-                    className="opacity-10 hover:opacity-100 transition-opacity duration-300 h-full text-gray-700 cursor-pointer bg-white flex items-center justify-center sticky top-0 right-0 px-4 z-50">
+                    className="opacity-10 hover:opacity-100 transition-opacity duration-300 h-full text-gray-700 cursor-pointer flex items-center justify-center sticky top-0 right-0 px-4 z-50">
                     <Icon
                         Icon={ArrowRightCircleSolid}
                         size={18}

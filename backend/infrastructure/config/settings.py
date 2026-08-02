@@ -5,6 +5,10 @@ from pydantic import Field, BaseModel
 
 class Settings(BaseSettings):
     
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        print('init settings', self.application_name)
+    
     model_config = SettingsConfigDict(
         env_file='.env' if os.path.exists('.env') else None, 
         env_file_encoding='utf-8',
@@ -17,11 +21,11 @@ class Settings(BaseSettings):
     db_port: int = Field(..., env="DB_PORT")
     db_name: str = Field(..., env="DB_NAME")
     
-    application_name: str
-    application_version: str
-    application_description: str
-    application_author: str
-    application_author_email: str
+    application_name: str = Field(..., env="APPLICATION_NAME")
+    application_version: str = Field(..., env="APPLICATION_VERSION")
+    application_description: str = Field(..., env="APPLICATION_DESCRIPTION")
+    application_author: str = Field(..., env="APPLICATION_AUTHOR")
+    application_author_email: str = Field(..., env="APPLICATION_AUTHOR_EMAIL")
     
     grok_api_key: str = Field(..., env="GROK_API_KEY")
     grok_api_model: str = Field(..., env="GROK_API_MODEL")
@@ -53,8 +57,8 @@ class DatabaseSchema:
     db_host: str
     db_port: int
     db_name: str
+    
+    def build_database_uri(self) -> str:
+        return f"postgresql+asyncpg://{self.db_user}:{self.db_pass}@{self.db_host}:{self.db_port}/{self.db_name}"
 
-def build_database_uri(schema: DatabaseSchema) -> str:
-    return f"postgresql+asyncpg://{schema.db_user}:{schema.db_pass}@{schema.db_host}:{schema.db_port}/{schema.db_name}"
-
-settings = Settings()
+# settings = Settings()

@@ -16,6 +16,7 @@ export default function InvoiceDetailViewActions () {
     const totalAmountHT = filteredData?.reduce((acc: number, invoice: Invoice) => acc + invoice.amount_ht, 0);
     const totalAmountTTC = filteredData?.reduce((acc: number, invoice: Invoice) => acc + invoice.amount_ttc, 0);
     const [status, setStatus] = useState<string>('TBD');
+    const [gcBooking, setGcBooking] = useState<string>('');
     const [shouldRender, setShouldRender] = useState<boolean>(false);
     const [classNames, setClassNames] = useState<string>('translate-y-0 duration-100');
   
@@ -37,16 +38,24 @@ export default function InvoiceDetailViewActions () {
       return () => clearTimeout(timer);
     }, [hasSelection, count]);
 
-    async function handleAction(status: string) {
-      const success = await save(status);
+    async function handleAction(
+      status: string,
+      gcBooking?: string
+    ) {
+      
+      const success = await save({ status, gc_booking: gcBooking ?? undefined });
       
       if (success) {
-        fetchData({
-          status: `${activeStatus ?? 'All'}`,
-          page: pagination?.page ?? 1,
-          limit: pagination?.limit ?? 30
-        });
+        refresh();
       }
+    }
+
+    function refresh() {
+      fetchData({
+        status: `${activeStatus ?? 'All'}`,
+        page: pagination?.page ?? 1,
+        limit: pagination?.limit ?? 30
+      });
     }
   
     if (!shouldRender) return null;
@@ -75,26 +84,28 @@ export default function InvoiceDetailViewActions () {
               id="gc_booking"
               placeholder="GC Booking"
               type="text"
+              value={gcBooking}
               onChange={(e) => {
-                  const isNotNumber = !/^\d+$/.test(e.target.value);
-                  e.target.value = isNotNumber ? e.target.value.slice(0, -1) : e.target.value;
-                  if (isNotNumber) {
+                  const raw = e.target.value;
+                  if (raw !== '' && !/^\d+$/.test(raw)) {
                       return;
                   }
+                  setGcBooking(raw);
               }}
-              className={`${count > 0 ? '' : 'opacity-30 !cursor-not-allowed'} bg-white rounded-md focus:outline-none transition-all duration-300 p-2 border border-gray-200 text-gray-900 text-sm`}/>
+              className={`self-start ${count > 0 ? '' : 'opacity-30 !cursor-not-allowed'} bg-white rounded-md focus:outline-none transition-all duration-300 p-2 border border-gray-200 text-gray-900 text-sm`}/>
             </div>
             <div className="flex flex-row gap-2">
+            {gcBooking === '' || status === '' ? 'disabled' : 'enabled'}
               <button
-                disabled={count === 0}
-                onClick={() => handleAction(status)}
-                className={`text-gray-600 border border-gray-200 px-4 py-1 rounded-md ${count === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+                disabled={gcBooking === '' && status === ''}
+                onClick={() => handleAction(status, gcBooking)}
+                className={`self-start text-gray-600 border border-gray-200 rounded-md ${count === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
                   save
               </button>
               <button
                 disabled={count === 0}
-                onClick={() => handleAction('archived')}
-                className={`text-gray-600 border border-gray-200 px-4 py-1 rounded-md ${count === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+                onClick={() => handleAction('archived', gcBooking)}
+                className={`self-start text-gray-600 border border-gray-200 rounded-md ${count === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
                   archived
               </button>
             </div>

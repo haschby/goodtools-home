@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useMultiSelect } from "@/lib/hooks/form/useMultiSelect";
 import { MultiSelectCTX } from "@/lib/contexts/MultiSelectContext";
+import { BulkUpdateFields } from "@/lib/contexts/MultiSelectContext";
 import { bulkUpdateInvoices } from "@/actions/invoice.actions";
 
 interface MultiSelectProviderProps {
@@ -28,7 +29,7 @@ export function MultiSelectProvider(
     }, [reset]);
 
     const save = useCallback(
-        async (status: string): Promise<boolean | undefined> => {
+        async (fields: BulkUpdateFields): Promise<boolean | undefined> => {
 
         if (!multiSelectRef.current.hasSelection) return;
 
@@ -41,8 +42,12 @@ export function MultiSelectProvider(
                 .from(multiSelectRef.current.recordBucket)
                 .filter(id => id !== 'All');
 
-            const response = await bulkUpdateInvoices({ ids, status });
-            
+            const response = await bulkUpdateInvoices({
+                ids,
+                status: fields.status,
+                gc_booking: fields.gc_booking,
+            });
+
             if (response.status_code === 201) {
                 success = true;
             }

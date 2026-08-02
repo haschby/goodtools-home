@@ -30,6 +30,10 @@ export function CheckBoxfilter(
         event.preventDefault();
         event.stopPropagation();
 
+        if (disabled) {
+            return;
+        }
+
         if (id === 'All') {
             if (isChecked) {
                 actions.clear();
@@ -50,14 +54,16 @@ export function CheckBoxfilter(
 
         click?.(isChecked);
 
-    }, [id, isChecked, actions, keyItems, click]);
+    }, [id, isChecked, actions, keyItems, click, disabled]);
 
-    if (disabled) {
-        return (
-            <span className="p-1 bg-gray-300/20 font-semibold text-gray-500 text-xs rounded-md">
-            </span>
-        )
-    }
+    // if (disabled) {
+    //     return (
+    //         <span
+    //             className="w-full h-full bg-gray-300/20 font-semibold text-gray-500 text-xs rounded-md">
+    //                 #
+    //         </span>
+    //     )
+    // }
 
     return (
         <label
@@ -82,7 +88,7 @@ export function CheckBoxfilter(
                 ) : (
                     <span
                     ref={selectRef}
-                    className={`h-6 w-6 border ${isChecked ? 'border-green-500 bg-green-300/20' : 'border-gray-200'} transition-all duration-300 rounded-md overflow-hidden flex items-center justify-center`}
+                    className={`h-5 w-5 border ${isChecked ? 'border-green-500 bg-green-300/20' : disabled ? 'cursor-not-allowed border-gray-200 bg-gray-300/50' : 'border-gray-200'} transition-all duration-300 rounded-md overflow-hidden flex items-center justify-center`}
                     >
                     <Icon
                         Icon={CheckStroke}

@@ -7,7 +7,6 @@ from sqlalchemy.ext.asyncio import (
 )
 from typing import AsyncGenerator
 from sqlalchemy.ext.declarative import DeclarativeMeta
-from infrastructure.config.settings import settings
 
 class Database:
     def __init__(self, database_uri: str, extra_args: dict = None):

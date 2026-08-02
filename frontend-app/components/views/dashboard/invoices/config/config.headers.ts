@@ -5,15 +5,15 @@ export const configHeaders = {
         { label: '#', align: 'left', maxWidth: '80px', isNumber: false, canSticky: true },
         // { label: 'Ref. Invoice', align: 'left', maxWidth: '120px', isNumber: false },
         // { label: 'External ID', align: 'left', maxWidth: '180px', isNumber: false },
-        { label: 'Status', align: 'left', maxWidth: '180px', isNumber: false },
-        { label: 'Provider', align: 'left', maxWidth: '400px', isNumber: false },
+        { label: 'Status', align: 'left', isNumber: false },
+        { label: 'Provider', align: 'left', isNumber: false },
+        { label: 'Booking Number', align: 'left', isNumber: false },
         // { label: 'Last Modified', align: 'left', maxWidth: '180px', isNumber: false },
-        { label: 'Invoice Number', align: 'left', maxWidth: '180px', isNumber: false },
+        { label: 'Invoice Number', align: 'right', isNumber: true },
         // { label: 'Invoice Date', align: 'left', maxWidth: '200px', isNumber: false },
-        { label: 'Booking Number', align: 'left', maxWidth: '180px', isNumber: false },
-        { label: 'Amount HT', align: 'right', maxWidth: '150px', isNumber: true },
-        { label: 'Amount TTC', align: 'right', maxWidth: '150px', isNumber: true  },
-        { label: 'Amount TVA', align: 'right', maxWidth: '150px', isNumber: true }
+        { label: 'Amount HT', align: 'right', isNumber: true },
+        { label: 'Amount TTC', align: 'right', isNumber: true  },
+        { label: 'Amount TVA', align: 'right', isNumber: true }
     ],
     statuses: [
         "All",

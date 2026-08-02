@@ -1,6 +1,6 @@
 from dependency_injector import containers, providers
 
-from infrastructure.config.settings import Settings, DatabaseSchema, build_database_uri
+from infrastructure.config.settings import Settings, DatabaseSchema
 from infrastructure.db.engine import Database
 from infrastructure.gateways.GrokGateway import GrokGateway
 from infrastructure.storage.minioStorage import MinioStorage
@@ -35,26 +35,31 @@ class AppContainer(containers.DeclarativeContainer):
     # # THIS IS A RESOURCE BECAUSE IT IS A CONTEXT MANAGER
     # session_factory = providers.Object(AsyncSessionLocal)
     
-    main_database_schema = DatabaseSchema(
-        db_user=settings().db_user,
-        db_pass=settings().db_pass,
-        db_host=settings().db_host,
-        db_port=settings().db_port,
-        db_name=settings().db_name
+    main_database_schema = providers.Callable(
+        DatabaseSchema,
+        db_user=settings.provided.db_user,
+        db_pass=settings.provided.db_pass,
+        db_host=settings.provided.db_host,
+        db_port=settings.provided.db_port,
+        db_name=settings.provided.db_name
     )
     
-    gc_database_schema = DatabaseSchema(
-        db_user=settings().gc_db_user,
-        db_pass=settings().gc_db_pass,
-        db_host=settings().gc_db_host,
-        db_port=settings().gc_db_port,
-        db_name=settings().gc_db_name
+    gc_database_schema = providers.Callable(
+        DatabaseSchema,
+        db_user=settings.provided.gc_db_user,
+        db_pass=settings.provided.gc_db_pass,
+        db_host=settings.provided.gc_db_host,
+        db_port=settings.provided.gc_db_port,
+        db_name=settings.provided.gc_db_name
     )
     
-    main_database_uri = providers.Callable(build_database_uri, main_database_schema)
-    gc_database_uri = providers.Callable(build_database_uri, gc_database_schema)
+    main_database_uri = main_database_schema.provided.build_database_uri.call()
+    gc_database_uri = gc_database_schema.provided.build_database_uri.call()
     
-    main_db_uri = providers.Resource(Database, database_uri=main_database_uri)
+    main_db_uri = providers.Resource(
+        Database, 
+        database_uri=main_database_uri
+    )
     gc_db_uri = providers.Resource(
         Database,
         database_uri=gc_database_uri,

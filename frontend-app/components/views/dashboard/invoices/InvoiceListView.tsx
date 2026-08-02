@@ -47,6 +47,11 @@ export default function InvoiceListView() {
       dataRef.current = pagination;
   }, [pagination]);
 
+  const isPickedRecord = useMemo(
+    () =>
+    pickedRecord && pickedRecord.path !== null,
+  [pickedRecord]);
+
   const RowItems = useMemo(() => <InvoiceListRowItem />, []);
   const ActionsList = useMemo(() => !pickedRecord && <InvoiceDetailViewActions /> || <></>, [pickedRecord]);
   const StatusBar = useMemo(() => <InvoiceListStatusBar />, []);
@@ -54,7 +59,7 @@ export default function InvoiceListView() {
   const Headers = useMemo(() => <InvoiceListHeaders />, []);
   const TableControl = useMemo(() => <InvoiceListViewTableControl />, []);
 
-  const isPickedRecord = useMemo(() => pickedRecord && pickedRecord.path !== null, [pickedRecord]);
+  
 
   return (
     <MultiSelectProvider reset={statusResetCallback}>
@@ -70,7 +75,7 @@ export default function InvoiceListView() {
               filters={ Filters }
               paginationActions={ TableControl }
               statuses={ StatusBar }
-              headers={ Headers }
+              headers={ isPickedRecord ? [] : Headers }
               data={ RowItems }
               controlTableActions={ ActionsList } />
             <div

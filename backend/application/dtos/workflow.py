@@ -46,3 +46,9 @@ class SyncBuybackToGcCommand(WorkflowCommand):
     amount: float
     file_path: Optional[str] = None
     steps: Optional[list[WorkflowStepCommand]] = None
+
+
+@dataclass(frozen=False)
+class SyncInvoiceToGcCommand(WorkflowCommand):
+    invoice_id: str
+    steps: Optional[list[WorkflowStepCommand]] = None

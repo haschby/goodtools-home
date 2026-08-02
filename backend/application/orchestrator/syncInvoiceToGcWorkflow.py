@@ -1,0 +1,152 @@
+import logging
+from datetime import datetime
+from typing import Callable
+
+from application.ports.orchestrator.baseActivity import BaseActivity
+from application.dtos.workflow import SyncInvoiceToGcCommand, WorkflowStepCommand
+from domain.models.workflow import StatusWorkflow
+from domain.models.goodtool import Asset, RentabilityBooking
+
+from infrastructure.db.workflowRepository import WorkflowRepositoryImpl
+from infrastructure.db.invoiceRepository import InvoiceRepositoryImpl
+from application.usecases.workflow.createWorkflow import CreateWorkflow
+from application.usecases.workflow.updateWorkflow import UpdateWorkflow
+from application.orchestrator.activities.createWorkflowSync import CreateWorkflowSync
+from application.orchestrator.activities.updateWorkflowSync import UpdateWorkflowSync
+
+logger = logging.getLogger("Goodtools.Application")
+
+
+class SyncInvoiceToGcError(Exception):
+    pass
+
+
+class SyncInvoiceToGcWorkflow(BaseActivity):
+    """Synchronise a validated invoice into the GoodCollect database.
+
+    Triggered when an invoice reaches the "Valider avec paiement" status.
+    It creates the Asset (the invoice document) then the associated
+    BookingRentabilityLine so that the invoice amount is reflected on the
+    GoodCollect booking.
+    """
+
+    def __init__(
+        self,
+        session_factory: Callable,
+        goodcollect_gateway,
+    ) -> None:
+        self.session_factory = session_factory
+        self.goodcollect_gateway = goodcollect_gateway
+
+    def _build_workflow_usecases(self):
+        repo = WorkflowRepositoryImpl(self.session_factory)
+        return (
+            CreateWorkflowSync(CreateWorkflow(repo)),
+            UpdateWorkflowSync(UpdateWorkflow(repo)),
+        )
+
+    async def execute(self, command: SyncInvoiceToGcCommand) -> bool:
+        try:
+            return await self._run(command)
+        except Exception:
+            logger.exception("SyncInvoiceToGcWorkflow failed")
+            return False
+
+    async def _run(self, command: SyncInvoiceToGcCommand) -> bool:
+        create_workflow, update_workflow = self._build_workflow_usecases()
+        workflow = None
+
+        try:
+            command.steps = [
+                WorkflowStepCommand(name="fetch_invoice"),
+                WorkflowStepCommand(name="create_gc_asset"),
+                WorkflowStepCommand(name="create_gc_rentability_line"),
+            ]
+            workflow = await create_workflow.execute(command)
+
+            invoice_repo = InvoiceRepositoryImpl(self.session_factory)
+            invoice = await invoice_repo.get_by_id(command.invoice_id)
+
+            if invoice is None:
+                workflow.steps[0].status = StatusWorkflow.SKIP
+                workflow.steps[0].ended_at = datetime.now()
+                workflow.steps[0].message = f"Invoice not found: {command.invoice_id}"
+                workflow.status = StatusWorkflow.ABORT
+                workflow.ended_at = datetime.now()
+                workflow.message = "Workflow aborted: invoice not found"
+                await update_workflow.execute(workflow)
+                return False
+
+            if not invoice.gc_booking:
+                workflow.steps[0].status = StatusWorkflow.SKIP
+                workflow.steps[0].ended_at = datetime.now()
+                workflow.steps[0].message = "Invoice has no gc_booking, nothing to sync"
+                workflow.status = StatusWorkflow.ABORT
+                workflow.ended_at = datetime.now()
+                workflow.message = "Workflow aborted: no gc_booking on invoice"
+                await update_workflow.execute(workflow)
+                return False
+
+            workflow.steps[0].status = StatusWorkflow.COMPLETED
+            workflow.steps[0].ended_at = datetime.now()
+            workflow.steps[0].message = f"Invoice fetched: {invoice.id}"
+            await update_workflow.execute(workflow)
+
+            asset = await self.goodcollect_gateway.createAsset(
+                Asset(
+                    fileKey=invoice.path or invoice.name or str(invoice.id),
+                    fileUrl=invoice.path or "",
+                )
+            )
+            asset_id = asset["id"]
+
+            workflow.steps[1].status = StatusWorkflow.COMPLETED
+            workflow.steps[1].ended_at = datetime.now()
+            workflow.steps[1].message = f"GC asset created: {asset_id}"
+            workflow.params = {**(workflow.params or {}), "gc_asset_id": asset_id}
+            await update_workflow.execute(workflow)
+
+            rentability = await self.goodcollect_gateway.createRentabilityBooking(
+                RentabilityBooking(
+                    bookingId=int(invoice.gc_booking),
+                    assetId=asset_id,
+                    priceHT=float(invoice.amount_ht or 0),
+                )
+            )
+
+            workflow.steps[2].status = StatusWorkflow.COMPLETED
+            workflow.steps[2].ended_at = datetime.now()
+            workflow.steps[2].message = f"GC rentability line created: {rentability['id']}"
+            workflow.params = {
+                **(workflow.params or {}),
+                "gc_rentability_line_id": rentability["id"],
+            }
+            workflow.status = StatusWorkflow.COMPLETED
+            workflow.ended_at = datetime.now()
+            workflow.message = "Invoice synchronized to GoodCollect"
+            await update_workflow.execute(workflow)
+            return True
+
+        except Exception as e:
+            logger.exception("SyncInvoiceToGcWorkflow._run failed")
+            if workflow:
+                for step in workflow.steps:
+                    if step.status not in [
+                        StatusWorkflow.COMPLETED,
+                        StatusWorkflow.SKIP,
+                        StatusWorkflow.FAILED,
+                        StatusWorkflow.ABORT,
+                    ]:
+                        step.status = StatusWorkflow.FAILED
+                        step.ended_at = datetime.now()
+                        if not step.message:
+                            step.message = str(e)
+
+                workflow.message = f"Failed to sync invoice to GC: {str(e)}"[:255]
+                workflow.status = StatusWorkflow.FAILED
+                workflow.ended_at = datetime.now()
+                try:
+                    await update_workflow.execute(workflow)
+                except Exception:
+                    logger.exception("Failed to persist failed workflow state")
+            return False

@@ -2,7 +2,6 @@ from pydantic import BaseModel, computed_field
 from typing import Optional, List
 from datetime import datetime, date
 from application.dtos.baseDto import PaginatedResponseSchema, BaseResponseSchema
-from infrastructure.config.settings import settings
 
 class BaseInvoiceSchema(BaseModel):
     id: Optional[str] = None

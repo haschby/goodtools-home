@@ -61,11 +61,11 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
         where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
 
         # --- Requête principale avec pagination ---
-        order_by = "ts_rank(search_vector, plainto_tsquery(:q))" if query else "created_at, id"
+       #order_by = "ts_rank(search_vector, plainto_tsquery(:q))" if query else "created_at DESC, id DESC"
         query_sql = f"""
         {QUERY_GET_ALL_INVOICES}
         {where_clause}
-        ORDER BY { order_by } DESC
+        ORDER BY updated_at, id DESC
         LIMIT :limit OFFSET :offset
         """
         
