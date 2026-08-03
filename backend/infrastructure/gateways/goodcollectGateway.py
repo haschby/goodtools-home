@@ -42,7 +42,6 @@ class GoodcollectGateway:
                 await session.commit()
                 return result.mappings().one()
             except Exception as e:
-                self.logger.exception(f"CREATE_ASSET failed: {str(e)}")
                 raise CreateAssetError(str(e))
     
     async def createRentabilityBooking(self, payload: RentabilityBooking) -> Any:
