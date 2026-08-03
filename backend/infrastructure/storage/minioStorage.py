@@ -28,11 +28,16 @@ class MinioStorage(StorageFileGateway):
             secure=secure,
         )
         self.bucket_name = bucket_name
+        self.region = region
+        self._ensure_bucket()
+
+    def _ensure_bucket(self) -> None:
+        if not self.client.bucket_exists(self.bucket_name):
+            self.client.make_bucket(self.bucket_name, location=self.region)
     
     async def upload_file(
         self,
         file: "UploadFile | bytes",
-        folder: str,
         file_name: str | None = None,
         content_type: str = "application/octet-stream",
     ) -> str:
@@ -44,7 +49,7 @@ class MinioStorage(StorageFileGateway):
             file_name = file_name or getattr(file, "filename", None)
             content_type = getattr(file, "content_type", None) or content_type
 
-        object_name = f"{folder}/{uuid.uuid4()}_{file_name}"
+        object_name = f"{uuid.uuid4()}_{file_name}"
         self.client.put_object(
             bucket_name=self.bucket_name,
             object_name=object_name,

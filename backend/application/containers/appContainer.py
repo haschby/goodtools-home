@@ -4,6 +4,7 @@ from infrastructure.config.settings import Settings, DatabaseSchema
 from infrastructure.db.engine import Database
 from infrastructure.gateways.GrokGateway import GrokGateway
 from infrastructure.storage.minioStorage import MinioStorage
+from infrastructure.storage.s3Storage import S3Storage
 from infrastructure.db.workflowRepository import WorkflowRepositoryImpl
 from infrastructure.gateways.accounting.pennylane import PennyLaneAccountingGateway
 from infrastructure.logger.logger import LoggerImplement
@@ -95,6 +96,22 @@ class AppContainer(containers.DeclarativeContainer):
         bucket_name=settings().minio_bucket,
         region=settings().minio_region,
     )
+
+    s3Client = providers.Resource(
+        S3Storage,
+        access_key=settings().aws_access_key_id,
+        secret_key=settings().aws_secret_access_key,
+        bucket_name=settings().aws_s3_bucket,
+        region=settings().aws_region,
+    )
+
+    storageClient = providers.Selector(
+        providers.Callable(
+            lambda s: s.storage_provider.value, settings
+        ),
+        MINIO=minioClient,
+        AWS=s3Client,
+    )
     
     goodcollect_container = providers.Container(
         GCContainer,
@@ -104,7 +121,7 @@ class AppContainer(containers.DeclarativeContainer):
     
     invoice_container = providers.Container(
         InvoiceContainer,
-        storage=minioClient,
+        storage=storageClient,
         session=main_db_uri.provided.session_factory,
         pennylane_gateway=pennylane_gateway,
         logger=logger
@@ -145,7 +162,7 @@ class AppContainer(containers.DeclarativeContainer):
         pennylane_gateway=pennylane_gateway,
         invoice_container=invoice_container,
         workflow_container=workflow_container,
-        storage=minioClient,
+        storage=storageClient,
     )
     
     orchestrator_container = providers.Container(
@@ -155,14 +172,14 @@ class AppContainer(containers.DeclarativeContainer):
         invoice_container=invoice_container,
         workflow_container=workflow_container,
         activities_container=activities_container,
-        storage=minioClient,
+        storage=storageClient,
         goodcollect_gateway=goodcollect_container.goodcollect_gateway,
     )
     
     buyback_container = providers.Container(
         BuybackContainer,
         session=main_db_uri.provided.session_factory,
-        storage=minioClient,
+        storage=storageClient,
         workflow_launcher=orchestrator_container.localWorkflowLauncher,
     )
     

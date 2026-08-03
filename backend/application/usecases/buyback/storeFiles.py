@@ -20,8 +20,11 @@ class StoreFiles(BaseUsecase):
         self.storage = storage
 
     async def execute(
-        self, files: List[UploadFile], folder: str
+        self,
+        files: List[UploadFile],
+        folder: str | None
     ) -> StoredFilesResponseSchema:
+        
         if not files:
             return StoredFilesResponseSchema(
                 message="File list must not be empty",
@@ -34,7 +37,6 @@ class StoreFiles(BaseUsecase):
             for file in files:
                 file_path = await self.storage.upload_file(
                     file,
-                    folder=folder,
                 )
                 stored.append(
                     StoredFileSchema(

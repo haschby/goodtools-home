@@ -10,11 +10,21 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 
 class Database:
     def __init__(self, database_uri: str, extra_args: dict = None):
+        connect_args = dict(extra_args) if extra_args else {}
+        # asyncpg: fail fast instead of hanging forever when the DB host is
+        # unreachable or the SSL handshake stalls (root cause of the prod
+        # TimeoutError seen when acquiring a connection).
+        connect_args.setdefault("timeout", 10)
+
         self.engine = create_async_engine(
             database_uri,
             echo=False,
             pool_pre_ping=True,
-            connect_args=extra_args if extra_args else {},
+            pool_size=5,
+            max_overflow=10,
+            pool_timeout=30,
+            pool_recycle=1800,
+            connect_args=connect_args,
         )
         
         self.session_factory = async_sessionmaker(

@@ -86,16 +86,18 @@ def buyback_routes() -> APIRouter:
         ),
     ) -> StoredFilesResponseSchema | None:
         
-        storedFilesResult = await storeFilesUsecase.execute(files, folder="buyback")
+        storedFilesResult = await storeFilesUsecase.execute(files, folder="goodcollect-legal-docs")
+        print("storedFilesResult", storedFilesResult)
         buybacks: List[BuybackCreateSchema] = []
         if storedFilesResult.status_code == 201:
             for uploadedFile in storedFilesResult.data:
-                buybacks.append(BuybackCreateSchema(
+                buybacks.append(
+                    BuybackCreateSchema(
                     file_path=uploadedFile.file_path,
                     amount=0,
                     currency='EUR',
                 ))
-                
+        print("buybacks", buybacks)
         return await createBuybacks.execute(buybacks)
     
     @router.patch(

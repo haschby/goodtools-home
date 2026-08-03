@@ -15,7 +15,7 @@ def create_lifespan():
         container = app.state.container
 
         await container.main_db_uri().init_models(BaseMain)
-        # await container.gc_db_uri().init_models(GCBase)
+        # await container.gc_db_uri().init_models()
 
         container.logger().info(
             "Database initialized"

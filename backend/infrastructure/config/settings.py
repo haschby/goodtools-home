@@ -1,7 +1,19 @@
 import os
+from enum import Enum
 from dataclasses import dataclass
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field, BaseModel
+
+
+class Environment(str, Enum):
+    LOCAL = "LOCAL"
+    PROD = "PROD"
+
+
+class StorageProvider(str, Enum):
+    MINIO = "MINIO"
+    AWS = "AWS"
+
 
 class Settings(BaseSettings):
     
@@ -14,6 +26,8 @@ class Settings(BaseSettings):
         env_file_encoding='utf-8',
         extra='ignore'
     )
+
+    environment: Environment = Field(Environment.LOCAL, env="ENVIRONMENT")
     
     db_user: str = Field(..., env="DB_USER")
     db_pass: str = Field(..., env="DB_PASS")
@@ -35,6 +49,11 @@ class Settings(BaseSettings):
     minio_secret_key: str = Field(..., env="MINIO_SECRET_KEY")
     minio_bucket: str = Field(..., env="MINIO_BUCKET")
     minio_region: str = Field(..., env="MINIO_REGION")
+
+    aws_access_key_id: str | None = Field(None, env="AWS_ACCESS_KEY_ID")
+    aws_secret_access_key: str | None = Field(None, env="AWS_SECRET_ACCESS_KEY")
+    aws_region: str | None = Field(None, env="AWS_REGION")
+    aws_s3_bucket: str | None = Field(None, env="AWS_S3_BUCKET")
     
     redis_host: str = Field(..., env="REDIS_HOST")  
     redis_port: int = Field(..., env="REDIS_PORT")
@@ -49,6 +68,14 @@ class Settings(BaseSettings):
     gc_db_port: int = Field(..., env="GC_DB_PORT")
     gc_db_user: str = Field(..., env="GC_DB_USER")
     gc_db_pass: str = Field(..., env="GC_DB_PASS")
+
+    @property
+    def storage_provider(self) -> StorageProvider:
+        return (
+            StorageProvider.AWS
+            if self.environment == Environment.PROD
+            else StorageProvider.MINIO
+        )
 
 @dataclass
 class DatabaseSchema:
