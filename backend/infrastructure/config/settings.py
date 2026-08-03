@@ -44,11 +44,11 @@ class Settings(BaseSettings):
     grok_api_key: str = Field(..., env="GROK_API_KEY")
     grok_api_model: str = Field(..., env="GROK_API_MODEL")
     
-    minio_host: str = Field(..., env="MINIO_HOST")
-    minio_access_key: str = Field(..., env="MINIO_ACCESS_KEY")
-    minio_secret_key: str = Field(..., env="MINIO_SECRET_KEY")
-    minio_bucket: str = Field(..., env="MINIO_BUCKET")
-    minio_region: str = Field(..., env="MINIO_REGION")
+    minio_host: str | None = Field(None, env="MINIO_HOST")
+    minio_access_key: str | None = Field(None, env="MINIO_ACCESS_KEY")
+    minio_secret_key: str | None = Field(None, env="MINIO_SECRET_KEY")
+    minio_bucket: str | None = Field(None, env="MINIO_BUCKET")
+    minio_region: str | None = Field(None, env="MINIO_REGION")
 
     aws_access_key_id: str | None = Field(None, env="AWS_ACCESS_KEY_ID")
     aws_secret_access_key: str | None = Field(None, env="AWS_SECRET_ACCESS_KEY")

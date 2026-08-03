@@ -29,11 +29,14 @@ class MinioStorage(StorageFileGateway):
         )
         self.bucket_name = bucket_name
         self.region = region
-        self._ensure_bucket()
+        self._bucket_ready = False
 
     def _ensure_bucket(self) -> None:
+        if self._bucket_ready:
+            return
         if not self.client.bucket_exists(self.bucket_name):
             self.client.make_bucket(self.bucket_name, location=self.region)
+        self._bucket_ready = True
     
     async def upload_file(
         self,
@@ -49,6 +52,7 @@ class MinioStorage(StorageFileGateway):
             file_name = file_name or getattr(file, "filename", None)
             content_type = getattr(file, "content_type", None) or content_type
 
+        self._ensure_bucket()
         object_name = f"{uuid.uuid4()}_{file_name}"
         self.client.put_object(
             bucket_name=self.bucket_name,

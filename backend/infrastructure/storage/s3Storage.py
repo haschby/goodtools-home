@@ -15,11 +15,6 @@ class S3Storage(StorageFileGateway):
         bucket_name: str,
         region: str
     ) -> None:
-
-        print("access_key", access_key)
-        print("secret_key", secret_key)
-        print("bucket_name", bucket_name)
-        print("region", region)
         
         self.client = boto3.client("s3",
             aws_access_key_id=access_key,
@@ -27,7 +22,6 @@ class S3Storage(StorageFileGateway):
             region_name=region,
             endpoint_url=f"https://s3.{region}.amazonaws.com",
         )
-        print("client", self.client)
         self.bucket_name = bucket_name
 
     async def upload_file(
