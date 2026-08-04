@@ -8,14 +8,6 @@ from typing import Any
 from domain.models.goodtool import RentabilityBooking, Asset
 
 
-class CreateAssetError(Exception):
-    pass
-
-
-class CreateRentabilityLineError(Exception):
-    pass
-
-
 class GoodcollectGateway:
     
     def __init__(self, session: async_sessionmaker, logger: Logger):
@@ -46,10 +38,13 @@ class GoodcollectGateway:
                 'VALUES (:id, :fileKey, :fileUrl) '
                 'RETURNING "id"'
             )
-            
-            result = await session.execute(stmt, params)
-            await session.commit()
-            return result.mappings().one()
+            try:
+                result = await session.execute(stmt, params)
+                await session.commit()
+                return result.mappings().one()
+            except Exception as e:
+                print("CREATE_ASSET error", e)
+                raise Exception(e)
     
     async def createRentabilityBooking(self, payload: RentabilityBooking) -> Any:
         async with self.session() as session:
