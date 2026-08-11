@@ -270,9 +270,10 @@ export default function InvoiceDetailCard() {
                         Rentabilité
                     </h1>
                     <InvoiceRentability
-                        netProfit={rentabilities?.net_profit}
-                        total={rentabilities?.total_price}
-                        totalTrend={rentabilities?.marging}
+                        profit={rentabilities?.profit}
+                        ca={rentabilities?.ca}
+                        charges={rentabilities?.charges}
+                        marging={rentabilities?.marging}
                     />
                 </div>
                 <div className="overflow-y-auto max-h-[300px] flex flex-col gap-2 h-full p-3">

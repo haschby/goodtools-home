@@ -11,54 +11,60 @@ interface StatusRowProps {
 }
 
 const StatusRow = ({ status, className } :StatusRowProps ): ReactNode => {
-    const cssClasses = `rounded-full font-semibold ${className} flex items-center gap-1`;
+    const cssClasses = `rounded-xl font-semibold ${className} flex items-center gap-1`;
     switch (status) {
+        case EnumInvoiceStatus.TBD:
         case 'archived':
-            return <span className={`${cssClasses} bg-gray-300/20 text-gray-500 text-xs`}>
-                <Icon Icon={Ticket1Solid} size={16} strokeWidth={2} />
+            return <span className={`${cssClasses} bg-gray-300/60 text-gray-500 text-xs`}>
+                <Icon Icon={Ticket1Solid} size={12} strokeWidth={2} />
                 {status}
             </span>
         case 'Failed':
-            return <span className={`${cssClasses} bg-red-300/20 text-red-500 text-xs`}>
-                <Icon Icon={Ticket1Solid} size={16} strokeWidth={2} />
+            return <span className={`${cssClasses} bg-orange-300/60 text-orange-500 text-xs`}>
+                <Icon Icon={Ticket1Solid} size={12} strokeWidth={2} />
                 {status}
+            </span>
+        case EnumInvoiceStatus.TO_BE_TRAITED:
+        case 'Pending':
+            return <span className={`${cssClasses} bg-purple-300/60 text-purple-500 text-xs`}>
+                <Icon Icon={Ticket1Solid} size={12} strokeWidth={2} />
+                {status}
+
             </span>
         case 'Skipped':
         case 'Aborted':
-        case EnumInvoiceStatus.TO_BE_TRAITED:
-            return <span className={`${cssClasses} bg-purple-300/20 text-purple-500 text-xs`}>
-                <Icon Icon={Ticket1Solid} size={16} strokeWidth={2} />
+            return <span className={`${cssClasses} bg-purple-300/60 text-purple-500 text-xs`}>
+                <Icon Icon={Ticket1Solid} size={12} strokeWidth={2} />
                 {status}
 
             </span>
         case EnumInvoiceStatus.NEED_TO_CHECK:
-            return <span className={`${cssClasses} bg-fuchsia-300/20 text-fuchsia-500 text-xs`}>
-                <Icon Icon={Ticket1Solid} size={16} strokeWidth={2} />
+            return <span className={`${cssClasses} bg-fuchsia-300/60 text-fuchsia-500 text-xs`}>
+                <Icon Icon={Ticket1Solid} size={12} strokeWidth={2} />
                 {status}
             </span>
         case 'Processing':
         case EnumInvoiceStatus.TO_BE_INVOICED:
-            return <span className={`${cssClasses} bg-indigo-300/20 text-indigo-500 text-xs`}>
-                <Icon Icon={Ticket1Solid} size={16} strokeWidth={2} />
+            return <span className={`${cssClasses} bg-orange-500/60 text-orange-700 text-xs`}>
+                <Icon Icon={Ticket1Solid} size={12} strokeWidth={2} />
                 {status}
             </span>
-        case 'Pending':
         case EnumInvoiceStatus.INVOICED:
-            return <span className={`${cssClasses} bg-amber-300/20 text-amber-500 text-xs`}>
-                <Icon Icon={Ticket1Solid} size={16} strokeWidth={2} />
+            return <span className={`${cssClasses} bg-blue-500/60 text-blue-700 text-xs`}>
+                <Icon Icon={Ticket1Solid} size={12} strokeWidth={2} />
                 {status}
             </span>
         case 'Completed':
         case EnumInvoiceStatus.VALIDATED:
         case EnumInvoiceStatus.VALIDATED_ONLY:
-            return <span className={`${cssClasses} bg-green-400/20 text-green-600 text-xs`}>
-                <Icon Icon={Ticket1Solid} size={16} strokeWidth={2} />
+            return <span className={`${cssClasses} bg-green-500/60 text-green-700 text-xs`}>
+                <Icon Icon={Ticket1Solid} size={12} strokeWidth={2} />
                 {status}
             </span>
         case EnumInvoiceStatus.TBD:
         default:
-            return <span className={`${cssClasses} bg-amber-300/20 text-amber-500 text-xs`}>
-                <Icon Icon={Ticket1Solid} size={16} strokeWidth={2} />
+            return <span className={`${cssClasses} bg-black text-white text-xs`}>
+                <Icon Icon={Ticket1Solid} size={12} strokeWidth={2} />
                 {status ?? 'N/A'}
             </span>
     }

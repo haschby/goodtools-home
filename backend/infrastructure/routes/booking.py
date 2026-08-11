@@ -63,14 +63,15 @@ def booking_routes() -> APIRouter:
         
         total_payload = sum(row.totalPriceHT for row in bookings)
         total_provider = sum(row.totalPriceHT for row in payloads)
-        profit = total_provider - total_payload
+        profit = total_payload - total_provider
         marging = (profit / total_provider) * 100 if total_provider else 0
     
         return {
             "data": {
                 "items": list(bookings) + list(payloads),
-                "net_profit": profit,
-                "total_price": total_payload,
+                "profit": profit,
+                "charges": total_provider,
+                "ca": total_payload,
                 "marging": marging
             },
             "status_code": 200,

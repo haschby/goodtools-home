@@ -90,8 +90,10 @@ export async function bulkUpdateInvoices(payload: InvoiceBulkUpdateSchema): Prom
 
 export interface RentabilitiesResponse {
     items: Rentability[];
-    net_profit?: number;
+    profit?: number;
     total_price?: number;
+    ca?: number;
+    charges?: number;
     marging?: number;
 }
 

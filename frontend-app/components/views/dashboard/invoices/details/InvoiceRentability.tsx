@@ -63,7 +63,7 @@ function RentabilityCard({ label, value, trend }: RentabilityMetric) {
     const gradientId = `rentability-fill-${label.replace(/\s+/g, "-").toLowerCase()}`;
 
     return (
-        <div className="flex w-full flex-col bg-white gap-3 rounded-2xl border border-gray-200 p-3">
+        <div className="flex w-full flex-col bg-white gap-1 rounded-2xl border border-gray-200 p-3">
             <div className="flex items-center gap-1.5 text-gray-400">
                 <span className="text-xs font-medium">{label}</span>
                 <span className="flex h-4 w-4 items-center justify-center rounded-full border border-gray-300 text-[10px] font-semibold">
@@ -109,27 +109,31 @@ function RentabilityCard({ label, value, trend }: RentabilityMetric) {
 }
 
 interface InvoiceRentabilityProps {
-    netProfit?: number;
-    total?: number;
-    netProfitTrend?: number;
-    totalTrend?: number;
+    profit?: number;
+    ca?: number;
+    charges?: number;
+    marging?: number;
 }
 
 export default function InvoiceRentability({
-    netProfit = 0,
-    total = 0,
-    totalTrend = 0,
+    profit = 0,
+    ca = 0,
+    charges = 0,
+    marging = 0,
 }: InvoiceRentabilityProps) {
     return (
-        <div className="flex flex-col gap-4">
-            <div className="flex w-full gap-4">
-                <RentabilityCard label="Profit Net" value={netProfit} trend={totalTrend} />
-                <RentabilityCard label="Total" value={total} trend={totalTrend} />
+        <div className="flex flex-col gap-2">
+            <div className="flex w-full gap-2">
+                <RentabilityCard label="Chiffre d'affaires" value={ca} trend={marging} />
+                <RentabilityCard label="Charges" value={charges} trend={marging} />
             </div>
             <div className="flex items-center justify-between rounded-2xl border border-gray-200 p-3 bg-white">
-                <span className="text-xs text-gray-400">Calcul de la marge</span>
+                <p className="text-gray-800 flex items-center gap-1">
+                    <span className="font-bold">Profit :</span>
+                    <span className="text-gray-400">{formatCurrency(profit)}</span>
+                </p>
                 <span className="text-gray-400">
-                    {totalTrend ? `${totalTrend.toFixed(0)}%` : "0%"}
+                    {marging ? `${marging.toFixed(0)}%` : "0%"}
                 </span>
             </div>
         </div>
