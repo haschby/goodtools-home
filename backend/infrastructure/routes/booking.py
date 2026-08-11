@@ -65,18 +65,16 @@ def booking_routes() -> APIRouter:
         total_provider = sum(row.totalPriceHT for row in payloads)
         profit = total_provider - total_payload
         marging = (profit / total_provider) * 100 if total_provider else 0
-        
-        print('@PROFIT', profit)
-        print('@TOTAL_PROVIDER', total_provider)
-        print('@TOTAL_PAYLOAD', total_payload)
-        print('@MARGING', marging)
-        
-        
+    
         return {
-            "items": list(bookings) + list(payloads),
-            "net_profit": profit,
-            "total_price": total_payload,
-            "marging": marging
+            "data": {
+                "items": list(bookings) + list(payloads),
+                "net_profit": profit,
+                "total_price": total_payload,
+                "marging": marging
+            },
+            "status_code": 200,
+            "message": "Rentabilities fetched successfully"
         }
 
     # @router.post("/asset")

@@ -2,7 +2,7 @@
 
 import { gatewayService } from "@/lib/services/gateway";
 import { Invoice } from "@/lib/types/invoice";
-import { GenericResponseAPI, GetSearchParams, PaginatedResponse } from "@/lib/types/base";
+import { BaseResponse, GenericResponseAPI, GetSearchParams, PaginatedResponse } from "@/lib/types/base";
 
 export async function getInvoices(
     { status, page, limit, query = null }: GetSearchParams
@@ -106,11 +106,11 @@ export interface Rentability {
 
 export async function getRentabilitiesByBookingId(bookingId: number): Promise<RentabilitiesResponse> {
     const api_url = `/client/gc/booking/${bookingId}/rentabilities`;
-    const response: GenericResponseAPI<RentabilitiesResponse> = await gatewayService(api_url, {
+    const response: BaseResponse<RentabilitiesResponse> = await gatewayService<RentabilitiesResponse>(api_url, {
         method: "GET",
         cache: 'no-store',
         headers: { 'Content-Type': 'application/json' }
     });
     console.log('Response rentabilities : ', response);
-    return response as RentabilitiesResponse;
+    return { ...response.data } as RentabilitiesResponse;
 }
