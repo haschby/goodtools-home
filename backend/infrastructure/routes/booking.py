@@ -43,7 +43,41 @@ def booking_routes() -> APIRouter:
         bookingId: int,
         gc_gateway: any = Depends(Provide[AppContainer.goodcollect_container.goodcollect_gateway])
     ):
-        return await gc_gateway.getRentabilitiesByBookingId(bookingId)
+        rows = await gc_gateway.getRentabilitiesByBookingId(bookingId)
+        print(rows) 
+        if not rows:
+            return {
+                "items": [],
+                "net_profit": 0,
+                "total_price": 0,
+                "marging": 0
+            }
+        
+        bookings = []
+        payloads = []
+        for row in rows:
+            if row.type == "ProviderPrice":
+                payloads.append(row)
+            elif row.type == "GoodcollectPrice":
+                bookings.append(row)
+        
+        total_payload = sum(row.totalPriceHT for row in bookings)
+        total_provider = sum(row.totalPriceHT for row in payloads)
+        profit = total_provider - total_payload
+        marging = (profit / total_provider) * 100 if total_provider else 0
+        
+        print('@PROFIT', profit)
+        print('@TOTAL_PROVIDER', total_provider)
+        print('@TOTAL_PAYLOAD', total_payload)
+        print('@MARGING', marging)
+        
+        
+        return {
+            "items": list(bookings) + list(payloads),
+            "net_profit": profit,
+            "total_price": total_payload,
+            "marging": marging
+        }
 
     # @router.post("/asset")
     # @inject

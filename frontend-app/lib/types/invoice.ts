@@ -4,6 +4,7 @@ export interface Invoice {
     external_id: string;
     path: string;
     gc_booking: string;
+    crm_id?: string | null;
     comments: string | null;
     created_at: string;
     updated_at: string;

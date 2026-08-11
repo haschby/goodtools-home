@@ -65,6 +65,7 @@ class InvoiceResponseSchema(BaseInvoiceSchema):
     amount_tva: float | None = None
     issuer_name: str | None = None
     gc_booking: str | None = None
+    crm_id: str | None = None
     status: str | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None

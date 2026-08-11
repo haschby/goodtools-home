@@ -82,8 +82,9 @@ export default function InvoiceListRowItem () {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="">
-                                        <span className="font-semibold px-2 text-sm font-normal">{invoice.amount_ht.toFixed(2)}</span> <span className="text-sm font-normal text-gray-500">EUR</span>
+                                    <div className="flex flex-row items-center">
+                                        <span className="font-semibold px-2 text-sm font-normal">{invoice.amount_ht.toFixed(2)}</span>
+                                        <span className="text-sm font-normal text-gray-500">EUR</span>
                                     </div>
                                 </td>
                             )

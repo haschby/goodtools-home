@@ -98,7 +98,7 @@ export function BuybackDetailCard() {
                             type="text"
                             onChange={(e) =>
                                 setPickedRecord(
-                                    { ...pickedRecord, amount: parseFloat(e.target.value) } as Buyback)
+                                    { ...pickedRecord, amount: -parseFloat(e.target.value) } as Buyback)
                             }
                             className={inputClassName}
                             value={pickedRecord?.amount?.toString() ?? ''}

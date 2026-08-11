@@ -1,13 +1,13 @@
 from dependency_injector.wiring import inject, Provide
 from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks, Body, Request
-from typing import Optional
+from typing import Optional, List
 
 from application.containers.appContainer import AppContainer
 from application.ports.baseUsecase import BaseUsecase
 from domain.models.invoice import EnumInvoiceStatus
 
 from application.ports.orchestrator.workflowLauncher import WorkflowLauncher
-from application.dtos.workflow import SyncUpdateInvoiceToPennylaneCommand, SyncInvoiceToGcCommand
+from application.dtos.workflow import SyncUpdateInvoiceToPennylaneCommand, SyncInvoiceToGcCommand, WorkflowCommand
 
 from application.dtos.baseDto import BaseResponseSchema
 from application.dtos.invoiceDto import ( 
@@ -147,6 +147,13 @@ def invoice_routes() -> APIRouter:
                 invoice_id=id
             )
             background_tasks.add_task(orchestrator.startWorkflow, gc_command)
+        elif id in getattr(useCase, "gc_booking_added_ids", []):
+            gc_command = SyncInvoiceToGcCommand(
+                workflow_id='INTERNAL',
+                workflow_name="syncInvoiceToGcWorkflow",
+                invoice_id=id
+            )
+            background_tasks.add_task(orchestrator.startWorkflow, gc_command)
         
         return response
     
@@ -218,6 +225,14 @@ def invoice_routes() -> APIRouter:
                     invoice_id=invoice_id
                 )
                 jobs.append(command)
+                jobs.append(gc_command)
+        else:
+            for invoice_id in getattr(useCase, "gc_booking_added_ids", []):
+                gc_command = SyncInvoiceToGcCommand(
+                    workflow_id='SyncGoodCollect',
+                    workflow_name="syncInvoiceToGcWorkflow",
+                    invoice_id=invoice_id
+                )
                 jobs.append(gc_command)
                 
         if jobs != []:

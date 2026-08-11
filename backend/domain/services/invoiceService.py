@@ -62,23 +62,38 @@ class InvoiceService:
         return await self.repository.search(q, limit, offset)
     
     
-    async def update_invoice(self, invoices: List[InvoiceUpdateSchema]) -> List[Invoice]:
+    async def update_invoice(
+        self, invoices: List[InvoiceUpdateSchema]
+    ) -> Tuple[List[Invoice], List[str]]:
         
         invoice_ids = [ invoice.id for invoice in invoices ]
         existing_invoices = await self.repository.get_by_external_ids(invoice_ids)
         existing_map = { inv.id: inv for inv in existing_invoices }
         
         to_update = []
+        gc_booking_added_ids = []
         for inv in invoices:
             existing_invoice = existing_map.get(inv.id)
             if not existing_invoice:
                 continue
             
-            for field, value in inv.model_dump(exclude_unset=True).items():
+            changes = inv.model_dump(exclude_unset=True)
+            
+            previous_gc_booking = getattr(existing_invoice, "gc_booking", None)
+            
+            for field, value in changes.items():
                 setattr(existing_invoice, field, value)
+            
+            new_gc_booking = getattr(existing_invoice, "gc_booking", None)
+            if (
+                "gc_booking" in changes
+                and not previous_gc_booking
+                and new_gc_booking
+            ):
+                gc_booking_added_ids.append(existing_invoice.id)
             
             to_update.append(existing_invoice)
         
         updated_invoices = await self.repository.update(to_update)
         
-        return updated_invoices
+        return updated_invoices, gc_booking_added_ids

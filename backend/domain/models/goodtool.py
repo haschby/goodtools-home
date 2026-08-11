@@ -9,7 +9,9 @@ class Asset(BaseModel):
     
 class RentabilityBooking(BaseModel):
     id: Optional[str] = Field(default=None)
-    priceHT: float
-    bookingId: int
-    assetId: str
+    priceHT: Optional[float] = None
+    bookingId: Optional[int] = None
+    assetId: Optional[str] = None
+    type: Optional[str] = None
+    comment: Optional[str] = None
     dateUpdated: Optional[datetime] = None

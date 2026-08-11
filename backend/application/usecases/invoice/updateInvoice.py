@@ -8,15 +8,16 @@ from typing import List
 class UpdateInvoice(BaseUsecase):
     def __init__(
         self,
-        invoiceService: InvoiceService
+        invoiceService: InvoiceService,
     ):
         self.invoiceService = invoiceService
+        self.gc_booking_added_ids: List[str] = []
 
     async def execute(self, invoices: List[InvoiceUpdateSchema]) -> InvoiceUpdateResponseSchema:
         
-        updated_invoices = await self.invoiceService.update_invoice(invoices)
+        updated_invoices, gc_booking_added_ids = await self.invoiceService.update_invoice(invoices)
         
-        print('@UPDATED INVOICES : ', updated_invoices)
+        self.gc_booking_added_ids = gc_booking_added_ids
         
         if updated_invoices is None:
             return InvoiceUpdateResponseSchema(

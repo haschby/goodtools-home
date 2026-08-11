@@ -59,8 +59,9 @@ class SyncInvoiceToGcWorkflow(BaseActivity):
         try:
             command.steps = [
                 WorkflowStepCommand(name="fetch_invoice"),
+                WorkflowStepCommand(name="check_existing_rentability_line"),
                 WorkflowStepCommand(name="create_gc_asset"),
-                WorkflowStepCommand(name="create_gc_rentability_line"),
+                WorkflowStepCommand(name="upsert_gc_rentability_line"),
             ]
             workflow = await create_workflow.execute(command)
 
@@ -91,7 +92,61 @@ class SyncInvoiceToGcWorkflow(BaseActivity):
             workflow.steps[0].ended_at = datetime.now()
             workflow.steps[0].message = f"Invoice fetched: [{invoice.id}, {invoice.gc_booking}]"
             await update_workflow.execute(workflow)
-            
+
+            existing_line = None
+            if getattr(invoice, "crm_id", None):
+                existing_line = await self.goodcollect_gateway.findRentabilityLineById(invoice.crm_id)
+            if existing_line is None:
+                existing_line = await self.goodcollect_gateway.findRentabilityLineByComment(invoice.id)
+            workflow.steps[1].status = StatusWorkflow.COMPLETED
+            workflow.steps[1].ended_at = datetime.now()
+            workflow.steps[1].message = (
+                f"Existing rentability line found: {existing_line['id']}"
+                if existing_line
+                else "No existing rentability line, will create"
+            )
+            await update_workflow.execute(workflow)
+
+            if existing_line:
+                # Update path: only refresh the filled-out fields, reuse the
+                # existing asset. Asset creation is skipped.
+                workflow.steps[2].status = StatusWorkflow.SKIP
+                workflow.steps[2].ended_at = datetime.now()
+                workflow.steps[2].message = "Reusing existing rentability line, no asset created"
+                await update_workflow.execute(workflow)
+
+                try:
+                    rentability = await self.goodcollect_gateway.updateRentabilityBooking(
+                        existing_line["id"],
+                        RentabilityBooking(
+                            bookingId=int(invoice.gc_booking),
+                            priceHT=float(invoice.amount_ht or 0),
+                        ),
+                    )
+
+                    workflow.steps[3].status = StatusWorkflow.COMPLETED
+                    workflow.steps[3].ended_at = datetime.now()
+                    workflow.steps[3].message = (
+                        f"GC rentability line updated: {rentability['id']} "
+                        f"(bookingId {existing_line['bookingId']} -> {rentability['bookingId']})"
+                    )
+                    workflow.params = {
+                        **(workflow.params or {}),
+                        "gc_rentability_line_id": rentability["id"],
+                    }
+                    workflow.status = StatusWorkflow.COMPLETED
+                    workflow.ended_at = datetime.now()
+                    workflow.message = "Invoice synchronized to GoodCollect (updated)"
+                    await update_workflow.execute(workflow)
+                    return True
+                except Exception as e:
+                    workflow.steps[3].status = StatusWorkflow.FAILED
+                    workflow.steps[3].ended_at = datetime.now()
+                    workflow.steps[3].message = f"Failed to update Rentability line: {str(e)}"
+                    await update_workflow.execute(workflow)
+                    raise UpdateRentabilityLineError(str(e))
+
+            # Create path: create the asset, then the rentability line.
             try:
 
                 asset = await self.goodcollect_gateway.createAsset(
@@ -102,50 +157,55 @@ class SyncInvoiceToGcWorkflow(BaseActivity):
                 )
                 asset_id = asset["id"]
 
-                workflow.steps[1].status = StatusWorkflow.COMPLETED
-                workflow.steps[1].ended_at = datetime.now()
-                workflow.steps[1].message = f"GC asset created: {asset_id}"
+                workflow.steps[2].status = StatusWorkflow.COMPLETED
+                workflow.steps[2].ended_at = datetime.now()
+                workflow.steps[2].message = f"GC asset created: {asset_id}"
                 workflow.params = {**(workflow.params or {}), "gc_asset_id": asset_id}
                 await update_workflow.execute(workflow)
             except Exception as e:
-                workflow.steps[1].status = StatusWorkflow.FAILED
-                workflow.steps[1].ended_at = datetime.now()
-                workflow.steps[1].message = f"Failed to create asset: {str(e)}"
+                workflow.steps[2].status = StatusWorkflow.FAILED
+                workflow.steps[2].ended_at = datetime.now()
+                workflow.steps[2].message = f"Failed to create asset: {str(e)}"
                 await update_workflow.execute(workflow)
                 raise CreateAssetError(str(e))
-            
+
             try:
                 rentability = await self.goodcollect_gateway.createRentabilityBooking(
                     RentabilityBooking(
                         bookingId=int(invoice.gc_booking),
                         assetId=asset_id,
                         priceHT=float(invoice.amount_ht or 0),
+                        comment=invoice.id,
                     )
                 )
 
-                workflow.steps[2].status = StatusWorkflow.COMPLETED
-                workflow.steps[2].ended_at = datetime.now()
-                workflow.steps[2].message = f"GC rentability line created: {rentability['id']}"
+                workflow.steps[3].status = StatusWorkflow.COMPLETED
+                workflow.steps[3].ended_at = datetime.now()
+                workflow.steps[3].message = f"GC rentability line created: {rentability['id']}"
                 workflow.params = {
                     **(workflow.params or {}),
                     "gc_rentability_line_id": rentability["id"],
                 }
+
+                await invoice_repo.set_crm_id(invoice.id, str(rentability["id"]))
+
                 workflow.status = StatusWorkflow.COMPLETED
                 workflow.ended_at = datetime.now()
-                workflow.message = "Invoice synchronized to GoodCollect"
+                workflow.message = "Invoice synchronized to GoodCollect (created)"
                 await update_workflow.execute(workflow)
                 return True
-            
+
             except Exception as e:
-                workflow.steps[2].status = StatusWorkflow.FAILED
-                workflow.steps[2].ended_at = datetime.now()
-                workflow.steps[2].message = f"Failed Rentability line: {str(e)}"
+                workflow.steps[3].status = StatusWorkflow.FAILED
+                workflow.steps[3].ended_at = datetime.now()
+                workflow.steps[3].message = f"Failed Rentability line: {str(e)}"
                 await update_workflow.execute(workflow)
                 raise CreateRentabilityLineError(str(e))
 
         except (
-            CreateAssetError, 
+            CreateAssetError,
             CreateRentabilityLineError,
+            UpdateRentabilityLineError,
             Exception
         ) as e:
             logger.exception(f"SyncInvoiceToGcWorkflow._run failed: {str(e)}")
@@ -160,7 +220,7 @@ class SyncInvoiceToGcWorkflow(BaseActivity):
                         step.status = StatusWorkflow.FAILED
                         step.ended_at = datetime.now()
                         if not step.message:
-                            step.message = str(e)
+                            step.message = str(e)[:255]
 
                 workflow.message = f"Failed to sync invoice to GC: {str(e)}"[:255]
                 workflow.status = StatusWorkflow.FAILED
@@ -175,4 +235,7 @@ class CreateAssetError(Exception):
     pass
 
 class CreateRentabilityLineError(Exception):
+    pass
+
+class UpdateRentabilityLineError(Exception):
     pass

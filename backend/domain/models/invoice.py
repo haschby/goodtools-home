@@ -26,6 +26,7 @@ class Invoice(BaseModel):
     name: str = StringColumn(length=255, nullable=False)
     path: str = TextColumn(nullable=False)
     external_id: str = StringColumn(length=255, nullable=True, index=True, unique=True)
+    crm_id: str = StringColumn(length=255, nullable=True)
     invoice_number: str = StringColumn(length=255, nullable=True)
     invoice_date: date = DateColumn(nullable=True)
     amount_ht: float = NumericColumn(nullable=True)

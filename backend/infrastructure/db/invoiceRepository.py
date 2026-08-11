@@ -180,3 +180,12 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
             cmd = "SELECT external_id FROM invoice WHERE id = :invoice_id"
             result = await session.execute(text(cmd), {"invoice_id": invoice_id})
             return result.scalar_one_or_none()
+
+    async def set_crm_id(self, invoice_id: str, crm_id: str) -> None:
+        async with self._session() as session:
+            cmd = "UPDATE invoice SET crm_id = :crm_id WHERE id = :invoice_id"
+            await session.execute(
+                text(cmd),
+                {"invoice_id": invoice_id, "crm_id": crm_id},
+            )
+            await session.commit()

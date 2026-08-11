@@ -21,10 +21,11 @@ interface AsyncSelectFieldProps<T> {
     searchQueryFunction: (props: SearchQueryFunctionProps) => Promise<BaseResponse<T[]>>;
     entity: string;
     onSelectedValue: (value: string) => void;
+    label?: string;
 }
 
 export function AsyncSelectField<T extends { name: string; label: string }>(
-    { onSelectedValue, defaultValue = "", searchQueryFunction, entity, renderInput }: AsyncSelectFieldProps<T>
+    { onSelectedValue, defaultValue = "", searchQueryFunction, entity, renderInput, label }: AsyncSelectFieldProps<T>
 ) {
     const [inputValue, setInputValue] = useState<string>(defaultValue);
     const [query, setQuery] = useState<string>("");
@@ -77,6 +78,11 @@ export function AsyncSelectField<T extends { name: string; label: string }>(
 
     return (
         <>
+            {label && (
+                <label className="text-sm " htmlFor={label}>
+                    <span className="w-full font-semibold">{label}</span>
+                </label>
+            )}
             <input type="hidden" value={defaultValue} />
             {renderInput(inputProps, searchInputQueryRef)}
 
