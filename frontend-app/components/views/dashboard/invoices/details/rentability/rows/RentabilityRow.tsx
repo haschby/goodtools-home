@@ -18,16 +18,16 @@ interface RentabilityRowProps {
 const TypeRow = ({ type }: { type: string }) => {
     switch (type) {
         case "ProviderPrice":
-            return <span className="self-start bg-green-400 text-xs text-green-700 p-1 rounded-md">Provider</span>;
+            return <span className="self-start bg-green-400 text-xs text-green-700 px-2 py-1 rounded-full">Provider</span>;
         case "GoodcollectPrice":
-            return <span className="self-start bg-blue-400 text-xs text-blue-700 p-1 rounded-md">Goodcollect</span>;
+            return <span className="self-start bg-blue-400 text-xs text-blue-700 px-2 py-1 rounded-full">Goodcollect</span>;
         default:
-            return <span className="self-start bg-gray-300 text-xs text-white p-1 rounded-md">Unknown</span>;
+            return <span className="self-start bg-gray-300 text-xs text-white px-2 py-1 rounded-full">Unknown</span>;
     }
 }
 
 export default function RentabilityRow({ rentability }: RentabilityRowProps) {
-    const priceHT = rentability?.priceHT || 0;
+    const priceHT = rentability?.totalPriceHT || 0;
     const isNegative = priceHT < 0;
 
     return (

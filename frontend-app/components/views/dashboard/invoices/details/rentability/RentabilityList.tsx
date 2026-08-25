@@ -18,8 +18,8 @@ export default function RentabilityList({ rentabilities }: RentabilityListProps)
 
     return (
         <div className="flex flex-col gap-2">
-            {rentabilities.map((rentability) => (
-                <RentabilityRow key={rentability.id} rentability={rentability} />
+            {rentabilities.map((rentability, index) => (
+                <RentabilityRow key={`rentability-${rentability.id}-${index}`} rentability={rentability} />
             ))}
         </div>
     );

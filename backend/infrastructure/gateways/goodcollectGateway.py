@@ -129,7 +129,25 @@ class GoodcollectGateway:
     
     async def getRentabilitiesByBookingId(self, bookingId: int) -> Any:
         async with self.session() as session:
-            stmt = text('SELECT "id", "priceHT", "bookingId", "assetId", "type", SUM("priceHT") AS "totalPriceHT" FROM "BookingRentabilityLine" WHERE "bookingId" = :bookingId GROUP BY "id", "priceHT", "bookingId", "assetId", "type"')
+            stmt = text(f"""
+                    SELECT
+                        b."id" AS "bookingId",
+                        b."isMonthly" AS "isMonthly",
+                        b."manualInvoice" AS "isManualInvoice",
+                        b.external AS "isExternal",
+
+                        brl."id" AS "rentabilityLineId",
+                        brl."priceHT" AS "totalPriceHT",
+                        brl."assetId",
+                        brl."type"
+
+                    FROM "Booking" b
+                    
+                    LEFT JOIN "BookingRentabilityLine" brl
+                        ON brl."bookingId" = b."id"
+
+                    WHERE b."id" = :bookingId
+                    ORDER BY brl."id" ASC""")
             rows = await session.execute(stmt, {"bookingId": bookingId})
             return rows.mappings().all()
             

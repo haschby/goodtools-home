@@ -89,12 +89,15 @@ export async function bulkUpdateInvoices(payload: InvoiceBulkUpdateSchema): Prom
 
 
 export interface RentabilitiesResponse {
-    items: Rentability[];
-    profit?: number;
-    total_price?: number;
+    bookingId?: string;
+    isMonthly?: boolean;
+    isExternal?: boolean;
+    isManualInvoice?: boolean;
+    items?: Rentability[];
     ca?: number;
+    profit?: number;
     charges?: number;
-    marging?: number;
+    margin?: number;
 }
 
 export interface Rentability {
