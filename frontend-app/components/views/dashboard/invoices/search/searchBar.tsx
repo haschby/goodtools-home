@@ -26,7 +26,7 @@ export default function SearchBar() {
     }, [queryString]);
 
     return (
-        <div className="flex flex-col relative my-4">
+        <div className="flex flex-col relative my-3 px-6">
             <div className="">
                 <SearchBox />
                 {/* <div className="text-md flex items-center z-[99999] w-1/2">

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Select } from "@/components/atoms/form/items/Select";
 import { useDataTable } from "@/lib/contexts/DataTableCustomContext";
 import { Invoice } from "@/lib/types/invoice";
 import Icon from "@/components/atoms/Icon";
@@ -47,7 +46,7 @@ export default function InvoiceListViewTableControl() {
     }, [fetchData, activeStatus, pagination?.page, pagination?.limit]);
     
     return (
-        <section className="rounded-b-xl bg-gray-50 p-3 flex flex-row gap-2 items-center justify-between border border-gray-200">
+        <section className="bg-gray-50 p-3 flex flex-row gap-2 items-center justify-between border-t border-b border-gray-200">
             <div className="flex flex-row gap-2 items-center">
                 <div className="font-bold text-sm flex flex-row gap-2 items-center bg-gray-200 rounded-md p-1 border border-gray-200">
                 { options.map(

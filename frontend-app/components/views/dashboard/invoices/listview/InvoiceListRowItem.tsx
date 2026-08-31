@@ -64,7 +64,7 @@ export default function InvoiceListRowItem () {
                                             </span>
                                             <div className="flex flex-row gap-2 items-center">
                                             <StatusRow
-                                            className="px-2 py-1 rounded-md self-start"
+                                            className="px-2 py-1 rounded-full self-start text-xxs"
                                             status={invoice.status.toString()} />
                                             - {
                                                 invoice.gc_booking && (

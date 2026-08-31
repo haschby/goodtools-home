@@ -40,17 +40,16 @@ const Select = ({
         if (containerRef.current) {
             const { bottom } = containerRef.current.getBoundingClientRect();
             const spaceBelow = window.innerHeight - bottom;
-            console.log(spaceBelow < 220 ? 'top' : 'bottom');
+            console.log(spaceBelow > 220 ? 'top' : 'bottom');
             // ✅ Si moins de 220px en bas, ouvre en haut
-            setDropdownPosition(spaceBelow < 220 ? 'top' : 'bottom');
+            setDropdownPosition(spaceBelow > 220 ? 'top' : 'bottom');
         }
         setIsOpen(true);
     },[])
 
     const labelOrIcon = useMemo(() => {
         const isPosition = Boolean(icon?.position);
-        console.log('@IS_POSITION', isPosition);
-        return (
+        return label && (
             <label
                 htmlFor={`${name}`}
                 className={` ${isPosition ? 'mb-3' : undefined } text-sm py-2 flex flex-row items-center gap-2`}>
@@ -59,7 +58,7 @@ const Select = ({
                         { icon?.icon && icon.icon }
                     </span>
                 }
-                { label && <span className="w-full font-semibold">{label}</span> }
+                { <span className="w-full font-semibold">{label}</span> }
             </label>
         );
     }, [icon, label, name]);
@@ -81,7 +80,7 @@ const Select = ({
             />
             {
                 (isOpen) && (
-                <ul className={`border border-gray-300 bg-white shadow-lg absolute ${dropdownPosition === 'top' ? 'bottom-[calc(100%+10px)]' : 'top-[calc(100%+10px)]'} rounded-md left-0 w-full max-h-[80px] overflow-y-auto z-[99999]`}
+                <ul className={`border border-gray-300 bg-white shadow-lg absolute ${dropdownPosition === 'top' ? 'bottom-[calc(100%+10px)]' : 'top-[calc(100%+10px)]'} rounded-md left-0 w-full max-h-[200px] overflow-y-auto z-[99999]`}
                     id={name}
                 >
                     {
