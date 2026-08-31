@@ -24,7 +24,7 @@ export default function TitleInfo(
     }
 
     return (
-        <div className="flex items-center gap-4 w-full justify-between py-6">
+        <div className="flex items-center gap-4 w-full justify-between p-6">
             <div className="flex flex-col w-full">
                 <h1 className="flex items-center text-2xl font-semibold text-gray-800 gap-4">
                     { title }

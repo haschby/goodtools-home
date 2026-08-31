@@ -15,19 +15,19 @@ interface SideBarItemProps {
 export function SideBarItem({ label, href, icon }: SideBarItemProps) {
     const pathname = usePathname();
     const isActive = pathname === href;
-    const cssActive = "bg-gray-300/20 text-gray-800";
+    const cssActive = "bg-green-200 text-green-500";
 
     return (
-        <li className="mx-auto w-full px-2 text-sm">
+        <li className="mx-auto w-full px-1 text-sm">
             <Link
                 href={href}
-                className={`${ isActive && cssActive } transition-all duration-300 border border-transparent rounded-md w-full cursor-pointer px-2 py-2 flex items-center`}>
+                className={`${ isActive && cssActive } transition-all duration-300 border border-transparent rounded-md w-full cursor-pointer px-1 py-2 flex items-center justify-center xl:justify-start`}>
                 <Icon
                     Icon={icon}
                     size={24}
                     strokeWidth={2}
-                    className={`transition-all duration-300 p-0.5 inline-block mr-2`} />
-                {label}
+                    className={`transition-all duration-300 p-0.5 inline-block mr-0 xl:mr-2`} />
+                <span className="hidden xl:inline">{label}</span>
             </Link>
         </li>
     )

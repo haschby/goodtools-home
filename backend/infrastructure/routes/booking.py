@@ -44,35 +44,49 @@ def booking_routes() -> APIRouter:
         gc_gateway: any = Depends(Provide[AppContainer.goodcollect_container.goodcollect_gateway])
     ):
         rows = await gc_gateway.getRentabilitiesByBookingId(bookingId)
-        print(rows) 
+        print("rows => ", rows) 
         if not rows:
             return {
-                "items": [],
-                "net_profit": 0,
-                "total_price": 0,
-                "marging": 0
+                "data": [],
+                "status_code": 200,
+                "message": "No rentabilities found"
             }
         
         bookings = []
         payloads = []
+        external = False
+        isMonthly = False
+        manualInvoice = False
+        bookingId = None
+        
         for row in rows:
             if row.type == "ProviderPrice":
                 payloads.append(row)
             elif row.type == "GoodcollectPrice":
                 bookings.append(row)
+            
+            isMonthly = row.isMonthly
+            manualInvoice = row.isManualInvoice
+            external = row.isExternal
+            bookingId = row.bookingId
+            
         
         total_payload = sum(row.totalPriceHT for row in bookings)
         total_provider = sum(row.totalPriceHT for row in payloads)
         profit = total_payload - total_provider
         marging = (profit / total_provider) * 100 if total_provider else 0
-    
+        
         return {
             "data": {
+                "bookingId": row.bookingId,
+                "isMonthly": isMonthly,
+                "isExternal": external,
+                "isManualInvoice": manualInvoice,
                 "items": list(bookings) + list(payloads),
                 "profit": profit,
                 "charges": total_provider,
                 "ca": total_payload,
-                "marging": marging
+                "margin": marging
             },
             "status_code": 200,
             "message": "Rentabilities fetched successfully"

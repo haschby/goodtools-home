@@ -33,15 +33,12 @@ export default function InvoiceListView() {
   const refStatus = useRef(activeStatus);
 
   const statusResetCallback = useCallback(() => {
-    if (pickedRecord) {
-      return true;
-    }
-
     if (refStatus.current !== activeStatus) {
+      refStatus.current = activeStatus;
       return true;
     }
     return false;
-  }, [activeStatus, pickedRecord]);
+  }, [activeStatus]);
 
   useEffect(() => {
       dataRef.current = pagination;
@@ -53,24 +50,22 @@ export default function InvoiceListView() {
   [pickedRecord]);
 
   const RowItems = useMemo(() => <InvoiceListRowItem />, []);
-  const ActionsList = useMemo(() => !pickedRecord && <InvoiceDetailViewActions /> || <></>, [pickedRecord]);
+  const ActionsList = useMemo(() => <InvoiceDetailViewActions />, []);
   const StatusBar = useMemo(() => <InvoiceListStatusBar />, []);
   const Filters = useMemo(() => <SearchBar />, []);
   const Headers = useMemo(() => <InvoiceListHeaders />, []);
   const TableControl = useMemo(() => <InvoiceListViewTableControl />, []);
 
-  
-
   return (
     <MultiSelectProvider reset={statusResetCallback}>
       <div className={`h-screen`}>
         <div className="flex flex-row">
-          <div className={`px-6 relative h-screen flex flex-col transition-all duration-300 ${ isPickedRecord ? 'w-[35%] lg:flex hidden' : 'w-full'}`}>
-            <TitleInfo
-              title="Invoice Records"
+          <div className={`relative h-screen flex flex-col transition-all duration-300 ${ isPickedRecord ? 'w-[50%] lg:flex hidden' : 'w-full'}`}>
+            
+            <TitleInfo title="Invoice Records"
               baseLineText="View detailed invoices records by clicking on the row."
-              totalRows={pagination?.total}
-            />
+              totalRows={pagination?.total} />
+
             <ListView
               filters={ Filters }
               paginationActions={ TableControl }
@@ -78,6 +73,7 @@ export default function InvoiceListView() {
               headers={ isPickedRecord ? [] : Headers }
               data={ RowItems }
               controlTableActions={ ActionsList } />
+
             <div
               id="footer-loader-container"
               className="bg-white border-t border-gray-200 absolute bottom-0 left-0 right-0 flex items-center w-full gap-4 justify-center p-4">

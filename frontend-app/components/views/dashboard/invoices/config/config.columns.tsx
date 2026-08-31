@@ -27,7 +27,7 @@ const ProviderCell = ({ item }: { item: Invoice }) => {
         ref={spanRef}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={() => setIsHovered(false)}
-        className={`font-semibold text-gray-500 whitespace-nowrap ${showTooltip ? 'absolute z-10 w-max bg-white rounded-md px-2 py-1 shadow-lg' : 'truncate'}`}>
+        className={`font-semibold text-gray-500 whitespace-nowrap ${showTooltip ? 'absolute z-[9999] w-max bg-white rounded-md px-2 py-1 shadow-lg' : 'truncate'}`}>
             {item.issuer_name}
         </span>
     );
@@ -73,7 +73,7 @@ export const invoicesColumns: ColumnProps<Invoice>[] = [
         isNumber: false,
         renderItem: (item: Invoice) =>
             <p className="flex items-center justify-center gap-2">
-            <StatusRow className="px-2 py-1 rounded-md" status={item.status.toString()} />
+                <StatusRow className="rounded-full" status={item.status.toString()} />
             </p>
     },
     {
@@ -109,7 +109,7 @@ export const invoicesColumns: ColumnProps<Invoice>[] = [
                         <Link
                             href={`https://goodcollect.com/booking/${item.gc_booking}`}
                             target="_blank"
-                            className="relative z-900 flex items-center gap-2 text-sm font-normal text-orange-500">
+                            className="relative flex items-center gap-2 text-sm font-normal text-orange-500">
                             <Icon
                                 Icon={Paperclip1Solid}
                                 size={16}

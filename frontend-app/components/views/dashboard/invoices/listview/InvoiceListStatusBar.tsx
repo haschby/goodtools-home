@@ -1,43 +1,29 @@
 "use client";
 
-import { useRef, useCallback, useMemo } from 'react';
+import { useRef, useCallback, useMemo, useState, useEffect } from 'react';
 import { Invoice } from '@/lib/types/invoice';
 import { useDataTable } from '@/lib/contexts/DataTableCustomContext';
 import Icon from '@/components/atoms/Icon';
-import { ArrowLeftCircleSolid, ArrowRightCircleSolid } from '@lineiconshq/free-icons';
+import { ChevronDownSolid } from '@lineiconshq/free-icons';
 
 export default function InvoiceStatusBar() {
 
     const { 
         activeStatus, statuses,
-        pickedRecord, setActiveStatus,
+        setActiveStatus,
         fetchData, pagination
     } = useDataTable<Invoice>();
 
-    const statusesValues = statuses.map(status => status);
-    const containerRef = useRef<HTMLUListElement>(null);
-    const statusRef = useRef<HTMLLIElement[]>([]);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [isOpen, setIsOpen] = useState<boolean>(false);
 
-    function isActiveTab(status: string) {
-        if (activeStatus === status)
-            return `after:absolute after:-bottom-1
-            after:left-0 after:content-[""] after:flex after:w-full after:h-1.5 after:bg-green-500
-            bg-green-300/20 !text-black rounded-t-md`;
-       
-        return 'border-transparent';
-    }
+    const currentStatus = activeStatus ?? 'All';
 
-    const scrollToStatus = useCallback(
-        (status: string) => {
-            const statusFoundRef = statusRef.current.find(el => el?.id === status);
-            if (statusFoundRef) {
-                statusFoundRef.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'nearest',
-                    inline: 'center'
-                });
-            }
-    }, []);
+    const activeCount = useMemo(() => {
+        const { total_by_status, total } = pagination ?? {};
+        if (currentStatus === 'All') return total ?? 0;
+        return total_by_status?.[activeStatus as keyof typeof total_by_status] ?? 0;
+    }, [pagination, currentStatus, activeStatus]);
 
     const handleSelectStatus = useCallback(
         (status: string) => {
@@ -47,81 +33,83 @@ export default function InvoiceStatusBar() {
                 page: 1,
                 limit: pagination?.limit ?? 30
             });
-            scrollToStatus(status);
+            setIsOpen(false);
         },
-        [fetchData, pagination?.limit, setActiveStatus, scrollToStatus]
+        [fetchData, pagination?.limit, setActiveStatus]
     );
 
-    const handleForwardStatus = useCallback(
-        (status: string, state: 'forward' | 'backward') => {
-            const index = statusesValues.indexOf(status);
-            if (index === -1) return;
+    useEffect(() => {
+        if (!isOpen) return;
 
-            const nextStatus =
-                state === 'forward' ? statusesValues[index + 1] : statusesValues[index - 1];
-
-            if (nextStatus) {
-                handleSelectStatus(nextStatus);
+        const handleClickOutside = (event: MouseEvent) => {
+            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
             }
-        }, [statusesValues, handleSelectStatus]);
+        };
 
-    const isPickedRecord = useMemo(() => pickedRecord && pickedRecord.path !== null, [pickedRecord]);
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isOpen]);
 
     return (
-        <ul
-            ref={containerRef}
-            role="tablist"
-            className={`relative flex flex-row overflow-hidden border-b border-gray-200 w-full`}>
-            { isPickedRecord && (
-                <li
-                    onClick={() => handleForwardStatus(activeStatus ?? 'All', 'backward') }
-                    className="opacity-10 hover:opacity-100 transition-all duration-300 h-full text-gray-700 cursor-pointer flex items-center justify-center sticky top-0 left-0 z-50 px-4">
+        <div className="relative border-b border-gray-200 w-full px-6 py-3">
+            <div ref={containerRef} className="relative inline-block w-full xl:max-w-xs">
+                <button
+                    type="button"
+                    aria-haspopup="listbox"
+                    aria-expanded={isOpen}
+                    onClick={() => setIsOpen(prev => !prev)}
+                    className="cursor-pointer w-full flex flex-row items-center justify-between gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-800 transition-all duration-200 hover:border-gray-300">
+                    <span className="flex flex-row items-center gap-2 min-w-0">
+                        <span className="text-gray-500 text-sm font-semibold">Status</span>
+                        <span className="truncate text-gray-800 text-sm font-semibold">{currentStatus}</span>
+                        <span className="text-green-600 font-semibold flex items-center justify-center px-1.5 py-0.5 text-[11px] rounded-lg bg-green-300/20">
+                            {activeCount.toString()}
+                        </span>
+                    </span>
                     <Icon
-                        Icon={ArrowLeftCircleSolid}
-                        size={18}
-                        strokeWidth={2} />
-                </li>
-            )}
-            <ul className="flex flex-row overflow-x-scroll overflow-y-hidden w-full h-full pt-3">
+                        Icon={ChevronDownSolid}
+                        size={16}
+                        strokeWidth={2}
+                        className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+                </button>
+
                 {
-                    statuses.map(
-                        (status: string, index: number) => {
-                            const { total_by_status, total } = pagination ?? {};
-                            const totalByStatus = total_by_status?.[status as keyof typeof total_by_status] ?? '0';
-                            return (
-                                <li
-                                    key={status}
-                                    ref={ (el) => { if (el) statusRef.current[index] = el; }}
-                                    id={status}
-                                    aria-label={status}
-                                    className={`cursor-pointer flex items-center justify-center whitespace-nowrap text-black relative py-2 ${ isActiveTab(status) }`}
-                                    style={{ width: `auto` }}
-                                    onClick={() => handleSelectStatus(status)}>
-                                    <p className={`flex flex-row items-center font-semibold gap-2 px-6`}>
-                                        {status}
-                                        <span className={` ${activeStatus === status ? 'text-green-600 font-semibold' : 'text-gray-900'} flex items-center justify-center px-1 py-1 text-[11px] rounded-lg`}>
-                                            {
-                                                status === 'All' ? total : totalByStatus.toString()
-                                            }
-                                        </span>
-                                    </p>
-                                </li>
-                            )
-                        }
+                    isOpen && (
+                        <ul
+                            role="listbox"
+                            className="absolute w-max-[200px] top-[calc(100%+6px)] left-0 w-full z-[99999] max-h-[280px] overflow-y-auto rounded-md border border-gray-200 bg-white shadow-lg">
+                            {
+                                statuses.map((status: string, index: number) => {
+                                    const isActive = currentStatus === status;
+                                    const isLast = index === statuses.length - 1;
+                                    return (
+                                        <li
+                                            key={status}
+                                            role="option"
+                                            aria-selected={isActive}
+                                            id={status}
+                                            aria-label={status}
+                                            onClick={() => handleSelectStatus(status)}
+                                            className={`${isLast ? '' : 'border-b border-gray-100'} ${isActive ? 'bg-green-300/20 text-green-700' : 'text-gray-800 hover:bg-gray-50'} cursor-pointer flex flex-row items-center justify-between gap-2 px-3 py-2 text-sm font-semibold`}>
+                                            <span className="truncate">
+                                                {status}
+                                            </span>
+                                            <span className="text-green-600 flex items-center justify-center px-1.5 py-0.5 text-[11px] rounded-lg bg-green-300/20">
+                                                {
+                                                    status === 'All'
+                                                    ? pagination?.total?.toString() ?? '0'
+                                                    : pagination?.total_by_status?.[status as keyof typeof pagination.total_by_status]?.toString() ?? '0'
+                                                }
+                                            </span>
+                                        </li>
+                                    )
+                                })
+                            }
+                        </ul>
                     )
                 }
-            </ul>
-
-            { isPickedRecord && (        
-                <li
-                    onClick={() => handleForwardStatus(activeStatus ?? 'All', 'forward') }
-                    className="opacity-10 hover:opacity-100 transition-opacity duration-300 h-full text-gray-700 cursor-pointer flex items-center justify-center sticky top-0 right-0 px-4 z-50">
-                    <Icon
-                        Icon={ArrowRightCircleSolid}
-                        size={18}
-                        strokeWidth={2} />
-                </li>
-            )}
-        </ul>
+            </div>
+        </div>
     )
 }

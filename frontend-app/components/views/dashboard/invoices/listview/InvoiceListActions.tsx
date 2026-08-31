@@ -26,7 +26,7 @@ export default function InvoiceDetailViewActions () {
       if (hasSelection) {
         setShouldRender(true); // eslint-disable-line
         timer = setTimeout(() => {
-          setClassNames('-translate-y-12 duration-200');
+          setClassNames('translate-y-2 duration-200');
         }, 80);
       } else {
         setClassNames('translate-y-30 duration-200');
@@ -61,41 +61,39 @@ export default function InvoiceDetailViewActions () {
     if (!shouldRender) return null;
   
     return (
-      <section className={`${classNames} px-8 absolute z-[8888] right-0 left-0 w-full max-w-[70%] mx-auto bottom-0`}>
+      <section className={`${classNames} w-full mx-auto px-3`}>
         <div className="flex flex-col bg-white rounded-lg shadow-md border border-gray-200">
-          <div className="flex flex-row p-2 gap-2 justify-between">
+          <div className="flex flex-row gap-2 justify-between p-2">
             <div className="flex flex-row gap-2"> 
-            <Select
-              label=""
-              isEditable={count > 0}
-              options={statuses}
-              register={{
-                  onChange: (newValue: string) => {
-                    setStatus(newValue);
-                  },
-                  name: 'status',
-                  value:  status,
-                  className: `${count > 0 ? '' : 'opacity-30 !cursor-not-allowed'} rounded-md focus:outline-none transition-all p-2 bg-white border border-gray-200 text-gray-900 text-sm`
-              }}
-              name="status" />
-            <input 
-              name="gc_booking"
-              disabled={count === 0}
-              id="gc_booking"
-              placeholder="GC Booking"
-              type="text"
-              value={gcBooking}
-              onChange={(e) => {
-                  const raw = e.target.value;
-                  if (raw !== '' && !/^\d+$/.test(raw)) {
-                      return;
-                  }
-                  setGcBooking(raw);
-              }}
-              className={`self-start ${count > 0 ? '' : 'opacity-30 !cursor-not-allowed'} bg-white rounded-md focus:outline-none transition-all duration-300 p-2 border border-gray-200 text-gray-900 text-sm`}/>
+              <Select
+                isEditable={count > 0}
+                options={statuses}
+                register={{
+                    onChange: (newValue: string) => {
+                      setStatus(newValue);
+                    },
+                    name: 'status',
+                    value:  status,
+                    className: `${count > 0 ? '' : 'opacity-30 !cursor-not-allowed'} rounded-md focus:outline-none transition-all p-2 bg-white border border-gray-200 text-gray-900 text-sm`
+                }}
+                name="status" />
+              <input 
+                name="gc_booking"
+                disabled={count === 0}
+                id="gc_booking"
+                placeholder="GC Booking"
+                type="text"
+                value={gcBooking}
+                onChange={(e) => {
+                    const raw = e.target.value;
+                    if (raw !== '' && !/^\d+$/.test(raw)) {
+                        return;
+                    }
+                    setGcBooking(raw);
+                }}
+                className={`self-start ${count > 0 ? '' : 'opacity-30 !cursor-not-allowed'} bg-white rounded-md focus:outline-none transition-all duration-300 p-2 border border-gray-200 text-gray-900 text-sm`}/>
             </div>
             <div className="flex flex-row gap-2">
-            {gcBooking === '' || status === '' ? 'disabled' : 'enabled'}
               <button
                 disabled={gcBooking === '' && status === ''}
                 onClick={() => handleAction(status, gcBooking)}

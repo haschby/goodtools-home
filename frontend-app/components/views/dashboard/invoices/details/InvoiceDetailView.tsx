@@ -1,5 +1,5 @@
 "use client";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useCallback, useMemo } from "react";
 import { useDataTable } from "@/lib/contexts/DataTableCustomContext";
 import InvoiceDetailCard from "./InvoiceDetailCard";
 import { Invoice } from "@/lib/types/invoice";
@@ -19,22 +19,63 @@ export default function InvoiceDetailView(
     }: InvoiceDetailViewProps
 ) {
 
-    const { pickedRecord, pickedIsLoading, fetchRecord } = useDataTable<Invoice>();
+    const { pickedRecord, pickedId, pickRecordById, pickedIsLoading, pagination } = useDataTable<Invoice>();
 
-    // useEffect(() => {
-    //     while (!pickedRecord?.path) {
-    //         fetchRecord();
-    //     }
-    // }, [pickedRecord?.path, fetchRecord]);
+    const items = useMemo(() => pagination?.items ?? [], [pagination?.items]);
+    const currentId = pickedId ?? pickedRecord?.id ?? null;
+    const currentIndex = items.findIndex((item) => item.id === currentId);
+
+    const hasPrevious = currentIndex > 0;
+    const hasNext = currentIndex !== -1 && currentIndex < items.length - 1;
+
+    const goToPrevious = useCallback(() => {
+        if (hasPrevious) {
+            pickRecordById(items[currentIndex - 1].id);
+        }
+    }, [hasPrevious, items, currentIndex, pickRecordById]);
+
+    const goToNext = useCallback(() => {
+        if (hasNext) {
+            pickRecordById(items[currentIndex + 1].id);
+        }
+    }, [hasNext, items, currentIndex, pickRecordById]);
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+
+            const target = event.target as HTMLElement | null;
+            const tagName = target?.tagName;
+            const isTyping =
+                tagName === 'INPUT' ||
+                tagName === 'TEXTAREA' ||
+                tagName === 'SELECT' ||
+                target?.isContentEditable;
+
+            if (isTyping) return;
+
+            event.preventDefault();
+
+            if (event.key === 'ArrowDown') {
+                goToNext();
+            } else {
+                goToPrevious();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [goToNext, goToPrevious]);
 
     return (
         <div className="w-full h-full bg-white flex flex-col border-l border-gray-200 shadow-lg relative">
             <div className="flex flex-row gap-8 py-4 px-4">
                 {closeButton}
-                <aside className="w-[60%] absolute bottom-0 left-0 right-0 p-4 flex flex-row items-center justify-center gap-4 text-sm">
+                <aside className="flex flex-row items-center justify-center gap-4 text-sm">
                     <button
-                        // onClick={() => handlePickRecordById(items?.[invoiceIndex - 1])}
-                        className="shadow-md cursor-pointer flex items-center gap-1 flex-row bg-white text-black px-3 py-2 font-semibold rounded-md">
+                        onClick={goToPrevious}
+                        disabled={!hasPrevious}
+                        className={`shadow-md flex items-center gap-1 flex-row bg-white border border-gray-200 text-gray-900 px-3 py-1 font-semibold rounded-md ${hasPrevious ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}>
                         <Icon
                             Icon={ArrowUpwardSolid}
                             size={14}
@@ -42,8 +83,9 @@ export default function InvoiceDetailView(
                         Previous
                     </button>
                     <button
-                        // onClick={() => handlePickRecordById(items?.[invoiceIndex + 1])}
-                        className="shadow-md cursor-pointer flex items-center gap-1 flex-row bg-white text-black px-3 py-2 font-semibold rounded-md">
+                        onClick={goToNext}
+                        disabled={!hasNext}
+                        className={`shadow-md flex items-center gap-1 flex-row bg-white border border-gray-200 text-gray-900 px-3 py-1 font-semibold rounded-md ${hasNext ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}>
                         <Icon
                             Icon={ArrowDownwardSolid}
                             size={14}
@@ -54,7 +96,7 @@ export default function InvoiceDetailView(
             </div>
 
             <aside className="flex flex-row">
-                <div className="flex overflow-auto w-[60%] border-r border-gray-200 h-full">
+                <div className="flex overflow-auto w-[80%] border-r border-gray-200 h-full">
                     {
                         !pickedIsLoading &&
                         <iframe
