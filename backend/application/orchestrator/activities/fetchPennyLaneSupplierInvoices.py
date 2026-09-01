@@ -30,7 +30,7 @@ class FetchPennyLaneSupplierInvoices(BaseActivity):
             if date.tzinfo is None:
                 date = date.replace(tzinfo=timezone.utc)
             
-            threshold_date = datetime(2026, 8, 4, tzinfo=timezone.utc)
+            threshold_date = datetime(2026, 9, 1, tzinfo=timezone.utc)
             if date >= threshold_date:
                 invoices_to_treat.append(invoice)    
             # if invoice.get("accounting_status") == "validation_needed":
