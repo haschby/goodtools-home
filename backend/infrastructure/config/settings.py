@@ -68,6 +68,8 @@ class Settings(BaseSettings):
     gc_db_port: int = Field(..., env="GC_DB_PORT")
     gc_db_user: str = Field(..., env="GC_DB_USER")
     gc_db_pass: str = Field(..., env="GC_DB_PASS")
+    
+    pennylane_starting_date: str = Field(..., env="PENNYLANE_STARTING_DATE")
 
     @property
     def storage_provider(self) -> StorageProvider:

@@ -1,6 +1,6 @@
 QUERY_GET_ALL_INVOICES = """
 SELECT
-id, name, external_id, invoice_number, invoice_date, amount_ht,
+id, name, external_id, invoice_type, invoice_number, invoice_date, amount_ht,
 amount_ttc, amount_tva, issuer_name, gc_booking, status, created_at, updated_at
 FROM invoice
 """
@@ -21,7 +21,7 @@ FROM invoice
 
 QUERY_GET_INVOICE_ID = """
 SELECT
-id, name, path, external_id, invoice_number, amount_ht,
+id, name, path, external_id, invoice_type, invoice_number, amount_ht,
 amount_ttc, amount_tva, issuer_name, gc_booking, status, 
 comments
 FROM invoice

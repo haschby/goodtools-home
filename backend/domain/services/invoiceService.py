@@ -13,6 +13,9 @@ class InvoiceService:
     ) -> None:
         self.repository = invoiceRepository
         self.storage = storage
+    
+    async def count(self) -> int:
+        return await self.repository.count()
         
     async def get_last_invoice_id(self) -> int | None:
         invoice = await self.repository.get_last_invoice_id()
@@ -50,10 +53,21 @@ class InvoiceService:
             status=params['status'],
             page=params['page'],
             limit=params['limit'],
-            query=params['query']
+            query=params['query'],
+            invoice_types=params.get('invoice_types')
         )
-        
-        return invoices if invoices else None, total_by_status_count, await self.repository.count()
+
+        # When an invoice_type filter is active, the global count() no longer
+        # reflects the visible dataset. In that case the total must be the sum
+        # of the per-status counts (which are already filtered by type and
+        # exclude archived invoices) so that the "All" badge, total and
+        # pagination stay consistent with the applied filters.
+        if params.get('invoice_types'):
+            total = sum(row['total'] for row in total_by_status_count)
+        else:
+            total = await self.repository.count()
+
+        return invoices if invoices else None, total_by_status_count, total
     
     # async def get_stats(self) -> StatsInvoices:
     #     return await self.invoiceRepository.get_stats()

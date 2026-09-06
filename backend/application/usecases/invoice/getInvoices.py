@@ -12,6 +12,7 @@ class GetInvoicesParams:
     limit: int
     status: Optional[str] = "All"
     query: Optional[str] = None
+    invoice_types: Optional[list] = None
 
 class GetInvoices(BaseUsecase):
     def __init__(self,
@@ -22,6 +23,7 @@ class GetInvoices(BaseUsecase):
     async def execute(self, params: GetInvoicesParams) -> InvoiceListResponseSchema:
         
         invoices, total_by_status_count, count = await self.invoiceService.get_all(params)
+        total = await self.invoiceService.count()
         
         items = []
         if invoices:
@@ -42,7 +44,7 @@ class GetInvoices(BaseUsecase):
                 limit=params.get('limit', 30),
                 total_by_status=total_by_status,
                 total_pages=math.ceil(total_current_status / params['limit']) if total_by_status else 1,
-                total=count
+                total=total
             )
         )
     

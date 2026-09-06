@@ -181,6 +181,7 @@ class AppContainer(containers.DeclarativeContainer):
         session=main_db_uri.provided.session_factory,
         storage=storageClient,
         workflow_launcher=orchestrator_container.localWorkflowLauncher,
+        logger=logger,
     )
     
     

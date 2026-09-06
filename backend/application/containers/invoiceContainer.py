@@ -45,7 +45,8 @@ class InvoiceContainer(containers.DeclarativeContainer):
     getInvoiceUsecase = providers.Factory(
         GetInvoice,
         invoiceService=service,
-        accountingGateway=pennylane_gateway
+        accountingGateway=pennylane_gateway,
+        storage=storage
     )
     
     updateInvoiceUsecase = providers.Factory(

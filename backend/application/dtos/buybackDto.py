@@ -3,6 +3,7 @@ from typing import Optional, List
 from datetime import datetime
 from application.dtos.baseDto import BaseResponseSchema, PaginatedResponseSchema
 from domain.models.enums import StatusBuyBackEnum
+from application.dtos.invoiceDto import InvoiceCreateSchema, InvoiceResponseSchema
 
 ALLOWED_CURRENCIES = {"EUR", "USD", "GBP"}
 
@@ -111,13 +112,13 @@ class StoredFilesResponseSchema(
 
 
 class BuybackListResponseSchema(
-    BaseResponseSchema[List[BuybackResponseSchema]]
+    BaseResponseSchema[List[InvoiceResponseSchema]]
 ):
     pass
 
 
 class PaginatedBuybackResponseSchema(
-    PaginatedResponseSchema[BuybackResponseSchema]
+    PaginatedResponseSchema[InvoiceResponseSchema]
 ):
     pass
 

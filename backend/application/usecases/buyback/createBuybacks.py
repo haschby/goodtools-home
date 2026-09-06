@@ -7,8 +7,10 @@ from application.dtos.buybackDto import (
 )
 from application.ports.baseUsecase import BaseUsecase
 from domain.buyback.buybackFactory import BuybackValidationError
-from domain.services.buybackService import BuybackService
-
+from domain.services.invoiceService import InvoiceService
+from domain.models.enums import EnumInvoiceType, EnumInvoiceStatus
+from application.dtos.invoiceDto import InvoiceResponseSchema
+from application.dtos.invoiceDto import InvoiceCreateSchema
 
 class CreateBuybacks(BaseUsecase):
     """Use case: create a list of buybacks and return them refreshed from DB.
@@ -17,8 +19,8 @@ class CreateBuybacks(BaseUsecase):
     port). It knows nothing about HTTP, the ORM model, or SQL.
     """
 
-    def __init__(self, buybackService: BuybackService) -> None:
-        self.buybackService = buybackService
+    def __init__(self, invoiceService: InvoiceService) -> None:
+        self.invoiceService = invoiceService
 
     async def execute(
         self, buybacks: List[BuybackCreateSchema]
@@ -31,7 +33,19 @@ class CreateBuybacks(BaseUsecase):
             )
 
         try:
-            created = await self.buybackService.create_buybacks(buybacks)
+            invoices = [
+                InvoiceCreateSchema(
+                    name=buyback.file_path,
+                    path=buyback.file_path,
+                    invoice_type=EnumInvoiceType.BUYBACK,
+                    file_path=buyback.file_path,
+                    status=EnumInvoiceStatus.TO_BE_TRAITED,
+                    amount=buyback.amount,
+                    currency=buyback.currency,
+                )
+                for buyback in buybacks
+            ]
+            created = await self.invoiceService.create_invoice(invoices)
         except BuybackValidationError as error:
             return BuybackListResponseSchema(
                 message=f"Business rule violation: {error}",
@@ -49,7 +63,7 @@ class CreateBuybacks(BaseUsecase):
             message="Buybacks created successfully",
             status_code=201,
             data=[
-                BuybackResponseSchema.model_validate(buyback, from_attributes=True)
-                for buyback in created
+                InvoiceResponseSchema.model_validate(invoice, from_attributes=True)
+                for invoice in created
             ],
         )

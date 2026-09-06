@@ -63,6 +63,7 @@ def invoice_routes() -> APIRouter:
         page: Optional[int] = Query(default=1, description="Page Selector"),
         limit: Optional[int] = Query(default=30, description="Limit Selector"),
         query: Optional[str] = Query(default=None, description="Query Selector"),
+        invoice_types: Optional[List[str]] = Query(default=None, description="Filter invoices by type"),
         useCase: BaseUsecase = Depends(
             Provide[AppContainer.invoice_container.getAllInvoicesUsecase]
         )
@@ -71,7 +72,8 @@ def invoice_routes() -> APIRouter:
             "status": status,
             "page": page,
             "limit": limit,
-            "query": query
+            "query": query,
+            "invoice_types": invoice_types
         }
         
         return await useCase.execute(params)

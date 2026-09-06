@@ -5,7 +5,7 @@ import { Invoice } from "@/lib/types/invoice";
 import { BaseResponse, GenericResponseAPI, GetSearchParams, PaginatedResponse } from "@/lib/types/base";
 
 export async function getInvoices(
-    { status, page, limit, query = null }: GetSearchParams
+    { status, page, limit, query = null, invoice_types = null }: GetSearchParams
 ): Promise<GenericResponseAPI<PaginatedResponse<Invoice[]>>> {
 
     console.log('@getInvoices', status, page, limit);
@@ -15,6 +15,10 @@ export async function getInvoices(
         limit: limit?.toString(),
         query: query ?? ''
     });
+
+    if (invoice_types && invoice_types.length > 0) {
+        invoice_types.forEach((type) => params.append('invoice_types', type));
+    }
 
     const api_url = `/client/invoice/all?${params.toString()}`;
     const response: GenericResponseAPI<PaginatedResponse<Invoice[]>> = await gatewayService(

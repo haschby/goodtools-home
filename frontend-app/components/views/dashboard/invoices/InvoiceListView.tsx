@@ -9,13 +9,15 @@ import { ArrowRightCircleSolid, Train3Bulk } from '@lineiconshq/free-icons';
 import { useDataTable } from '@/lib/contexts/DataTableCustomContext';
 import SearchBar from './search/searchBar';
 import { MultiSelectProvider } from '@/components/providers/MultiSelectProvider';
+import { BuybackImport } from '../buyback/components/listview/import';
 
 import { 
   InvoiceListHeaders, 
   InvoiceListRowItem,
-  InvoiceListStatusBar,
+  InvoiceStatusFilters,
   InvoiceDetailViewActions,
-  InvoiceListViewTableControl
+  InvoiceListViewTableControl,
+  InvoicePennylaneAction
 } from './listview/InvoiceListViewComponent';
 
 import TitleInfo from '@/components/atoms/view/TitleInfo';
@@ -49,9 +51,11 @@ export default function InvoiceListView() {
     pickedRecord && pickedRecord.path !== null,
   [pickedRecord]);
 
+  const buttonActions = [ InvoicePennylaneAction, BuybackImport ];
+
   const RowItems = useMemo(() => <InvoiceListRowItem />, []);
   const ActionsList = useMemo(() => <InvoiceDetailViewActions />, []);
-  const StatusBar = useMemo(() => <InvoiceListStatusBar />, []);
+  const StatusBar = useMemo(() => <InvoiceStatusFilters />, []);
   const Filters = useMemo(() => <SearchBar />, []);
   const Headers = useMemo(() => <InvoiceListHeaders />, []);
   const TableControl = useMemo(() => <InvoiceListViewTableControl />, []);
@@ -64,7 +68,8 @@ export default function InvoiceListView() {
             
             <TitleInfo title="Invoice Records"
               baseLineText="View detailed invoices records by clicking on the row."
-              totalRows={pagination?.total} />
+              totalRows={pagination?.total}
+              buttonActions={ buttonActions } />
 
             <ListView
               filters={ Filters }

@@ -24,7 +24,7 @@ class SyncInvoiceToGcError(Exception):
 class SyncInvoiceToGcWorkflow(BaseActivity):
     """Synchronise a validated invoice into the GoodCollect database.
 
-    Triggered when an invoice reaches the "Valider avec paiement" status.
+    Triggered when an invoice reaches the "A Payer" status.
     It creates the Asset (the invoice document) then the associated
     BookingRentabilityLine so that the invoice amount is reflected on the
     GoodCollect booking.

@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useDataTable } from "@/lib/contexts/DataTableCustomContext";
-import { Buyback } from "@/lib/types/buyback";
+import { Invoice } from "@/lib/types/invoice";
 import Icon from "@/components/atoms/Icon";
 import { Pencil1Bulk, CheckCircle1Solid, XmarkSolid } from "@lineiconshq/free-icons";
 import { Select } from "@/components/atoms/form/items/Select";
@@ -17,9 +17,9 @@ export function BuybackDetailCard() {
         fetchData,
         pagination,
         activeStatus
-    } = useDataTable<Buyback>();
+    } = useDataTable<Invoice>();
     const [ isEditing, setIsEditing ] = useState<boolean>(false);
-    const [ backupRecord, setBackupRecord ] = useState<Buyback | null>(null);
+    const [ backupRecord, setBackupRecord ] = useState<Invoice | null>(null);
 
     const handleEdit = useCallback(() => {
         setBackupRecord(pickedRecord ? { ...pickedRecord } : null);
@@ -50,7 +50,7 @@ export function BuybackDetailCard() {
     const inputClassName = `text-right rounded-md focus:outline-none transition-all p-2 ${isEditing && 'active:bg-white active:p-2 border border-gray-200' || 'border border-gray-50 bg-gray-100 text-gray-500'} w-full text-gray-900 text-sm`;
 
     return (
-        <div className="flex flex-col gap-2 p-4">
+        <div className="flex flex-col gap-2">
             <form className="flex flex-col gap-1">
                 <div className="flex flex-col">
                     <label className="text-sm py-2" htmlFor="gc_booking">
@@ -63,7 +63,7 @@ export function BuybackDetailCard() {
                         type="text"
                         onChange={(e) =>
                             setPickedRecord(
-                                { ...pickedRecord, gc_booking: e.target.value } as Buyback)
+                                { ...pickedRecord, gc_booking: e.target.value } as Invoice)
                         }
                         className={inputClassName}
                         value={pickedRecord?.gc_booking || ''}
@@ -78,7 +78,7 @@ export function BuybackDetailCard() {
                             options={buybackStatuses}
                             register={{
                                 onChange: (newValue: string) => {
-                                    setPickedRecord({ ...pickedRecord, status: newValue } as unknown as Buyback);
+                                    setPickedRecord({ ...pickedRecord, status: newValue } as Invoice);
                                 },
                                 name: 'status',
                                 value: pickedRecord?.status?.toString() || 'A Traiter',
@@ -98,10 +98,10 @@ export function BuybackDetailCard() {
                             type="text"
                             onChange={(e) =>
                                 setPickedRecord(
-                                    { ...pickedRecord, amount: -parseFloat(e.target.value) } as Buyback)
+                                    { ...pickedRecord, amount: -parseFloat(e.target.value) } as Invoice)
                             }
                             className={inputClassName}
-                            value={pickedRecord?.amount?.toString() ?? ''}
+                            value={pickedRecord?.amount_ht?.toString() ?? ''}
                         />
                     </div>
                 </div>

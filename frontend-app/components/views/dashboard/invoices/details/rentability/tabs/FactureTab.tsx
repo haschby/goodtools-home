@@ -2,7 +2,7 @@
 
 import { Dispatch, SetStateAction } from "react";
 import Icon from "@/components/atoms/Icon";
-import { Pencil1Bulk, Trash3Solid } from "@lineiconshq/free-icons";
+import { Pencil1Bulk, CheckCircle1Solid, XmarkSolid } from "@lineiconshq/free-icons";
 import { AsyncSelectField } from "@/components/atoms/form/AsyncSelectField";
 import { searchQuery } from "@/actions/common";
 import { Select } from "@/components/atoms/form/items/Select";
@@ -177,25 +177,30 @@ export default function FactureTab({
                 </div>
             </form>
 
-            <aside className="px-6 flex items-center justify-end gap-3">
-                <button
-                    onClick={() => setIsEditing(false)}
-                    className="bg-red-500 border-2 border-red-600 text-white flex items-center gap-2 cursor-pointer bg-gray-100 text-gray-800 text-sm font-semibold py-1 px-2 rounded-md">
-                    <Icon Icon={Trash3Solid} size={16} strokeWidth={2} />
-                    Cancel
-                </button>
+            <aside className="flex items-center justify-end gap-3">
                 {
                     isEditing && (
-                        <button
-                            onClick={onSave}
-                            className="flex items-center gap-2 cursor-pointer bg-green-300/20 border border-green-500 text-green-500 text-sm font-semibold py-2 px-3 rounded-md">
-                            <Icon Icon={Pencil1Bulk} size={16} strokeWidth={2} />
-                            Save
-                        </button>
+                        <>
+                            <button
+                                type="button"
+                                onClick={() => setIsEditing(false)}
+                                className="flex items-center gap-2 cursor-pointer bg-red-300/20 text-red-500 text-sm font-semibold py-2 px-3 rounded-md">
+                                <Icon Icon={XmarkSolid} size={16} strokeWidth={2} />
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={onSave}
+                                className="flex items-center gap-2 cursor-pointer bg-green-300/20 text-green-500 text-sm font-semibold py-2 px-3 rounded-md">
+                                <Icon Icon={CheckCircle1Solid} size={16} strokeWidth={2} />
+                                Save
+                            </button>
+                        </>
                     ) || (
                         <button
+                            type="button"
                             onClick={() => setIsEditing(true)}
-                            className="flex items-center gap-2 cursor-pointer bg-slate-100 border border-slate-200 text-gray-800 text-sm font-semibold py-2 px-3 rounded-md">
+                            className="flex items-center gap-2 cursor-pointer bg-gray-100 text-gray-800 text-sm font-semibold py-2 px-3 rounded-md">
                             <Icon Icon={Pencil1Bulk} size={16} strokeWidth={2} />
                             Edit
                         </button>
