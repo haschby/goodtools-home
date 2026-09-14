@@ -119,14 +119,6 @@ export default function InvoiceRentability({
                     </div>
                 </div>
             </div>
-            {/* <div className="text-xs text-gray-600 italic px-3">
-                La rentabilité de cette facture s&apos;élève à 
-                <span className="font-semibold"> {margin.toFixed(2)}%</span> de marge,
-                avec un total de
-                <span className="font-semibold"> {formatCurrency(ca)} </span> de chiffre d&apos;affaires
-                et <span className="font-semibold">{formatCurrency(charges)}</span> de charges, pour un profit net de
-                <span className="font-semibold"> {formatCurrency(profit)}</span>.
-            </div> */}
         </div>
     );
 }

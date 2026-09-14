@@ -29,7 +29,6 @@ export default function FactureTab({
     onSave,
 }: FactureTabProps) {
 
-    console.log('@PICKED Is Editing : ', isEditing);
     return (
         <>
             <form className="self-stretch flex gap-4 flex-col">

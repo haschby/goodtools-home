@@ -100,8 +100,6 @@ export default function RentabilitesTab({
 
     const isSaveEnabled = !isSaving && comment !== savedComment;
 
-    console.log('rentabilities', rentabilities);
-
     return (
         <aside className="h-full flex flex-col">
             {
