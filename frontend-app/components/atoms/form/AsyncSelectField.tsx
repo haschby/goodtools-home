@@ -62,6 +62,7 @@ export function AsyncSelectField<T extends { name: string; label: string }>(
             const value = e.target.value;
             setInputValue(value);
             setQuery(value);
+            onSelectedValue(value);
 
             if (!value) {
                 setIsLoading(false);

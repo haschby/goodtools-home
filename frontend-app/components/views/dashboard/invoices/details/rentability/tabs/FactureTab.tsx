@@ -69,9 +69,11 @@ export default function FactureTab({
                         <AsyncSelectField<SearchQueryMockData>
                             label="Provider"
                             onSelectedValue={
-                                (value: string) =>
-                                setPickedRecord({ 
-                                    ...pickedRecord, issuer_name: value } as Invoice)
+                                (value: string) => {
+                                    console.log('@VALUE : ', value);
+                                    setPickedRecord({ 
+                                        ...pickedRecord, issuer_name: value } as Invoice)
+                                }
                             }
                             renderInput={
                                 (props, ref) => (
