@@ -1,7 +1,9 @@
 from dependency_injector import containers, providers
 
 from infrastructure.db.buybackRepository import BuybackRepositoryImpl
+from infrastructure.db.invoiceRepository import InvoiceRepositoryImpl
 from domain.services.buybackService import BuybackService
+from domain.services.invoiceService import InvoiceService
 from application.usecases.buyback.createBuybacks import CreateBuybacks
 from application.usecases.buyback.getAllBuybacks import GetAllBuybacks
 from application.usecases.buyback.getBuybackById import GetBuybackById
@@ -12,21 +14,34 @@ class BuybackContainer(containers.DeclarativeContainer):
 
     session = providers.Dependency()
     storage = providers.Dependency()
+    logger = providers.Dependency()
+    
     workflow_launcher = providers.Dependency()
 
     repository = providers.Factory(
         BuybackRepositoryImpl,
         session=session,
     )
-
+    
+    invoiceRepository = providers.Factory(
+        InvoiceRepositoryImpl,
+        session=session,
+    )
+    
     service = providers.Factory(
         BuybackService,
         buybackRepository=repository,
     )
+    
+    invoiceService = providers.Factory(
+        InvoiceService,
+        invoiceRepository=invoiceRepository,
+        storage=storage
+    )
 
     createBuybacksUsecase = providers.Factory(
         CreateBuybacks,
-        buybackService=service,
+        invoiceService=invoiceService,
     )
 
     getAllBuybacksUsecase = providers.Factory(

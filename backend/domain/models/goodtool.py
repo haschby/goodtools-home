@@ -14,4 +14,5 @@ class RentabilityBooking(BaseModel):
     assetId: Optional[str] = None
     type: Optional[str] = None
     comment: Optional[str] = None
+    goodtool_id: Optional[str] = None
     dateUpdated: Optional[datetime] = None

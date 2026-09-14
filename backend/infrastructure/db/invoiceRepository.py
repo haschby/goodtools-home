@@ -22,7 +22,8 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
         status: Optional[str] = "All",
         page: int = 1,
         limit: int = 30,
-        query: Optional[str] = None
+        query: Optional[str] = None,
+        invoice_types: Optional[List[str]] = None
     ) -> Tuple[List[Invoice] | None, List[dict]]:
         
         offset = (page - 1) * limit
@@ -33,6 +34,11 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
         if status and status != "All":
             conditions.append("status = :status")
             params.update({"status": status})
+
+        # --- Invoice type filter (multi-select) ---
+        if invoice_types:
+            conditions.append("invoice_type::text = ANY(:invoice_types)")
+            params.update({"invoice_types": invoice_types})
 
         # --- Search query filter ---
         if query:
@@ -69,10 +75,19 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
         LIMIT :limit OFFSET :offset
         """
         
-        count_sql = """SELECT   status,
+        # --- Count par status : respecte le filtre invoice_types (mais PAS le
+        #     filtre status, puisqu'on veut le count de chaque status) ---
+        count_conditions = ["status NOT IN ('Archivé')"]
+        count_params = {}
+        if invoice_types:
+            count_conditions.append("invoice_type::text = ANY(:invoice_types)")
+            count_params["invoice_types"] = invoice_types
+
+        count_where = f"WHERE {' AND '.join(count_conditions)}"
+        count_sql = f"""SELECT   status,
             COUNT(*) AS total
             FROM     invoice
-            WHERE status NOT IN ('archived')
+            {count_where}
             GROUP BY status
             ORDER BY status
         """
@@ -81,10 +96,9 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
             result_items = await session.execute(text(query_sql), params)
             invoices_rows = result_items.mappings().all()
 
-            # Fetch total count
-            result_count = await session.execute(text(count_sql), params)
+            # Fetch count par status (filtré par invoice_types si fourni)
+            result_count = await session.execute(text(count_sql), count_params)
             total_count = result_count.mappings().all()
-            print('@TOTAL COUNT : ', total_count)
                 
         return [
             Invoice(**row)
@@ -118,11 +132,12 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
         {QUERY_GET_INVOICE_BY_ID}
         WHERE id = ANY(:external_ids)
         OR external_id = ANY(:external_ids)
+        OR gc_booking = ANY(:external_ids)
         """
         async with self._session() as session:
             result = await session.execute(
                 text(query),
-                { "external_ids" : external_ids }
+                { "external_ids" : [str(external_id) for external_id in external_ids] }
             )
             invoices = result.mappings().all()
             return [Invoice(**row) for row in invoices]

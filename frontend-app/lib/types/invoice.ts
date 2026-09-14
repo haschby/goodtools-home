@@ -1,9 +1,15 @@
+export enum InvoiceType {
+    PROVIDER = 'provider',
+    BUYBACK = 'buyback'
+}
+
 export interface Invoice {
     id: string;
     name: string;
     external_id: string;
     path: string;
     gc_booking: string;
+    invoice_type: InvoiceType;
     crm_id?: string | null;
     comments: string | null;
     created_at: string;
@@ -59,8 +65,8 @@ export class EnumInvoiceStatus {
     static readonly NEED_TO_CHECK = 'Avoiriser';
     static readonly TO_BE_INVOICED = 'A Facturer';
     static readonly INVOICED = 'Facturer ticket';
-    static readonly VALIDATED = 'Valider avec paiement';
-    static readonly VALIDATED_ONLY = 'Valider sans paiement'; 
+    static readonly VALIDATED = 'A Payer';
+    static readonly VALIDATED_ONLY = 'Payé'; 
 
     static getStatusLabel(status: EnumInvoiceStatus): string | undefined {
         return Object.entries(this).find(

@@ -1,13 +1,15 @@
 "use client";
 
 import { RowItem } from '@/components/atoms/listview/RowItems/Row';  
-import { Invoice } from '@/lib/types/invoice';
+import { Invoice, InvoiceType } from '@/lib/types/invoice';
 import { useDataTable } from '@/lib/contexts/DataTableCustomContext';
 import { invoicesColumns } from '@/components/views/dashboard/invoices/config/config.columns';
 import { ColumnProps } from '@/lib/types/common';
 import SkeletonListViewItem from '@/components/atoms/listview/SkeletonListViewItem';
 import { StatusRow } from '@/components/atoms/listview/RowItems/StatusRow';
 import { CheckBoxfilter } from "@/components/atoms/form/items/CheckboxFilter";
+import Icon from '@/components/atoms/Icon';
+import { Ticket1Solid } from '@lineiconshq/free-icons';
 
 
 export default function InvoiceListRowItem () {
@@ -59,9 +61,17 @@ export default function InvoiceListRowItem () {
                                                 disabled={!invoice.gc_booking} />
                                         </div>
                                         <div className="flex flex-col gap-2 items-start">
-                                            <span className="text-sm font-bold">
-                                                {invoice.issuer_name}
-                                            </span>
+                                            { invoice.invoice_type === InvoiceType.PROVIDER ? 
+                                                (
+                                                    <span className="text-sm font-bold">
+                                                        {invoice.issuer_name}
+                                                    </span>
+                                                ) : (
+                                                <span className="text-sm font-bold bg-gray-800 text-white px-2 py-1 rounded-md">
+                                                    {'Ticket de Rachat'}
+                                                </span>
+                                                )
+                                            }
                                             <div className="flex flex-row gap-2 items-center">
                                             <StatusRow
                                             className="px-2 py-1 rounded-full self-start text-xxs"
@@ -83,7 +93,7 @@ export default function InvoiceListRowItem () {
                                         </div>
                                     </div>
                                     <div className="flex flex-row items-center">
-                                        <span className="font-semibold px-2 text-sm font-normal">{invoice.amount_ht.toFixed(2)}</span>
+                                        <span className="font-semibold px-2 text-sm font-normal">{invoice?.amount_ht?.toFixed(2) ?? 0}</span>
                                         <span className="text-sm font-normal text-gray-500">EUR</span>
                                     </div>
                                 </td>

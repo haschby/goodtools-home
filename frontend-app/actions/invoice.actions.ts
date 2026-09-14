@@ -5,7 +5,7 @@ import { Invoice } from "@/lib/types/invoice";
 import { BaseResponse, GenericResponseAPI, GetSearchParams, PaginatedResponse } from "@/lib/types/base";
 
 export async function getInvoices(
-    { status, page, limit, query = null }: GetSearchParams
+    { status, page, limit, query = null, invoice_types = null }: GetSearchParams
 ): Promise<GenericResponseAPI<PaginatedResponse<Invoice[]>>> {
 
     console.log('@getInvoices', status, page, limit);
@@ -15,6 +15,10 @@ export async function getInvoices(
         limit: limit?.toString(),
         query: query ?? ''
     });
+
+    if (invoice_types && invoice_types.length > 0) {
+        invoice_types.forEach((type) => params.append('invoice_types', type));
+    }
 
     const api_url = `/client/invoice/all?${params.toString()}`;
     const response: GenericResponseAPI<PaginatedResponse<Invoice[]>> = await gatewayService(
@@ -89,6 +93,7 @@ export async function bulkUpdateInvoices(payload: InvoiceBulkUpdateSchema): Prom
 
 
 export interface RentabilitiesResponse {
+    comment?: string;
     bookingId?: string;
     isMonthly?: boolean;
     isExternal?: boolean;
@@ -102,11 +107,13 @@ export interface RentabilitiesResponse {
 
 export interface Rentability {
     id?: string;
+    goodtool_id?: string;
     priceHT?: number;
     bookingId?: string;
     assetId?: string;
     type?: string;
     totalPriceHT?: number;
+    status?: string;
 }
 
 export async function getRentabilitiesByBookingId(bookingId: number): Promise<RentabilitiesResponse> {
@@ -118,4 +125,23 @@ export async function getRentabilitiesByBookingId(bookingId: number): Promise<Re
     });
     console.log('Response rentabilities : ', response);
     return { ...response.data } as RentabilitiesResponse;
+}
+
+export interface BookingCommentResponse {
+    bookingId?: string;
+    comment?: string;
+}
+
+export async function updateBookingComment(
+    bookingId: number,
+    comment: string
+): Promise<BaseResponse<BookingCommentResponse>> {
+    const api_url = `/client/gc/booking/${bookingId}/comment`;
+    const response: BaseResponse<BookingCommentResponse> = await gatewayService<BookingCommentResponse>(api_url, {
+        method: "PATCH",
+        cache: 'no-store',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ comment })
+    });
+    return response;
 }

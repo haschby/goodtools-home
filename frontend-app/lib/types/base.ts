@@ -25,6 +25,7 @@ export interface GetSearchParams extends StatusInput {
     page: number;
     limit: number;
     query?: string | null;
+    invoice_types?: string[] | null;
 }
 
 export type GenericResponseAPI<T> = BaseResponse<PaginatedResponse<T> | T> | BaseResponse<T>;

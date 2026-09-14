@@ -1,4 +1,5 @@
 export const buybackStatuses = [
     { label: 'A Traiter', value: 'A Traiter' },
-    { label: 'Valider', value: 'Valider' },
+    { label: 'A Payer', value: 'A Payer' },
+    { label: 'Payé', value: 'Payé' },
 ];

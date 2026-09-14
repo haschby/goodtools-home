@@ -32,6 +32,7 @@ export function DataListProvider<T extends CursorEntity & BaseEntity>({
     // const status = searchParams.get('status') ?? '';
 
     const [activeStatus, setActiveStatus] = useState<string>('All');
+    const [activeInvoiceTypes, setActiveInvoiceTypes] = useState<string[]>([]);
 
     const { 
         pickedRecord,
@@ -69,6 +70,7 @@ export function DataListProvider<T extends CursorEntity & BaseEntity>({
         pickedIsLoading,
         statuses,
         activeStatus: activeStatus,
+        activeInvoiceTypes,
         isLoading,
         error,
         pagination,
@@ -77,9 +79,10 @@ export function DataListProvider<T extends CursorEntity & BaseEntity>({
         fetchRecord,
         setPickedRecord,
         setActiveStatus: (status: string) => setActiveStatus(status),
+        setActiveInvoiceTypes: (invoiceTypes: string[]) => setActiveInvoiceTypes(invoiceTypes),
         hasMore,
         setHasMore,
-        refreshTableData: () => fetchData({ status: activeStatus, page: 1, limit: 10 })
+        refreshTableData: () => fetchData({ status: activeStatus, page: 1, limit: 10, invoice_types: activeInvoiceTypes })
     };
 
     return (

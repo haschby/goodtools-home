@@ -1,6 +1,7 @@
 import sys
 from application.dtos.invoiceDto import InvoiceCreateSchema, InvoiceUpdateSchema
 from domain.models.invoice import Invoice
+from domain.models.enums import EnumInvoiceStatus
 from application.ports.invoiceRepository import InvoiceRepositoryPort
 from application.ports.StorageGateway import StorageFileGateway
 from application.ports.providers.accountingGateway import AccountingGateway
@@ -13,6 +14,9 @@ class InvoiceService:
     ) -> None:
         self.repository = invoiceRepository
         self.storage = storage
+    
+    async def count(self) -> int:
+        return await self.repository.count()
         
     async def get_last_invoice_id(self) -> int | None:
         invoice = await self.repository.get_last_invoice_id()
@@ -50,10 +54,21 @@ class InvoiceService:
             status=params['status'],
             page=params['page'],
             limit=params['limit'],
-            query=params['query']
+            query=params['query'],
+            invoice_types=params.get('invoice_types')
         )
-        
-        return invoices if invoices else None, total_by_status_count, await self.repository.count()
+
+        # When an invoice_type filter is active, the global count() no longer
+        # reflects the visible dataset. In that case the total must be the sum
+        # of the per-status counts (which are already filtered by type and
+        # exclude archived invoices) so that the "All" badge, total and
+        # pagination stay consistent with the applied filters.
+        if params.get('invoice_types'):
+            total = sum(row['total'] for row in total_by_status_count)
+        else:
+            total = await self.repository.count()
+
+        return invoices if invoices else None, total_by_status_count, total
     
     # async def get_stats(self) -> StatsInvoices:
     #     return await self.invoiceRepository.get_stats()
@@ -74,6 +89,7 @@ class InvoiceService:
         gc_booking_added_ids = []
         for inv in invoices:
             existing_invoice = existing_map.get(inv.id)
+            print('@EXISTING INVOICE : ', existing_invoice)
             if not existing_invoice:
                 continue
             
@@ -91,6 +107,16 @@ class InvoiceService:
                 and new_gc_booking
             ):
                 gc_booking_added_ids.append(existing_invoice.id)
+            
+            # Si le booking est passé à vide et que le statut n'est pas déjà TBD,
+            # on repasse la facture en statut TBD.
+            if (
+                "gc_booking" in changes
+                and previous_gc_booking
+                and not new_gc_booking
+                and existing_invoice.status != EnumInvoiceStatus.TBD
+            ):
+                existing_invoice.status = EnumInvoiceStatus.TBD
             
             to_update.append(existing_invoice)
         

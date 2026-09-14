@@ -24,7 +24,7 @@ export default function TitleInfo(
     }
 
     return (
-        <div className="flex items-center gap-4 w-full justify-between p-6">
+        <div className="flex items-center gap-4 w-full justify-between p-6 relative">
             <div className="flex flex-col w-full">
                 <h1 className="flex items-center text-2xl font-semibold text-gray-800 gap-4">
                     { title }
@@ -37,7 +37,7 @@ export default function TitleInfo(
                 </p>
             </div>
             { buttonActions && (
-                <div className="flex items-center gap-2 w-full justify-end">
+                <div className="flex items-center gap-2 self-end justify-end fixed right-6 top-3 z-[9999]">
                     { 
                         buttonActions.map(
                             (component: React.ElementType, index: number) => {

@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { useDataTable } from "@/lib/contexts/DataTableCustomContext";
-import { Invoice } from "@/lib/types/invoice";
-import { FileXmarkSolid, Calculator1Solid } from '@lineiconshq/free-icons';
+import { Invoice, InvoiceType } from "@/lib/types/invoice";
+import { FileXmarkSolid, Calculator1Solid, Cart1Solid } from '@lineiconshq/free-icons';
 import { patchInvoice } from "@/actions/invoice.actions";
-import { getRentabilitiesByBookingId, RentabilitiesResponse } from "@/actions/invoice.actions";
 import Tabs, { TabItem } from "@/components/atoms/Tabs";
 import FactureTab from "./rentability/tabs/FactureTab";
 import RentabilitesTab from "./rentability/tabs/RentabilitesTab";
+import { BuybackDetailCard } from '@/components/views/dashboard/buyback/components/details/BuybackDetailCard';
 
 export default function InvoiceDetailCard() {
     
@@ -20,46 +20,12 @@ export default function InvoiceDetailCard() {
         pagination, activeStatus
     } = useDataTable<Invoice>();
 
-    const [ rentabilities, setRentabilities ] = useState<RentabilitiesResponse | null>(null);
-    const [ selectedTab, setSelectedTab ] = useState<string>('booking');
-
-    const fetchRentabilities = useCallback(async (bookingId?: string) => {
-        if (!bookingId) {
-            setRentabilities(null);
-            return;
-        }
-        try {
-            const response = await getRentabilitiesByBookingId(Number(bookingId));
-            console.log(response);
-            setRentabilities(response);
-        } catch (error) {
-            console.error(error);
-            setRentabilities(null);
-        }
-    }, []);
-
-    useEffect(() => {
-        if (!pickedRecord?.gc_booking) { return; }
-
-        let cancelled = false;
-        (async () => {
-            if (!cancelled) {
-                if (selectedTab === 'booking') {
-                    await fetchRentabilities(pickedRecord?.gc_booking);
-                }
-            }
-        })();
-
-        return () => { cancelled = true; };
-    }, [selectedTab, pickedRecord?.gc_booking, fetchRentabilities]);
-
-
-
     const [ isEditing, setIsEditing ] = useState<boolean>(false);
 
     const isLockedStatus =
-        pickedRecord?.status === 'Valider avec paiement' ||
-        pickedRecord?.status === 'Valider sans paiement';
+        pickedRecord?.status === 'A Payer' ||
+        pickedRecord?.status === 'Payé';
+
     const canEditOtherFields = isEditing && !isLockedStatus;
 
     const handlePatchInvoice = useCallback(
@@ -73,17 +39,40 @@ export default function InvoiceDetailCard() {
                     page: pagination?.page ?? 1,
                     limit: pagination?.limit ?? 30
                 });
-                await fetchRentabilities(pickedRecord?.gc_booking);
+                // await fetchRentabilities(pickedRecord?.gc_booking);
                 // router.push(`/invoices?status=${response.data?.status?.toString()}`);
             }
         }
-    }, [pickedRecord, setIsEditing, fetchData, pagination, activeStatus, fetchRentabilities]);
+    }, [pickedRecord, setIsEditing, fetchData, pagination, activeStatus]);
 
-    const handleChangeTab = useCallback((tab: string) => {
-        if (tab === 'booking') {
-            setSelectedTab('booking');
+    const tabToDiosplay = useCallback(() => {
+        if (pickedRecord?.invoice_type === InvoiceType.PROVIDER) {
+            return {
+                key: 'facture',
+                label: 'Facture',
+                icon: FileXmarkSolid,
+                content: (
+                    <FactureTab
+                        isEditing={isEditing}
+                        setIsEditing={setIsEditing}
+                        canEditOtherFields={canEditOtherFields}
+                        onSave={handlePatchInvoice}
+                        pickedRecord={pickedRecord}
+                        setPickedRecord={setPickedRecord}
+                    />
+                )
+            }
         }
-    }, []);
+        return {
+            key: 'buyback',
+            label: 'Rachat',
+            icon: Cart1Solid,
+            content: (
+                <BuybackDetailCard />
+            )
+        }
+
+    }, [pickedRecord, isEditing, canEditOtherFields, handlePatchInvoice, setPickedRecord]);
 
     return (
         <div className="bg-white relative flex flex-col gap-2 w-[60%] border-t border-gray-200 text-gray-800">
@@ -93,24 +82,9 @@ export default function InvoiceDetailCard() {
                     className="gap-4"
                     navClassName="w-[300px] m-auto"
                     stretch={true}
-                    defaultTabKey="booking"
-                    onTabChange={handleChangeTab}
+                    defaultTabKey={tabToDiosplay().key}
                     tabs={[
-                        {
-                            key: 'facture',
-                            label: 'Facture',
-                            icon: FileXmarkSolid,
-                            content: (
-                                <FactureTab
-                                    pickedRecord={pickedRecord}
-                                    setPickedRecord={setPickedRecord}
-                                    isEditing={isEditing}
-                                    setIsEditing={setIsEditing}
-                                    canEditOtherFields={canEditOtherFields}
-                                    onSave={handlePatchInvoice}
-                                />
-                            )
-                        },
+                        tabToDiosplay(),
                         {
                             key: 'booking',
                             label: 'Rentabilités',
@@ -118,7 +92,6 @@ export default function InvoiceDetailCard() {
                             content: (
                                 <RentabilitesTab
                                     pickedRecord={pickedRecord}
-                                    rentabilities={rentabilities}
                                 />
                             )
                         }

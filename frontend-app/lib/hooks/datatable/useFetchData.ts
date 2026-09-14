@@ -40,7 +40,8 @@ export function useFetchData<MODEL>(
                     status: params.status,
                     page: params.page,
                     limit: params.limit,
-                    query: params.query
+                    query: params.query,
+                    invoice_types: params.invoice_types
                 });
 
                 if (response?.status_code !== 201) {
@@ -54,9 +55,16 @@ export function useFetchData<MODEL>(
             }
         },[])
     
+    const hasFetchedInitially = useRef(false);
     useEffect(() => {
-        console.log('@useEffect : ', status, page, limit);
-        fetcher({ status, page: page, limit: limit });
+        // Only fetch on the initial mount. Any subsequent status / type / query
+        // change already triggers an explicit `fetchData` call that carries the
+        // active filters (invoice_types, query, ...). Re-fetching here on `status`
+        // change would fire a second request WITHOUT those filters and override
+        // the filtered result (e.g. re-showing providers when filtering buyback).
+        if (hasFetchedInitially.current) return;
+        hasFetchedInitially.current = true;
+        fetcher({ status, page, limit });
     }, [status, page, limit, fetcher]);
 
     return {

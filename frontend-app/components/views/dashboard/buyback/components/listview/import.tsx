@@ -14,15 +14,15 @@ export function BuybackImport() {
     return (
         <>
             <button
-                className="self-end bg-slate-700 text-gray-200 group cursor-pointer py-2 px-4 rounded-md border border-gray-200"
+                className="group hover:bg-purple-600 bg-purple-500 text-white group cursor-pointer py-2 px-4 rounded-md border border-purple-800"
                 onClick={() => setIsOpen(true)}>
-                <span className="text-sm flex items-center gap-2 font-semibold">
+                <span className="text-xs flex items-center gap-2 font-semibold">
                     <Icon
                         Icon={Cloud2Stroke}
                         size={16}
                         strokeWidth={3}
                         className="" />
-                    Importer tickets
+                    Bordereaux de rachats
                 </span>
             </button>
 

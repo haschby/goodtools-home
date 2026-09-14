@@ -13,6 +13,7 @@ export interface DataTableContextType<T> {
   pickedIsLoading: boolean;
   activeStatus: string | null;
   statuses: string[];
+  activeInvoiceTypes: string[];
   isLoading: boolean;
   error: string | undefined;
   pagination: PaginatedResponse<T> | null;
@@ -21,6 +22,7 @@ export interface DataTableContextType<T> {
   fetchRecord: () => Promise<void>;
   setPickedRecord: (record: T | null) => void;
   setActiveStatus: (status: string) => void;
+  setActiveInvoiceTypes: (invoiceTypes: string[]) => void;
   hasMore: boolean;
   setHasMore: (hasMore: boolean) => void;
   refreshTableData: () => void;

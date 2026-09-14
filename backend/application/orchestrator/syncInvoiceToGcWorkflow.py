@@ -24,7 +24,7 @@ class SyncInvoiceToGcError(Exception):
 class SyncInvoiceToGcWorkflow(BaseActivity):
     """Synchronise a validated invoice into the GoodCollect database.
 
-    Triggered when an invoice reaches the "Valider avec paiement" status.
+    Triggered when an invoice reaches the "A Payer" status.
     It creates the Asset (the invoice document) then the associated
     BookingRentabilityLine so that the invoice amount is reflected on the
     GoodCollect booking.
@@ -106,7 +106,7 @@ class SyncInvoiceToGcWorkflow(BaseActivity):
                 else "No existing rentability line, will create"
             )
             await update_workflow.execute(workflow)
-
+            print('@EXISTING LINE : ', existing_line, 'invoice.id : ', invoice.id, 'command.invoice_id : ', command.invoice_id);
             if existing_line:
                 # Update path: only refresh the filled-out fields, reuse the
                 # existing asset. Asset creation is skipped.
@@ -121,6 +121,7 @@ class SyncInvoiceToGcWorkflow(BaseActivity):
                         RentabilityBooking(
                             bookingId=int(invoice.gc_booking),
                             priceHT=float(invoice.amount_ht or 0),
+                            goodtool_id=invoice.id
                         ),
                     )
 
@@ -175,7 +176,7 @@ class SyncInvoiceToGcWorkflow(BaseActivity):
                         bookingId=int(invoice.gc_booking),
                         assetId=asset_id,
                         priceHT=float(invoice.amount_ht or 0),
-                        comment=invoice.id,
+                        goodtool_id=invoice.id
                     )
                 )
 

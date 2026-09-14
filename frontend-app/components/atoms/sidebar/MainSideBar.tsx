@@ -11,11 +11,6 @@ const routes = [
         icon: DollarCircleSolid
     },
     {
-        label: 'buyback',
-        href: '/buyback',
-        icon: Cart2Solid
-    },
-    {
         label: 'Workflows',
         href: '/workflows',
         icon: CloudIot2Solid

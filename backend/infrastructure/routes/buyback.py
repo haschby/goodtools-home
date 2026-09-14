@@ -95,7 +95,7 @@ def buyback_routes() -> APIRouter:
                     BuybackCreateSchema(
                     file_path=uploadedFile.file_path,
                     amount=0,
-                    currency='EUR',
+                    currency='EUR'
                 ))
         print("buybacks", buybacks)
         return await createBuybacks.execute(buybacks)

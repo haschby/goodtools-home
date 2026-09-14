@@ -1,8 +1,14 @@
 from fastapi import APIRouter, Depends, Body
+from pydantic import BaseModel
 from application.containers.appContainer import AppContainer
 from domain.models.goodtool import RentabilityBooking, Asset
+from infrastructure.mappers.rentabilityItemMapper import build_rentability_items
 
 from dependency_injector.wiring import inject, Provide
+
+
+class BookingCommentUpdate(BaseModel):
+    comment: str
     
     
 def booking_routes() -> APIRouter:
@@ -41,55 +47,63 @@ def booking_routes() -> APIRouter:
     @inject
     async def get_rentabilities_booking(
         bookingId: int,
-        gc_gateway: any = Depends(Provide[AppContainer.goodcollect_container.goodcollect_gateway])
+        gc_gateway: any = Depends(Provide[AppContainer.goodcollect_container.goodcollect_gateway]),
+        invoice_repository: any = Depends(Provide[AppContainer.invoice_container.repository])
     ):
-        rows = await gc_gateway.getRentabilitiesByBookingId(bookingId)
-        print("rows => ", rows) 
-        if not rows:
+        booking = await gc_gateway.getBookingById(bookingId)
+        if not booking:
             return {
                 "data": [],
                 "status_code": 200,
-                "message": "No rentabilities found"
+                "message": "No booking found"
             }
         
-        bookings = []
-        payloads = []
-        external = False
-        isMonthly = False
-        manualInvoice = False
-        bookingId = None
+        rentability = await gc_gateway.getRentabilitiesByBookingId(bookingId)
+        invoices = await invoice_repository.get_by_external_ids([bookingId])
         
-        for row in rows:
-            if row.type == "ProviderPrice":
-                payloads.append(row)
-            elif row.type == "GoodcollectPrice":
-                bookings.append(row)
+        total_invoice = float(sum(row.amount_ht or 0 for row in invoices))
+        total_rentability = float(sum(row["totalPriceHT"] or 0 for row in rentability))
             
-            isMonthly = row.isMonthly
-            manualInvoice = row.isManualInvoice
-            external = row.isExternal
-            bookingId = row.bookingId
-            
+        profit = total_invoice - total_rentability
+        marging = profit / total_invoice if total_invoice else 0
         
-        total_payload = sum(row.totalPriceHT for row in bookings)
-        total_provider = sum(row.totalPriceHT for row in payloads)
-        profit = total_payload - total_provider
-        marging = (profit / total_provider) * 100 if total_provider else 0
+        items = build_rentability_items(rentability, invoices)
         
         return {
             "data": {
-                "bookingId": row.bookingId,
-                "isMonthly": isMonthly,
-                "isExternal": external,
-                "isManualInvoice": manualInvoice,
-                "items": list(bookings) + list(payloads),
-                "profit": profit,
-                "charges": total_provider,
-                "ca": total_payload,
-                "margin": marging
+                "comment": booking.comment,
+                "bookingId": booking.bookingId,
+                "isMonthly": booking.isMonthly,
+                "isExternal": booking.isExternal,
+                "isManualInvoice": booking.isManualInvoice,
+                "items": items,
+                "profit": profit or None,
+                "charges": total_rentability or None,
+                "ca": total_invoice or None,
+                "margin": marging or None
             },
             "status_code": 200,
             "message": "Rentabilities fetched successfully"
+        }
+
+    @router.patch("/{bookingId:int}/comment")
+    @inject
+    async def update_booking_comment(
+        bookingId: int,
+        payload: BookingCommentUpdate = Body(...),
+        gc_gateway: any = Depends(Provide[AppContainer.goodcollect_container.goodcollect_gateway])
+    ):
+        updated = await gc_gateway.updateBookingComment(bookingId, payload.comment)
+        if not updated:
+            return {
+                "data": None,
+                "status_code": 404,
+                "message": "No booking found"
+            }
+        return {
+            "data": updated,
+            "status_code": 200,
+            "message": "Booking comment updated successfully"
         }
 
     # @router.post("/asset")

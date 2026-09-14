@@ -8,17 +8,7 @@ from datetime import date
 from enum import Enum
 from sqlalchemy import Index, Column, Computed
 from sqlalchemy.dialects.postgresql import TSVECTOR
-
-class EnumInvoiceStatus(Enum):
-    ALL = "All"
-    TBD = "TBD"
-    ARCHIVED = "Archivé"
-    TO_BE_TRAITED = "A Traiter"
-    NEED_TO_CHECK = "Avoiriser"
-    TO_BE_INVOICED = "A Facturer"
-    INVOICED = "Facturer ticket"
-    VALIDATED = "Valider avec paiement"
-    VALIDATED_ONLY = "Valider sans paiement"
+from .enums import EnumInvoiceType, EnumInvoiceStatus
 
 class Invoice(BaseModel):
     prefix: str = "INV"
@@ -27,6 +17,7 @@ class Invoice(BaseModel):
     path: str = TextColumn(nullable=False)
     external_id: str = StringColumn(length=255, nullable=True, index=True, unique=True)
     crm_id: str = StringColumn(length=255, nullable=True)
+    invoice_type: EnumInvoiceType = EnumColumn(EnumInvoiceType, nullable=True, default=EnumInvoiceType.PROVIDER, use_values=True)
     invoice_number: str = StringColumn(length=255, nullable=True)
     invoice_date: date = DateColumn(nullable=True)
     amount_ht: float = NumericColumn(nullable=True)
@@ -35,7 +26,7 @@ class Invoice(BaseModel):
     issuer_name: str = StringColumn(length=500, nullable=True)
     construction_site_address: str = StringColumn(length=500, nullable=True)
     gc_booking: str = StringColumn(length=255, nullable=True)
-    status: str = StringColumn(length=255, nullable=False)
+    status: EnumInvoiceStatus = EnumColumn(EnumInvoiceStatus, nullable=False, default=EnumInvoiceStatus.TBD, use_values=True)
     images: list = JSONBColumn(nullable=True)
     extracted_data: dict = JSONBColumn(nullable=True)
     comments: str = TextColumn(nullable=True)

@@ -2,6 +2,7 @@ from pydantic import BaseModel, computed_field
 from typing import Optional, List
 from datetime import datetime, date
 from application.dtos.baseDto import PaginatedResponseSchema, BaseResponseSchema
+from domain.models.enums import EnumInvoiceType
 
 class BaseInvoiceSchema(BaseModel):
     id: Optional[str] = None
@@ -21,6 +22,7 @@ class InvoiceCreateSchema(BaseInvoiceSchema):
     name: Optional[str] = None
     path: Optional[str] = None
     external_id: Optional[str] = None
+    invoice_type: EnumInvoiceType | None = None
     comments: Optional[str] = None
     gc_booking: Optional[str | None] = None   
     amount_ttc: Optional[float] = None
@@ -57,6 +59,7 @@ class InvoiceResponseSchema(BaseInvoiceSchema):
     id: str | None = None
     name: str | None = None 
     external_id: str | None = None
+    invoice_type: EnumInvoiceType | None = None
     invoice_number: str | None = None
     invoice_date: date | None = None
     path: str | None = None
