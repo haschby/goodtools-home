@@ -21,11 +21,38 @@ export function BuybackDetailCard() {
     } = useDataTable<Invoice>();
     const [ isEditing, setIsEditing ] = useState<boolean>(false);
     const [ backupRecord, setBackupRecord ] = useState<Invoice | null>(null);
+    const [ amountInput, setAmountInput ] = useState<string>('');
 
     const handleEdit = useCallback(() => {
         setBackupRecord(pickedRecord ? { ...pickedRecord } : null);
+        setAmountInput(
+            pickedRecord?.amount_ht != null
+                ? Math.abs(pickedRecord.amount_ht).toString().replace('.', ',')
+                : ''
+        );
         setIsEditing(true);
     }, [pickedRecord]);
+
+    const handleAmountChange = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+            // N'autoriser que les chiffres et une seule virgule (max 2 décimales)
+            const raw = e.target.value.replace(/[^0-9,]/g, '');
+            const sanitized = raw
+                .replace(/,/g, (match, offset) => (raw.indexOf(',') === offset ? ',' : ''))
+                .replace(/^(\d*,?\d{0,2}).*$/, '$1');
+
+            setAmountInput(sanitized);
+
+            const numeric = sanitized === '' ? null : parseFloat(sanitized.replace(',', '.'));
+            setPickedRecord(
+                {
+                    ...pickedRecord,
+                    amount_ht: numeric != null && !Number.isNaN(numeric) ? -Math.abs(numeric) : null,
+                } as Invoice
+            );
+        },
+        [pickedRecord, setPickedRecord]
+    );
 
     const handleCancel = useCallback(() => {
         setPickedRecord(backupRecord);
@@ -98,15 +125,15 @@ export function BuybackDetailCard() {
                             id="amount"
                             disabled={!isEditing}
                             type="text"
-                            onChange={(e) =>
-                                setPickedRecord(
-                                    { ...pickedRecord, amount_ht: -Math.abs(parseFloat(e.target.value)) } as Invoice)
-                            }
+                            inputMode="decimal"
+                            onChange={handleAmountChange}
                             className={inputClassName}
                             value={
-                                pickedRecord?.amount_ht != null
-                                    ? `-${Math.abs(pickedRecord.amount_ht)}`
-                                    : ''
+                                isEditing
+                                    ? (amountInput === '' ? '' : `-${amountInput}`)
+                                    : (pickedRecord?.amount_ht != null
+                                        ? `-${Math.abs(pickedRecord.amount_ht).toString().replace('.', ',')}`
+                                        : '')
                             }
                         />
                     </div>
