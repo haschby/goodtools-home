@@ -28,6 +28,8 @@ export default function FactureTab({
     canEditOtherFields,
     onSave,
 }: FactureTabProps) {
+
+    console.log('@PICKED Is Editing : ', isEditing);
     return (
         <>
             <form className="self-stretch flex gap-4 flex-col">
@@ -118,12 +120,16 @@ export default function FactureTab({
                             <input 
                                 name="gc_booking"
                                 id="gc_booking"
-                                disabled={!isEditing}
+                                // disabled={!isEditing}
                                 type="text"
                                 onChange={(e) => {
                                     const isNotNumber = !/^\d+$/.test(e.target.value);
-                                    e.target.value = isNotNumber ? e.target.value.slice(0, -1) : e.target.value;
-                                    if (isNotNumber) {
+                                    e.target.value =
+                                        isNotNumber
+                                        ? e.target.value.slice(0, -1)
+                                        : e.target.value;
+
+                                    if (isNotNumber && e.target.value.length > 1) {
                                         return;
                                     }
 
@@ -131,8 +137,9 @@ export default function FactureTab({
                                         { ...pickedRecord, 
                                             status: pickedRecord?.status === 'TBD' ? 'A Traiter' : pickedRecord?.status,
                                             gc_booking: `${e.target.value}` } as Invoice)
+                                    console.log('@PICKED RECORD : ', pickedRecord);
                                 }}
-                                className={`text-right rounded-md focus:outline-none transition-all duration-100 p-1 ${isEditing && 'active:bg-white bg-white border border-slate-200' || 'border border-slate-300/30 bg-gray-100/50 text-gray-400'} w-full`}
+                                className={`text-right rounded-md focus:outline-none transition-all duration-100 p-1 ${isEditing && 'active:bg-white !bg-white border border-slate-200' || 'border border-slate-300/30 bg-gray-100/50 text-gray-400'} w-full`}
                                 defaultValue={pickedRecord?.gc_booking}
                             />
                         </div>

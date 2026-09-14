@@ -93,6 +93,7 @@ export async function bulkUpdateInvoices(payload: InvoiceBulkUpdateSchema): Prom
 
 
 export interface RentabilitiesResponse {
+    comment?: string;
     bookingId?: string;
     isMonthly?: boolean;
     isExternal?: boolean;
@@ -106,11 +107,13 @@ export interface RentabilitiesResponse {
 
 export interface Rentability {
     id?: string;
+    goodtool_id?: string;
     priceHT?: number;
     bookingId?: string;
     assetId?: string;
     type?: string;
     totalPriceHT?: number;
+    status?: string;
 }
 
 export async function getRentabilitiesByBookingId(bookingId: number): Promise<RentabilitiesResponse> {
@@ -122,4 +125,23 @@ export async function getRentabilitiesByBookingId(bookingId: number): Promise<Re
     });
     console.log('Response rentabilities : ', response);
     return { ...response.data } as RentabilitiesResponse;
+}
+
+export interface BookingCommentResponse {
+    bookingId?: string;
+    comment?: string;
+}
+
+export async function updateBookingComment(
+    bookingId: number,
+    comment: string
+): Promise<BaseResponse<BookingCommentResponse>> {
+    const api_url = `/client/gc/booking/${bookingId}/comment`;
+    const response: BaseResponse<BookingCommentResponse> = await gatewayService<BookingCommentResponse>(api_url, {
+        method: "PATCH",
+        cache: 'no-store',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ comment })
+    });
+    return response;
 }

@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { useDataTable } from "@/lib/contexts/DataTableCustomContext";
 import { Invoice, InvoiceType } from "@/lib/types/invoice";
 import { FileXmarkSolid, Calculator1Solid, Cart1Solid } from '@lineiconshq/free-icons';
 import { patchInvoice } from "@/actions/invoice.actions";
-import { getRentabilitiesByBookingId, RentabilitiesResponse } from "@/actions/invoice.actions";
 import Tabs, { TabItem } from "@/components/atoms/Tabs";
 import FactureTab from "./rentability/tabs/FactureTab";
 import RentabilitesTab from "./rentability/tabs/RentabilitesTab";
@@ -20,41 +19,6 @@ export default function InvoiceDetailCard() {
         fetchData,
         pagination, activeStatus
     } = useDataTable<Invoice>();
-
-    const [ rentabilities, setRentabilities ] = useState<RentabilitiesResponse | null>(null);
-    const [ selectedTab, setSelectedTab ] = useState<string>('booking');
-
-    const fetchRentabilities = useCallback(async (bookingId?: string) => {
-        if (!bookingId) {
-            setRentabilities(null);
-            return;
-        }
-        try {
-            const response = await getRentabilitiesByBookingId(Number(bookingId));
-            console.log(response);
-            setRentabilities(response);
-        } catch (error) {
-            console.error(error);
-            setRentabilities(null);
-        }
-    }, []);
-
-    useEffect(() => {
-        if (!pickedRecord?.gc_booking) { return; }
-
-        let cancelled = false;
-        (async () => {
-            if (!cancelled) {
-                if (selectedTab === 'booking') {
-                    await fetchRentabilities(pickedRecord?.gc_booking);
-                }
-            }
-        })();
-
-        return () => { cancelled = true; };
-    }, [selectedTab, pickedRecord?.gc_booking, fetchRentabilities]);
-
-
 
     const [ isEditing, setIsEditing ] = useState<boolean>(false);
 
@@ -75,20 +39,13 @@ export default function InvoiceDetailCard() {
                     page: pagination?.page ?? 1,
                     limit: pagination?.limit ?? 30
                 });
-                await fetchRentabilities(pickedRecord?.gc_booking);
+                // await fetchRentabilities(pickedRecord?.gc_booking);
                 // router.push(`/invoices?status=${response.data?.status?.toString()}`);
             }
         }
-    }, [pickedRecord, setIsEditing, fetchData, pagination, activeStatus, fetchRentabilities]);
-
-    const handleChangeTab = useCallback((tab: string) => {
-        if (tab === 'booking') {
-            setSelectedTab('booking');
-        }
-    }, []);
+    }, [pickedRecord, setIsEditing, fetchData, pagination, activeStatus]);
 
     const tabToDiosplay = useCallback(() => {
-        console.log('@PICKED RECORD : ', pickedRecord?.invoice_type, InvoiceType.PROVIDER);
         if (pickedRecord?.invoice_type === InvoiceType.PROVIDER) {
             return {
                 key: 'facture',
@@ -126,7 +83,6 @@ export default function InvoiceDetailCard() {
                     navClassName="w-[300px] m-auto"
                     stretch={true}
                     defaultTabKey={tabToDiosplay().key}
-                    onTabChange={handleChangeTab}
                     tabs={[
                         tabToDiosplay(),
                         {
@@ -136,7 +92,6 @@ export default function InvoiceDetailCard() {
                             content: (
                                 <RentabilitesTab
                                     pickedRecord={pickedRecord}
-                                    rentabilities={rentabilities}
                                 />
                             )
                         }

@@ -8,6 +8,8 @@ import Link from "next/link";
 import Icon from "@/components/atoms/Icon";
 import { Paperclip1Solid } from "@lineiconshq/free-icons";
 import { useRef, useState } from "react";
+import { InvoiceType } from "@/lib/types/invoice";
+import { Ticket1Solid } from "@lineiconshq/free-icons";
 
 const ProviderCell = ({ item }: { item: Invoice }) => {
     const [isHovered, setIsHovered] = useState<boolean>(false);
@@ -27,8 +29,19 @@ const ProviderCell = ({ item }: { item: Invoice }) => {
         ref={spanRef}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={() => setIsHovered(false)}
-        className={`font-semibold text-gray-500 whitespace-nowrap ${showTooltip ? 'absolute z-[9999] w-max bg-white rounded-md px-2 py-1 shadow-lg' : 'truncate'}`}>
-            {item.issuer_name}
+        className={`inline-flex items-center gap-2 font-semibold text-gray-500 whitespace-nowrap ${showTooltip ? 'absolute z-[9999] w-max bg-white rounded-md px-2 py-1 shadow-lg' : 'truncate'}`}>
+            {
+                item.invoice_type === InvoiceType.PROVIDER
+                ? item.issuer_name
+                : <>
+                    <Icon
+                        Icon={Ticket1Solid}
+                        size={16}
+                        strokeWidth={2}
+                         />
+                        {'Ticket de Rachat'}
+                </>
+            }
         </span>
     );
 };
@@ -81,7 +94,10 @@ export const invoicesColumns: ColumnProps<Invoice>[] = [
         align: 'left',
         // maxWidth: '400px',
         isNumber: false,
-        renderItem: (item: Invoice) => <ProviderCell item={item} />
+        renderItem: (item: Invoice) =>
+            
+        <ProviderCell item={item} />
+            
     },
     // {
     //     keyfield: 'last_modified',

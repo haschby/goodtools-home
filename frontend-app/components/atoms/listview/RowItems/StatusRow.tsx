@@ -64,10 +64,7 @@ const StatusRow = ({ status, className } :StatusRowProps ): ReactNode => {
             </span>
         case EnumInvoiceStatus.TBD:
         default:
-            return <span className={`${cssClasses} bg-black text-white text-xs`}>
-                <Icon Icon={Ticket1Solid} size={12} strokeWidth={2} />
-                <span className="hidden xl:inline">{status ?? 'N/A'}</span>
-            </span>
+            return null;
     }
 }
 

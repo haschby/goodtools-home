@@ -6,7 +6,7 @@ import { Invoice } from "@/lib/types/invoice";
 import Icon from "@/components/atoms/Icon";
 import { Pencil1Bulk, CheckCircle1Solid, XmarkSolid } from "@lineiconshq/free-icons";
 import { Select } from "@/components/atoms/form/items/Select";
-import { patchBuyback } from "@/actions/buyback.action";
+import { patchInvoice } from "@/actions/invoice.actions";
 import { buybackStatuses } from "@/components/views/dashboard/buyback/config/statuses.config";
 
 export function BuybackDetailCard() {
@@ -16,7 +16,8 @@ export function BuybackDetailCard() {
         setPickedRecord,
         fetchData,
         pagination,
-        activeStatus
+        activeStatus,
+        activeInvoiceTypes
     } = useDataTable<Invoice>();
     const [ isEditing, setIsEditing ] = useState<boolean>(false);
     const [ backupRecord, setBackupRecord ] = useState<Invoice | null>(null);
@@ -36,16 +37,17 @@ export function BuybackDetailCard() {
             if (!pickedRecord) {
                 return;
             }
-            const response = await patchBuyback(pickedRecord);
+            const response = await patchInvoice(pickedRecord);
             if (response.data) {
                 setIsEditing(false);
                 fetchData({
                     status: activeStatus || "All",
                     page: pagination?.page ?? 1,
-                    limit: pagination?.limit ?? 30
+                    limit: pagination?.limit ?? 30,
+                    invoice_types: activeInvoiceTypes
                 });
             }
-        }, [pickedRecord, setIsEditing, fetchData, pagination, activeStatus]);
+        }, [pickedRecord, setIsEditing, fetchData, pagination, activeStatus, activeInvoiceTypes]);
 
     const inputClassName = `text-right rounded-md focus:outline-none transition-all p-2 ${isEditing && 'active:bg-white active:p-2 border border-gray-200' || 'border border-gray-50 bg-gray-100 text-gray-500'} w-full text-gray-900 text-sm`;
 
@@ -98,10 +100,14 @@ export function BuybackDetailCard() {
                             type="text"
                             onChange={(e) =>
                                 setPickedRecord(
-                                    { ...pickedRecord, amount: -parseFloat(e.target.value) } as Invoice)
+                                    { ...pickedRecord, amount_ht: -Math.abs(parseFloat(e.target.value)) } as Invoice)
                             }
                             className={inputClassName}
-                            value={pickedRecord?.amount_ht?.toString() ?? ''}
+                            value={
+                                pickedRecord?.amount_ht != null
+                                    ? `-${Math.abs(pickedRecord.amount_ht)}`
+                                    : ''
+                            }
                         />
                     </div>
                 </div>
