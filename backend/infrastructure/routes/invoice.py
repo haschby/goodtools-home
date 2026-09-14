@@ -133,25 +133,25 @@ def invoice_routes() -> APIRouter:
                 status_code=500,
                 data=None
             )
-        print('@RESPONSE', response.data.status)
-        print('@ENUM_INVOICE_STATUS', EnumInvoiceStatus.VALIDATED.value)
+            
         if response.data.status == EnumInvoiceStatus.VALIDATED.value:
             command = SyncUpdateInvoiceToPennylaneCommand(
-                workflow_id='INTERNAL',
+                workflow_id='INTERNAL-UPDATE-PENNYLANE',
                 workflow_name="updateInvoiceToPennylaneWorkflow",
                 invoice_id=id
             )
             background_tasks.add_task(orchestrator.startWorkflow, command)
 
             gc_command = SyncInvoiceToGcCommand(
-                workflow_id='INTERNAL',
+                workflow_id='INTERNAL-SYNC-GOOD-COLLECT',
                 workflow_name="syncInvoiceToGcWorkflow",
                 invoice_id=id
             )
             background_tasks.add_task(orchestrator.startWorkflow, gc_command)
+            
         elif id in getattr(useCase, "gc_booking_added_ids", []):
             gc_command = SyncInvoiceToGcCommand(
-                workflow_id='INTERNAL',
+                workflow_id='INTERNAL-SYNC-GOOD-COLLECT',
                 workflow_name="syncInvoiceToGcWorkflow",
                 invoice_id=id
             )

@@ -15,7 +15,7 @@ LIMIT 1
 
 QUERY_GET_INVOICE_BY_ID = """
 SELECT
-id, external_id
+id, external_id, invoice_type, invoice_number, status, amount_ht
 FROM invoice
 """
 

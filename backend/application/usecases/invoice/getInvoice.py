@@ -37,7 +37,7 @@ class GetInvoice(BaseUsecase):
                 file_url = pennylane_invoice.get("public_file_url")
                 _data.path = file_url
         else:
-            file_url = await self.storage.presigned_url(_data.path)
+            file_url = await self.storage.presigned_url(_data.name)
             _data.path = file_url
             
         print('@DATA : ', _data);

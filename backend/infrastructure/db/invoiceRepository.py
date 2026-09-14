@@ -132,11 +132,12 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
         {QUERY_GET_INVOICE_BY_ID}
         WHERE id = ANY(:external_ids)
         OR external_id = ANY(:external_ids)
+        OR gc_booking = ANY(:external_ids)
         """
         async with self._session() as session:
             result = await session.execute(
                 text(query),
-                { "external_ids" : external_ids }
+                { "external_ids" : [str(external_id) for external_id in external_ids] }
             )
             invoices = result.mappings().all()
             return [Invoice(**row) for row in invoices]

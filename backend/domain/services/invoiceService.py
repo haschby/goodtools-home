@@ -1,6 +1,7 @@
 import sys
 from application.dtos.invoiceDto import InvoiceCreateSchema, InvoiceUpdateSchema
 from domain.models.invoice import Invoice
+from domain.models.enums import EnumInvoiceStatus
 from application.ports.invoiceRepository import InvoiceRepositoryPort
 from application.ports.StorageGateway import StorageFileGateway
 from application.ports.providers.accountingGateway import AccountingGateway
@@ -88,6 +89,7 @@ class InvoiceService:
         gc_booking_added_ids = []
         for inv in invoices:
             existing_invoice = existing_map.get(inv.id)
+            print('@EXISTING INVOICE : ', existing_invoice)
             if not existing_invoice:
                 continue
             
@@ -105,6 +107,16 @@ class InvoiceService:
                 and new_gc_booking
             ):
                 gc_booking_added_ids.append(existing_invoice.id)
+            
+            # Si le booking est passé à vide et que le statut n'est pas déjà TBD,
+            # on repasse la facture en statut TBD.
+            if (
+                "gc_booking" in changes
+                and previous_gc_booking
+                and not new_gc_booking
+                and existing_invoice.status != EnumInvoiceStatus.TBD
+            ):
+                existing_invoice.status = EnumInvoiceStatus.TBD
             
             to_update.append(existing_invoice)
         
