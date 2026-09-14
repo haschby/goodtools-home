@@ -8,6 +8,7 @@ Create Date: 2026-09-04 15:20:00.000000
 from typing import Sequence, Union
 
 from alembic import op
+import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
@@ -17,42 +18,69 @@ branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 
+# Business values persisted by the ORM (EnumInvoiceStatus, use_values=True).
+INVOICE_STATUS_VALUES = (
+    'All',
+    'TBD',
+    'Archivé',
+    'A Traiter',
+    'Avoiriser',
+    'A Facturer',
+    'Facturer ticket',
+    'A Payer',
+    'Payé',
+)
+
+enum_invoice_status = sa.Enum(*INVOICE_STATUS_VALUES, name='enuminvoicestatus')
+
+
 def upgrade() -> None:
-    """Rename enum labels from member names to their business values.
+    """Create the ``enuminvoicestatus`` type and convert ``invoice.status``.
 
-    The invoice status column is persisted using the enum *value*
-    (e.g. "A Traiter") instead of the member name (e.g. "TO_BE_TRAITED"),
-    because ``EnumInvoiceStatus`` is mapped with ``use_values=True``.
-
-    The Postgres type ``enuminvoicestatus`` was originally created with the
-    member names, which no longer match what the ORM writes. Renaming the
-    labels in place preserves existing rows. ``VALIDATED_ONLY`` ("Payé") was
-    never present in the type, so it is added.
+    Historically ``invoice.status`` was created as a plain ``VARCHAR`` (see the
+    init migration), while the ORM maps it as an enum column using the business
+    *values* (``EnumInvoiceStatus`` with ``use_values=True``). This migration
+    reconciles the database with the ORM by creating the Postgres enum type and
+    converting the column to it, mapping any legacy label to its final value.
     """
-    # Rename existing labels (member name -> business value).
-    # "TBD" already matches its value and is intentionally left untouched.
-    op.execute("ALTER TYPE enuminvoicestatus RENAME VALUE 'ALL' TO 'All'")
-    op.execute("ALTER TYPE enuminvoicestatus RENAME VALUE 'ARCHIVED' TO 'Archivé'")
-    op.execute("ALTER TYPE enuminvoicestatus RENAME VALUE 'TO_BE_TRAITED' TO 'A Traiter'")
-    op.execute("ALTER TYPE enuminvoicestatus RENAME VALUE 'NEED_TO_CHECK' TO 'Avoiriser'")
-    op.execute("ALTER TYPE enuminvoicestatus RENAME VALUE 'TO_BE_INVOICED' TO 'A Facturer'")
-    op.execute("ALTER TYPE enuminvoicestatus RENAME VALUE 'INVOICED' TO 'Facturer ticket'")
-    op.execute("ALTER TYPE enuminvoicestatus RENAME VALUE 'VALIDATED' TO 'A Payer'")
+    bind = op.get_bind()
 
-    # Add the label that was missing from the type entirely.
-    op.execute("ALTER TYPE enuminvoicestatus ADD VALUE IF NOT EXISTS 'Payé'")
+    # Create the enum type with the final business labels.
+    enum_invoice_status.create(bind, checkfirst=True)
+
+    # Normalise any legacy label still present in the column before the cast,
+    # so the USING clause never fails on an unknown value.
+    op.execute(
+        """
+        UPDATE invoice SET status = CASE status
+            WHEN 'ALL' THEN 'All'
+            WHEN 'ARCHIVED' THEN 'Archivé'
+            WHEN 'TO_BE_TRAITED' THEN 'A Traiter'
+            WHEN 'NEED_TO_CHECK' THEN 'Avoiriser'
+            WHEN 'TO_BE_INVOICED' THEN 'A Facturer'
+            WHEN 'INVOICED' THEN 'Facturer ticket'
+            WHEN 'VALIDATED' THEN 'A Payer'
+            WHEN 'VALIDATED_ONLY' THEN 'Payé'
+            WHEN 'Valider avec paiement' THEN 'A Payer'
+            WHEN 'Valider sans paiement' THEN 'Payé'
+            ELSE status
+        END
+        """
+    )
+
+    # Convert the VARCHAR column to the enum type.
+    op.execute(
+        "ALTER TABLE invoice "
+        "ALTER COLUMN status TYPE enuminvoicestatus "
+        "USING status::enuminvoicestatus"
+    )
 
 
 def downgrade() -> None:
-    """Revert enum labels back to the member names.
-
-    Note: the added 'Payé' label cannot be dropped (Postgres has no
-    ``ALTER TYPE ... DROP VALUE``), so it is left in place on downgrade.
-    """
-    op.execute("ALTER TYPE enuminvoicestatus RENAME VALUE 'All' TO 'ALL'")
-    op.execute("ALTER TYPE enuminvoicestatus RENAME VALUE 'Archivé' TO 'ARCHIVED'")
-    op.execute("ALTER TYPE enuminvoicestatus RENAME VALUE 'A Traiter' TO 'TO_BE_TRAITED'")
-    op.execute("ALTER TYPE enuminvoicestatus RENAME VALUE 'Avoiriser' TO 'NEED_TO_CHECK'")
-    op.execute("ALTER TYPE enuminvoicestatus RENAME VALUE 'A Facturer' TO 'TO_BE_INVOICED'")
-    op.execute("ALTER TYPE enuminvoicestatus RENAME VALUE 'Facturer ticket' TO 'INVOICED'")
-    op.execute("ALTER TYPE enuminvoicestatus RENAME VALUE 'A Payer' TO 'VALIDATED'")
+    """Revert ``invoice.status`` back to a plain ``VARCHAR`` column."""
+    op.execute(
+        "ALTER TABLE invoice "
+        "ALTER COLUMN status TYPE VARCHAR(255) "
+        "USING status::text"
+    )
+    enum_invoice_status.drop(op.get_bind(), checkfirst=True)
