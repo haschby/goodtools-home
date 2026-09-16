@@ -1,3 +1,5 @@
+import asyncio
+
 from fastapi import APIRouter, Depends, Body
 from pydantic import BaseModel
 from application.containers.appContainer import AppContainer
@@ -58,8 +60,10 @@ def booking_routes() -> APIRouter:
                 "message": "No booking found"
             }
         
-        rentability = await gc_gateway.getRentabilitiesByBookingId(bookingId)
-        invoices = await invoice_repository.get_by_external_ids([bookingId])
+        rentability, invoices = await asyncio.gather(
+            gc_gateway.getRentabilitiesByBookingId(bookingId),
+            invoice_repository.get_by_external_ids([bookingId]),
+        )
         
         total_invoice = float(sum(row.amount_ht or 0 for row in invoices))
         total_rentability = float(sum(row["totalPriceHT"] or 0 for row in rentability))
