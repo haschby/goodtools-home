@@ -62,7 +62,7 @@ def booking_routes() -> APIRouter:
         
         rentability, invoices = await asyncio.gather(
             gc_gateway.getRentabilitiesByBookingId(bookingId),
-            invoice_repository.get_by_external_ids([bookingId]),
+            invoice_repository.get_by_gc_booking(bookingId),
         )
         
         total_invoice = float(sum(row.amount_ht or 0 for row in invoices))

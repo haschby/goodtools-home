@@ -27,4 +27,12 @@ comments
 FROM invoice
 """
 
+QUERY_GET_INVOICE_BY_GC_BOOKING = """
+SELECT
+id, name, path, external_id, invoice_type, invoice_number, amount_ht,
+amount_ttc, amount_tva, issuer_name, gc_booking, status, 
+comments
+FROM invoice
+"""
+
 

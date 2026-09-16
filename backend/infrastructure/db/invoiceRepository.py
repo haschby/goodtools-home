@@ -8,7 +8,8 @@ from .queries.invoices import (
     QUERY_GET_ALL_INVOICES,
     QUERY_GET_LAST_INVOICE_ID,
     QUERY_GET_INVOICE_BY_ID,
-    QUERY_GET_INVOICE_ID
+    QUERY_GET_INVOICE_ID,
+    QUERY_GET_INVOICE_BY_GC_BOOKING
 )
 
 from .baseRepository import BaseRepository
@@ -139,6 +140,13 @@ class InvoiceRepositoryImpl(BaseRepository[Invoice]):
                 text(query),
                 { "external_ids" : [str(external_id) for external_id in external_ids] }
             )
+            invoices = result.mappings().all()
+            return [Invoice(**row) for row in invoices]
+    
+    async def get_by_gc_booking(self, gc_booking: int) -> Invoice:
+        async with self._session() as session:
+            query = f"""{QUERY_GET_INVOICE_BY_GC_BOOKING} WHERE gc_booking = :gc_booking"""
+            result = await session.execute(text(query), {"gc_booking": str(gc_booking)})
             invoices = result.mappings().all()
             return [Invoice(**row) for row in invoices]
         
