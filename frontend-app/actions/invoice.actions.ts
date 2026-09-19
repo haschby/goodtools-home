@@ -97,6 +97,8 @@ export interface RentabilitiesResponse {
     bookingId?: string;
     isMonthly?: boolean;
     isExternal?: boolean;
+    eventStartDate?: string;
+    eventEndDate?: string;
     isManualInvoice?: boolean;
     items?: Rentability[];
     ca?: number;

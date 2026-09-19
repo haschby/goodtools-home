@@ -77,14 +77,16 @@ def booking_routes() -> APIRouter:
             "data": {
                 "comment": booking.comment,
                 "bookingId": booking.bookingId,
+                "eventStartDate": booking.bookingStartDate,
+                "eventEndDate": booking.bookingEndDate,
                 "isMonthly": booking.isMonthly,
                 "isExternal": booking.isExternal,
                 "isManualInvoice": booking.isManualInvoice,
                 "items": items,
                 "profit": profit or None,
-                "charges": total_rentability or None,
-                "ca": total_invoice or None,
-                "margin": marging or None
+                "ca": total_rentability or None,
+                "charges": total_invoice or None,
+                "margin": marging * 100 or None
             },
             "status_code": 200,
             "message": "Rentabilities fetched successfully"

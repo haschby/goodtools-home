@@ -20,11 +20,11 @@ interface RentabilityRowProps {
 const TypeRow = ({ type }: { type: string }) => {
     switch (type) {
         case "provider":
-            return <span className="self-start bg-yellow-100 border border-yellow-200 text-xs text-yellow-700 px-2 py-1 rounded-full">
+            return <span className="self-start bg-gray-100 border border-gray-200 text-xs text-gray-700 px-2 py-1 rounded-full">
                 Fournisseur
             </span>;
         case "buyback":
-            return <span className="self-start bg-orange-100 border border-orange-200 text-xs text-orange-700 px-2 py-1 rounded-full">Rachat</span>;
+            return <span className="self-start bg-gray-100 border border-gray-200 text-xs text-gray-700 px-2 py-1 rounded-full">Rachat</span>;
         case "ProviderPrice":
             return <span className="self-start bg-gray-100 border border-gray-200 text-xs text-gray-700 px-2 py-1 rounded-full">Provider</span>;
         case "GoodcollectPrice":
@@ -49,8 +49,8 @@ export default function RentabilityRow({ rentability }: RentabilityRowProps) {
     }, [priceHT, rentability.type, rentability.totalPriceHT]);
 
     return (
-        <div className="flex items-center justify-between gap-3 bg-white border border-t-0 border-gray-100 text-sm shadow-xs p-2">
-            <div className="flex flex-row leading-tight gap-2">
+        <div className="flex items-center justify-between gap-3 bg-gray-50 border border-t-0 border-l-0 border-r-0 border-gray-200 text-sm shadow-xs p-2">
+            <div className="flex flex-row leading-tight gap-2 items-center">
                 <TypeRow type={rentability.type || ""} />
                 <StatusRow className="self-start" status={rentability?.status || ""} />
             </div>

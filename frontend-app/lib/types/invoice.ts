@@ -9,6 +9,8 @@ export interface Invoice {
     external_id: string;
     path: string;
     gc_booking: string;
+    eventStartDate: string;
+    eventEndDate: string;
     invoice_type: InvoiceType;
     crm_id?: string | null;
     comments: string | null;

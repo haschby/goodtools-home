@@ -60,19 +60,22 @@ interface InvoiceRentabilityProps {
 
 export default function InvoiceRentability({
     profit = 0,
-    ca = 0,
-    charges = 0,
-    margin = 0,
+    ca,
+    charges,
+    margin,
 }: InvoiceRentabilityProps) {
+
+    console.log(ca, charges, margin);
 
     const isTotalNegative = ca ? ca < 0 : false;
     const isMargingNegative = margin ? margin < 0 : false;
 
-    // Deux barres superposées, largeur proportionnelle à la valeur max
-    // La plus grande (CA) en dessous, la plus petite (Charges) au-dessus
-    const maxValue = Math.max(ca, charges, 0);
-    const caWidth = maxValue > 0 ? (ca / maxValue) * 100 : 0;
-    const chargesWidth = maxValue > 0 ? (charges / maxValue) * 100 : 0;
+    // Barre proportionnelle : deux segments côte à côte (CA en vert, Charges en purple).
+    // Chaque segment occupe un pourcentage de la barre en fonction de son montant
+    // relatif au total (CA + Charges), afin que les deux couleurs soient toujours visibles.
+    const total = (ca ?? 0) + (charges ?? 0);
+    const caWidth = total > 0 ? ((ca ?? 0) / total) * 100 : 0;
+    const chargesWidth = total > 0 ? ((charges ?? 0) / total) * 100 : 0;
 
     return (
         <div className="flex w-full flex-col gap-2 rounded-t-md bg-gray-100">
@@ -117,7 +120,7 @@ export default function InvoiceRentability({
                                     ? <Icon Icon={Spinner3Solid}
                                         size={24}
                                         className="animate-spin duration-300 text-gray-600" />
-                                    : formatCurrency(ca-charges)
+                                    : formatCurrency(-((ca ?? 0) - (charges ?? 0)))
                                 }
                             </span>
                         </div>
@@ -142,39 +145,29 @@ export default function InvoiceRentability({
                         <div className="text-xs font-medium text-gray-500 flex flex-row gap-1 justify-between">
                             <span>Ratio Charges / CA</span>
                             <span className="text-sm font-semibold text-gray-600 bg-gray-200 px-2 py-1 rounded-md">
-                                x {ca ? parseFloat((charges / ca).toFixed(2)) : 0}
+                                x {ca ? parseFloat(((charges ?? 0) / (ca ?? 0)).toFixed(2)) : 0}
                             </span>
                         </div>
                         <div className="flex flex-col gap-2">
-                            <div className="flex flex-col gap-1">
-                                <div className="flex items-center justify-between text-[10px] text-gray-500">
-                                    <span className="flex items-center gap-1">
-                                        <span className="h-2 w-2 rounded-full bg-purple-500" />
-                                        Charges
-                                    </span>
-                                    <span>{formatCurrency(charges ?? 0)}</span>
-                                </div>
-                                <div className="h-2.5 w-full overflow-hidden rounded-full bg-gray-100">
-                                    <div
-                                        className="h-full rounded-full bg-purple-500 transition-all duration-500"
-                                        style={{ width: `${chargesWidth}%` }}
-                                    />
-                                </div>
+                            <div className="relative flex h-2.5 w-full overflow-hidden rounded-full bg-gray-200">
+                                <div
+                                    className="absolute left-0 top-0 h-full bg-purple-500 transition-all duration-500"
+                                    style={{ width: `${chargesWidth}%` }}
+                                />
+                                <div
+                                    className="absolute right-0 top-0 h-full bg-green-500 transition-all duration-500"
+                                    style={{ width: `${caWidth}%` }}
+                                />
                             </div>
-                            <div className="flex flex-col gap-1">
-                                <div className="flex items-center justify-between text-[10px] text-gray-500">
-                                    <span className="flex items-center gap-1">
-                                        <span className="h-2 w-2 rounded-full bg-gray-500" />
-                                        CA
-                                    </span>
-                                    <span>{formatCurrency(ca ?? 0)}</span>
-                                </div>
-                                <div className="h-2.5 w-full overflow-hidden rounded-full bg-gray-200">
-                                    <div
-                                        className="h-full rounded-full bg-gray-500 transition-all duration-500"
-                                        style={{ width: `${caWidth}%` }}
-                                    />
-                                </div>
+                            <div className="flex flex-row items-center justify-between text-[10px] text-gray-500">
+                                <span className="flex items-center gap-1">
+                                    <span className="h-2 w-2 rounded-full bg-purple-500" />
+                                    Charges ({formatCurrency(charges ?? 0)})
+                                </span>
+                                <span className="flex items-center gap-1">
+                                    <span className="h-2 w-2 rounded-full bg-green-500" />
+                                    CA ({formatCurrency(ca ?? 0)})
+                                </span>
                             </div>
                         </div>
                     </div>

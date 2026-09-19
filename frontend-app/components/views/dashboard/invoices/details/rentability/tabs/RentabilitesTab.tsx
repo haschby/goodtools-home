@@ -68,7 +68,7 @@ export default function RentabilitesTab({
 
         const computeHeight = () => {
             const top = element.getBoundingClientRect().top;
-            const availableHeight = window.innerHeight - top - 32;
+            const availableHeight = window.innerHeight - top - 52;
             setListMaxHeight(Math.max(availableHeight, 0));
         };
 
@@ -114,95 +114,98 @@ export default function RentabilitesTab({
                         </span>
                     </div>
                 ) || (
-                    <div className="flex flex-col gap-2">
-                        <div className="flex flex-col gap-2">
-                            <div className="flex flex-col items-start justify-between gap-4">
-                                {/* <h3 className="text-xl font-bold text-gray-900">
-                                    Rentabilités Détails
-                                </h3> */}
-                                <div className="flex flex-row leading-tight gap-2">
-                                    <span className="text-sm text-gray-400">
-                                        Booking
+                    <div className="flex flex-col gap-2 h-full">
+                        <div className="flex flex-col rounded-xl bg-gray-50">
+                            <div className="flex flex-col items-start justify-between gap-1 p-4">
+                                <div className="flex flex-row items-center justify-between leading-tight gap-2">
+                                    <span className="text-lg font-semibold">
+                                        Booking 
                                     </span>
-                                    <span className="text-md font-bold text-gray-900">
-                                        #GC-{rentabilities?.bookingId}
+                                    <span className="text-xs border border-orange-500 text-orange-500 bg-orange-100 p-1 rounded-md">
+                                        #{rentabilities?.bookingId}
                                     </span>
                                 </div>
-                            </div>
-
-                            <div className="flex flex-row flex-wrap items-center gap-1 text-sm">
-                                <span className="text-xs inline-flex items-center gap-2 font-semibold bg-purple-100 text-purple-500 px-3 py-1.5 rounded-full">
-                                    <Icon Icon={CalendarDaysSolid} size={16} strokeWidth={2} />
-                                    {
-                                        isLoading
-                                        ? <Icon
-                                            Icon={Spinner3Solid}
-                                            size={16}
-                                            strokeWidth={2}
-                                            className="animate-spin duration-300 text-gray-600" />
-                                        : 
-                                        rentabilities?.isMonthly === undefined
-                                        ? 'NA'
-                                        : rentabilities?.isMonthly ? 'Récurrent' : 'Non récurrent'
-                                    }
-                                </span>
-                                <span className="text-xs inline-flex items-center gap-2 font-semibold bg-blue-100 text-blue-500 px-3 py-1.5 rounded-full">
-                                    <Icon Icon={Gear1Solid} size={16} strokeWidth={2} />
-                                    {
-                                        isLoading
-                                        ? <Icon
-                                            Icon={Spinner3Solid}
-                                            size={16}
-                                            strokeWidth={2}
-                                            className="animate-spin duration-300 text-gray-600" />
-                                        : 
-                                        rentabilities?.isExternal === undefined
-                                        ? 'NA'
-                                        : rentabilities?.isExternal ? 'Externe' : 'Interne'
-                                    }
-                                </span>
-                                <span className="text-xs inline-flex items-center gap-2 font-semibold bg-green-100 text-green-500 px-3 py-1.5 rounded-full">
-                                    <Icon Icon={Telephone3Solid} size={16} strokeWidth={2} />
-                                    {
-                                        isLoading
-                                        ? <Icon
-                                            Icon={Spinner3Solid}
-                                            size={16}
-                                            strokeWidth={2}
-                                            className="animate-spin duration-300 text-gray-600" />
-                                        : 
-                                        rentabilities?.isManualInvoice === undefined
-                                        ? 'NA'
-                                        : rentabilities?.isManualInvoice ? 'Manuelle'
-                                        : rentabilities?.isMonthly ? 'Mensuelle'
-                                        : 'Auto'
-                                    }
+                                <span className="text-xs text-gray-500">
+                                    {new Date(rentabilities?.eventStartDate ?? '').toLocaleDateString('fr-FR')}
+                                    &nbsp;-&nbsp;
+                                    {new Date(rentabilities?.eventEndDate ?? '').toLocaleDateString('fr-FR')}
                                 </span>
                             </div>
-
-                            <div className="flex flex-col rounded-xl bg-gray-50 border border-gray-200 mt-2">
-                                <div className="flex flex-col gap-3 p-4">
-                                    <label htmlFor="booking_comments" className="text-sm font-semibold text-gray-900">
-                                        Commentaires
-                                    </label>
-                                    <textarea 
-                                        id="booking_comments"
-                                        name="booking_comments"
-                                        rows={4}
-                                        maxLength={12000}
-                                        placeholder="Ajouter une note sur cette rentabilité..."
-                                        className="w-full resize-none rounded-lg p-3 text-sm text-gray-900 bg-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-100 transition-all"
-                                        value={comment}
-                                        onChange={(e) => setComment(e.target.value)}
-                                    />
+                            <div className="flex flex-col gap-2 p-4 rounded-t-[25px] rounded-b-xl border border-gray-200 bg-white">
+                                <div className="flex flex-row flex-wrap items-center gap-1 text-sm">
+                                    <span className="text-xs inline-flex items-center gap-2 font-semibold border border-gray-200 bg-gray-100 text-gray-500 px-3 py-1.5 rounded-xl">
+                                        <Icon Icon={CalendarDaysSolid} size={16} strokeWidth={2} />
+                                        {
+                                            isLoading
+                                            ? <Icon
+                                                Icon={Spinner3Solid}
+                                                size={16}
+                                                strokeWidth={2}
+                                                className="animate-spin duration-300 text-gray-600" />
+                                            : 
+                                            rentabilities?.isMonthly === undefined
+                                            ? 'NA'
+                                            : rentabilities?.isMonthly ? 'Récurrent' : 'Non récurrent'
+                                        }
+                                    </span>
+                                    <span className="text-xs inline-flex items-center gap-2 font-semibold border border border-gray-200 bg-gray-100 text-gray-500 px-3 py-1.5 rounded-xl">
+                                        <Icon Icon={Gear1Solid} size={16} strokeWidth={2} />
+                                        {
+                                            isLoading
+                                            ? <Icon
+                                                Icon={Spinner3Solid}
+                                                size={16}
+                                                strokeWidth={2}
+                                                className="animate-spin duration-300 text-gray-600" />
+                                            : 
+                                            rentabilities?.isExternal === undefined
+                                            ? 'NA'
+                                            : rentabilities?.isExternal ? 'Externe' : 'Interne'
+                                        }
+                                    </span>
+                                    <span className="text-xs inline-flex items-center gap-2 font-semibold border border border-gray-200 bg-gray-100 text-gray-500 px-3 py-1.5 rounded-xl">
+                                        <Icon Icon={Telephone3Solid} size={16} strokeWidth={2} />
+                                        {
+                                            isLoading
+                                            ? <Icon
+                                                Icon={Spinner3Solid}
+                                                size={16}
+                                                strokeWidth={2}
+                                                className="animate-spin duration-300 text-gray-600" />
+                                            : 
+                                            rentabilities?.isManualInvoice === undefined
+                                            ? 'NA'
+                                            : rentabilities?.isManualInvoice ? 'Manuelle'
+                                            : rentabilities?.isMonthly ? 'Mensuelle'
+                                            : 'Auto'
+                                        }
+                                    </span>
                                 </div>
-                                <div className="flex flex-row justify-end border-t border-gray-200 p-2">
-                                    <button
-                                        disabled={!isSaveEnabled}
-                                        onClick={handleSaveComment}
-                                        className={`text-sm font-semibold px-6 py-2 rounded-lg transition-colors ${isSaveEnabled ? 'cursor-pointer bg-slate-900 hover:bg-slate-800 text-white' : 'cursor-not-allowed bg-gray-200 text-gray-400'}`}>
-                                        {isSaving ? 'Enregistrement...' : 'Commenter'}
-                                    </button>
+
+                                <div className="flex flex-col rounded-xl border border-gray-200 bg-gray-100 text-gray-500 mt-2">
+                                    <div className="flex flex-col gap-3 p-4">
+                                        <label htmlFor="booking_comments" className="text-sm font-semibold text-gray-900">
+                                            Commentaires
+                                        </label>
+                                        <textarea 
+                                            id="booking_comments"
+                                            name="booking_comments"
+                                            rows={2}
+                                            maxLength={12000}
+                                            placeholder="Ajouter une note sur cette rentabilité..."
+                                            className="w-full resize-none rounded-lg p-3 text-sm text-gray-900 bg-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-100 transition-all"
+                                            value={comment}
+                                            onChange={(e) => setComment(e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="flex flex-row justify-end border-t border-gray-200 p-2">
+                                        <button
+                                            disabled={!isSaveEnabled}
+                                            onClick={handleSaveComment}
+                                            className={`text-sm font-semibold px-6 py-2 rounded-lg transition-all duration-300 transform ${isSaveEnabled ? 'hover:scale-105 cursor-pointer bg-green-400 hover:bg-green-500 text-white' : 'cursor-not-allowed bg-gray-50 text-gray-400'}`}>
+                                            {isSaving ? 'Enregistrement...' : 'Commenter'}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -215,7 +218,7 @@ export default function RentabilitesTab({
                                 margin={rentabilities?.margin}
                             />
                             <div className="flex flex-col h-full pt-4 rounded-b-xl">
-                                <h3 className="flex flex-row justify-between text-sm font-semibold border-b border-gray-200 p-3">
+                                <h3 className="flex flex-row justify-between text-md font-semibold border-b border-gray-200 p-3">
                                     Details des lignes&nbsp;
                                     <span className="text-green-500 text-xs bg-green-100 px-2 py-1 rounded-md">
                                         {rentabilities?.items?.length ?? 0}&nbsp;lignes

@@ -18,11 +18,13 @@ class GoodcollectGateway:
         async with self.session() as session:
             stmt = text("""
                 SELECT
-                    b."id" AS "bookingId",
-                    b."isMonthly" AS "isMonthly",
-                    b."manualInvoice" AS "isManualInvoice",
+                    b.id AS "bookingId",
+                    b.isMonthly AS "isMonthly",
+                    b.manualInvoice AS "isManualInvoice",
                     b.external AS "isExternal"
-                    b.comment AS "comment"
+                    b.comment AS "comment",
+                    b.eventStartDate AS "bookingStartDate", 
+                    b.eventEndDate AS "bookingEndDate"
                 FROM "Booking" b
                 WHERE b."id" = :bookingId
                 LIMIT 1
@@ -146,11 +148,13 @@ class GoodcollectGateway:
         async with self.session() as session:
             stmt = text(f"""
                 SELECT
-                    b."id" AS "bookingId",
+                    b.id AS "bookingId",
                     b."isMonthly" AS "isMonthly",
                     b."manualInvoice" AS "isManualInvoice",
                     b.external AS "isExternal",
-                    b.comment AS "comment"
+                    b.comment AS "comment",
+                    b."eventStartDate" AS "bookingStartDate",
+                    b."eventEndDate" AS "bookingEndDate"
                 FROM "Booking" b
                 WHERE b."id" = :bookingId
                 LIMIT 1

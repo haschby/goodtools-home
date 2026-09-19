@@ -123,7 +123,6 @@ def invoice_routes() -> APIRouter:
             Provide[AppContainer.orchestrator_container.localWorkflowLauncher]
         )
     ):
-        
         try:
             response = await useCase.execute([update_invoice])
         except Exception as e:
