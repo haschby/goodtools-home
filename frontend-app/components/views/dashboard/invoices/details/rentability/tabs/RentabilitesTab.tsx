@@ -68,7 +68,7 @@ export default function RentabilitesTab({
 
         const computeHeight = () => {
             const top = element.getBoundingClientRect().top;
-            const availableHeight = window.innerHeight - top - 16;
+            const availableHeight = window.innerHeight - top - 32;
             setListMaxHeight(Math.max(availableHeight, 0));
         };
 
@@ -207,27 +207,27 @@ export default function RentabilitesTab({
                             </div>
                         </div>
 
-                        <div className="flex flex-col w-full mt-4">
+                        <div className="flex flex-col w-full mt-4 border border-gray-200 rounded-xl bg-white">
                             <InvoiceRentability
                                 profit={rentabilities?.profit}
                                 ca={rentabilities?.ca}
                                 charges={rentabilities?.charges}
                                 margin={rentabilities?.margin}
                             />
-                        </div>
-                        <div className="flex flex-col gap-2 h-full p-3 bg-gray-50 mt-4">
-                            <h3 className="text-lg font-semibold">
-                                Rentabilités&nbsp;
-                                <span className="text-green-500 text-xs">
-                                    {rentabilities?.items?.length ?? 0}&nbsp;lignes
-                                </span>                                               
-                            </h3>
-                            <aside
-                                ref={listWrapperRef}
-                                style={{ maxHeight: `${listMaxHeight-30}px` }}
-                                className="overflow-y-auto h-full">
-                                <RentabilityList rentabilities={rentabilities?.items || []} />
-                            </aside>
+                            <div className="flex flex-col h-full pt-4 rounded-b-xl">
+                                <h3 className="flex flex-row justify-between text-sm font-semibold border-b border-gray-200 p-3">
+                                    Details des lignes&nbsp;
+                                    <span className="text-green-500 text-xs bg-green-100 px-2 py-1 rounded-md">
+                                        {rentabilities?.items?.length ?? 0}&nbsp;lignes
+                                    </span>                                               
+                                </h3>
+                                <aside
+                                    ref={listWrapperRef}
+                                    style={{ maxHeight: `${listMaxHeight}px` }}
+                                    className="overflow-y-auto h-full bg-gray-50 rounded-b-xl">
+                                    <RentabilityList rentabilities={rentabilities?.items || []} />
+                                </aside>
+                            </div>
                         </div>
                     </div>
                 )

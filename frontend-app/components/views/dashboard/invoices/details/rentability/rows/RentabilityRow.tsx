@@ -49,7 +49,7 @@ export default function RentabilityRow({ rentability }: RentabilityRowProps) {
     }, [priceHT, rentability.type, rentability.totalPriceHT]);
 
     return (
-        <div className="flex items-center justify-between gap-3 rounded-lg bg-white border border-gray-100 px-3 py-2 text-sm">
+        <div className="flex items-center justify-between gap-3 bg-white border border-t-0 border-gray-100 text-sm shadow-xs p-2">
             <div className="flex flex-row leading-tight gap-2">
                 <TypeRow type={rentability.type || ""} />
                 <StatusRow className="self-start" status={rentability?.status || ""} />

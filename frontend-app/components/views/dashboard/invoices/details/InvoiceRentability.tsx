@@ -60,62 +60,123 @@ interface InvoiceRentabilityProps {
 
 export default function InvoiceRentability({
     profit = 0,
-    ca,
+    ca = 0,
     charges = 0,
-    margin
+    margin = 0,
 }: InvoiceRentabilityProps) {
 
-    console.log(ca ? ca < 0 : false);
-    console.log(margin ? margin < 0 : false);
     const isTotalNegative = ca ? ca < 0 : false;
     const isMargingNegative = margin ? margin < 0 : false;
 
-    console.log('ca', ca);
-    console.log('margin', margin);
-    console.log(isTotalNegative);
-    console.log(isMargingNegative);
+    // Deux barres superposées, largeur proportionnelle à la valeur max
+    // La plus grande (CA) en dessous, la plus petite (Charges) au-dessus
+    const maxValue = Math.max(ca, charges, 0);
+    const caWidth = maxValue > 0 ? (ca / maxValue) * 100 : 0;
+    const chargesWidth = maxValue > 0 ? (charges / maxValue) * 100 : 0;
 
     return (
-        <div className="flex w-full flex-col gap-2">
-            <div className="flex flex-row gap-2">
-                <div className="w-full flex flex-col gap-1 bg-white border border-gray-200 rounded-2xl px-3 py-2">
-                    <span className="text-md font-medium font-semibold">Total</span>
-                    <div className="flex items-start gap-1">
-                        <span className="text-right text-2xl font-normal tracking-tight">
-                            { 
-                                ca === 0
-                                ? <Icon Icon={Spinner3Solid}
-                                size={24}
-                                className="animate-spin duration-300 text-gray-600" />
-                                : formatCurrency(ca ?? 0)
-                            }
-                        </span>
-                        { ca !== 0 && (
-                            <Icon
-                                Icon={ArrowAngularTopRightSolid}
-                                size={16}
-                                className={`mt-1 ${isTotalNegative ? "text-red-500 rotate-90" : "text-green-500"}`} />
-                        )}
-                    </div>
-                </div>
-                <div className="w-full flex flex-col gap-1 bg-white border border-gray-200 rounded-2xl px-3 py-2">
-                    <span className="text-md font-medium text-gray-800 font-semibold">Marge</span>
-                    <div className="flex items-start gap-1">
-                        <span className="text-2xl font-normal">
-                            { 
-                                margin === 0
-                                ? <Icon Icon={Spinner3Solid}
+        <div className="flex w-full flex-col gap-2 rounded-t-md bg-gray-100">
+            <div className="flex flex-col text-black">
+                <div className="flex flex-row">
+                    <div className="w-full flex flex-col gap-1 justify-between border border-t-0 border-l-0 border-r-0 border-gray-200 px-3 py-2">
+                        <span className="text-xs font-medium text-gray-500">Total CA</span>
+                        <div className="flex items-start gap-1">
+                            <span className="text-xl tracking-tight">
+                                { 
+                                    ca === 0
+                                    ? <Icon Icon={Spinner3Solid}
                                     size={24}
                                     className="animate-spin duration-300 text-gray-600" />
-                                : formatPercent(margin ?? 0)
-                            }
-                        </span>
-                        { margin !== 0 && (
-                        <Icon
-                            Icon={ArrowAngularTopRightSolid}
-                            size={16}
-                            className={`mt-1 ${isMargingNegative ? "text-red-500 rotate-90" : "text-green-500"}`} />
-                        )}
+                                    : formatCurrency(ca ?? 0)
+                                }
+                            </span>
+                        </div>
+                    </div>
+                    <div className="w-full flex flex-col gap-1 justify-between border border-t-0 border-r-0 border-gray-200 px-3 py-2">
+                        <span className="text-xs font-medium text-gray-500">Total Charges</span>
+                        <div className="flex items-start gap-1">
+                            <span className="text-xl font-normal tracking-tight">
+                                { 
+                                    charges === 0
+                                    ? <Icon Icon={Spinner3Solid}
+                                    size={24}
+                                    className="animate-spin duration-300 text-gray-600" />
+                                    : formatCurrency(charges ?? 0)
+                                }
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div className="flex flex-row">
+                    <div className="w-full flex flex-col gap-1 justify-between px-3 py-2">
+                        <span className="text-xs font-medium text-gray-500">Résultat</span>
+                        <div className="flex gap-1">
+                            <span className="text-xl font-normal">
+                                { 
+                                    margin === 0
+                                    ? <Icon Icon={Spinner3Solid}
+                                        size={24}
+                                        className="animate-spin duration-300 text-gray-600" />
+                                    : formatCurrency(ca-charges)
+                                }
+                            </span>
+                        </div>
+                    </div>
+                    <div className="w-full flex flex-col gap-1 justify-between border border-b-0 border-t-0 border-r-0 border-gray-200 px-3 py-2">
+                        <span className="text-xs font-medium text-gray-500">Marge</span>
+                        <div className="flex gap-1">
+                            <span className="text-xl font-normal">
+                                { 
+                                    margin === 0
+                                    ? <Icon Icon={Spinner3Solid}
+                                        size={24}
+                                        className="animate-spin duration-300 text-gray-600" />
+                                    : formatPercent((margin) ?? 0)
+                                }
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div className="flex flex-row">
+                    <div className="w-full flex flex-col gap-1.5 justify-between border border-l-0 border-r-0 border-gray-200 px-3 py-2">
+                        <div className="text-xs font-medium text-gray-500 flex flex-row gap-1 justify-between">
+                            <span>Ratio Charges / CA</span>
+                            <span className="text-sm font-semibold text-gray-600 bg-gray-200 px-2 py-1 rounded-md">
+                                x {ca ? parseFloat((charges / ca).toFixed(2)) : 0}
+                            </span>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            <div className="flex flex-col gap-1">
+                                <div className="flex items-center justify-between text-[10px] text-gray-500">
+                                    <span className="flex items-center gap-1">
+                                        <span className="h-2 w-2 rounded-full bg-purple-500" />
+                                        Charges
+                                    </span>
+                                    <span>{formatCurrency(charges ?? 0)}</span>
+                                </div>
+                                <div className="h-2.5 w-full overflow-hidden rounded-full bg-gray-100">
+                                    <div
+                                        className="h-full rounded-full bg-purple-500 transition-all duration-500"
+                                        style={{ width: `${chargesWidth}%` }}
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <div className="flex items-center justify-between text-[10px] text-gray-500">
+                                    <span className="flex items-center gap-1">
+                                        <span className="h-2 w-2 rounded-full bg-gray-500" />
+                                        CA
+                                    </span>
+                                    <span>{formatCurrency(ca ?? 0)}</span>
+                                </div>
+                                <div className="h-2.5 w-full overflow-hidden rounded-full bg-gray-200">
+                                    <div
+                                        className="h-full rounded-full bg-gray-500 transition-all duration-500"
+                                        style={{ width: `${caWidth}%` }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
