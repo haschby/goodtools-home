@@ -4,10 +4,11 @@ import { Rentability } from "@/actions/invoice.actions";
 import RentabilityRow from "./rows/RentabilityRow";
 
 interface RentabilityListProps {
-    rentabilities: Rentability[] | null;
+    rentabilities: Rentability[] | undefined;
+    bookingId: string;
 }
 
-export default function RentabilityList({ rentabilities }: RentabilityListProps) {
+export default function RentabilityList({ bookingId, rentabilities }: RentabilityListProps) {
     if (!rentabilities || rentabilities.length === 0) {
         return (
             <div className="flex h-24 items-center justify-center text-sm text-gray-400">
@@ -20,6 +21,7 @@ export default function RentabilityList({ rentabilities }: RentabilityListProps)
         <div className="flex flex-col">
             {rentabilities.map((rentability, index) => (
                 <RentabilityRow
+                    bookingId={bookingId}
                     key={`rentability-${rentability.id}-${index}`}
                     rentability={rentability} />
             ))}

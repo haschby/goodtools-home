@@ -67,9 +67,6 @@ export default function InvoiceRentability({
 
     console.log(ca, charges, margin);
 
-    const isTotalNegative = ca ? ca < 0 : false;
-    const isMargingNegative = margin ? margin < 0 : false;
-
     // Barre proportionnelle : deux segments côte à côte (CA en vert, Charges en purple).
     // Chaque segment occupe un pourcentage de la barre en fonction de son montant
     // relatif au total (CA + Charges), afin que les deux couleurs soient toujours visibles.
@@ -120,7 +117,7 @@ export default function InvoiceRentability({
                                     ? <Icon Icon={Spinner3Solid}
                                         size={24}
                                         className="animate-spin duration-300 text-gray-600" />
-                                    : formatCurrency(-((ca ?? 0) - (charges ?? 0)))
+                                    : formatCurrency(((ca ?? 0) - (charges ?? 0)))
                                 }
                             </span>
                         </div>
@@ -143,30 +140,30 @@ export default function InvoiceRentability({
                 <div className="flex flex-row">
                     <div className="w-full flex flex-col gap-1.5 justify-between border border-l-0 border-r-0 border-gray-200 px-3 py-2">
                         <div className="text-xs font-medium text-gray-500 flex flex-row gap-1 justify-between">
-                            <span>Ratio Charges / CA</span>
-                            <span className="text-sm font-semibold text-gray-600 bg-gray-200 px-2 py-1 rounded-md">
+                            <span>Ratio CA / Charges</span>
+                            {/* <span className="text-sm font-semibold text-gray-600 bg-gray-200 px-2 py-1 rounded-md">
                                 x {ca ? parseFloat(((charges ?? 0) / (ca ?? 0)).toFixed(2)) : 0}
-                            </span>
+                            </span> */}
                         </div>
                         <div className="flex flex-col gap-2">
                             <div className="relative flex h-2.5 w-full overflow-hidden rounded-full bg-gray-200">
                                 <div
-                                    className="absolute left-0 top-0 h-full bg-purple-500 transition-all duration-500"
-                                    style={{ width: `${chargesWidth}%` }}
+                                    className="absolute left-0 top-0 h-full bg-green-500 transition-all duration-500"
+                                    style={{ width: `${caWidth}%` }}
                                 />
                                 <div
-                                    className="absolute right-0 top-0 h-full bg-green-500 transition-all duration-500"
-                                    style={{ width: `${caWidth}%` }}
+                                    className="absolute right-0 top-0 h-full bg-purple-500 transition-all duration-500"
+                                    style={{ width: `${chargesWidth}%` }}
                                 />
                             </div>
                             <div className="flex flex-row items-center justify-between text-[10px] text-gray-500">
                                 <span className="flex items-center gap-1">
-                                    <span className="h-2 w-2 rounded-full bg-purple-500" />
-                                    Charges ({formatCurrency(charges ?? 0)})
-                                </span>
-                                <span className="flex items-center gap-1">
                                     <span className="h-2 w-2 rounded-full bg-green-500" />
                                     CA ({formatCurrency(ca ?? 0)})
+                                </span>
+                                <span className="flex items-center gap-1">
+                                    <span className="h-2 w-2 rounded-full bg-purple-500" />
+                                    Charges ({formatCurrency(charges ?? 0)})
                                 </span>
                             </div>
                         </div>
