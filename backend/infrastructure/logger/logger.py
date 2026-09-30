@@ -16,7 +16,12 @@ class LoggerImplement(LoggerPort):
             )
             self._log.addHandler(handler)
         
-    def error(self, msg: dict): self._log.error(f"⚠️ {json.dumps(msg, indent=2, default=str)}")
-    def warning(self, msg: dict): self._log.warning(f"🔥 {json.dumps(msg, indent=2, default=str)}")
-    def info(self, msg: dict): self._log.info(f"ℹ️ {json.dumps(msg, indent=2, default=str)}")
-    def debug(self, msg: dict): self._log.debug(f"🚀 {json.dumps(msg, indent=2, default=str)}")
+    def _format(self, msg):
+        if isinstance(msg, (dict, list)):
+            return json.dumps(msg, indent=2, default=str)
+        return str(msg)
+
+    def error(self, msg): self._log.error(f"⚠️ {self._format(msg)}")
+    def warning(self, msg): self._log.warning(f"🔥 {self._format(msg)}")
+    def info(self, msg): self._log.info(f"🚀 {self._format(msg)}")
+    def debug(self, msg): self._log.debug(f"🚀 {self._format(msg)}")
