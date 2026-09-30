@@ -68,7 +68,7 @@ def booking_routes() -> APIRouter:
         total_invoice = float(sum(row.amount_ht or 0 for row in invoices))
         total_rentability = float(sum(row["totalPriceHT"] or 0 for row in rentabilities))
             
-        profit = total_invoice - total_rentability
+        profit = total_rentability - total_invoice 
         marging = profit / total_invoice if total_invoice else 0
         
         items = build_rentability_items(rentabilities, invoices)
