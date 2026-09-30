@@ -74,6 +74,8 @@ export default function InvoiceRentability({
     const caWidth = total > 0 ? ((ca ?? 0) / total) * 100 : 0;
     const chargesWidth = total > 0 ? ((charges ?? 0) / total) * 100 : 0;
 
+    const isNegativeMargin = ca && charges && ca < charges;
+
     return (
         <div className="flex w-full flex-col gap-2 rounded-t-md bg-gray-100">
             <div className="flex flex-col text-black">
@@ -124,16 +126,21 @@ export default function InvoiceRentability({
                     </div>
                     <div className="w-full flex flex-col gap-1 justify-between border border-b-0 border-t-0 border-r-0 border-gray-200 px-3 py-2">
                         <span className="text-xs font-medium text-gray-500">Marge</span>
-                        <div className="flex gap-1">
+                        <div className="flex gap-1 relative">
                             <span className="text-xl font-normal">
                                 { 
                                     margin === 0
                                     ? <Icon Icon={Spinner3Solid}
                                         size={24}
                                         className="animate-spin duration-300 text-gray-600" />
-                                    : formatPercent((margin) ?? 0)
+                                    : isNegativeMargin ? formatPercent(-((margin) ?? 0)) : formatPercent(margin ?? 0)
                                 }
                             </span>
+                            { margin !== undefined && margin !== null && (
+                                <span className={`absolute top-0 right-0 text-xs text-white ${isNegativeMargin ? 'bg-red-500' : 'bg-green-500'} px-2 py-0.5 rounded-full`}>
+                                    { isNegativeMargin ? 'Deficit' : 'Surplus' }
+                                </span>
+                            )}
                         </div>
                     </div>
                 </div>

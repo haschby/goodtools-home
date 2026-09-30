@@ -1,8 +1,8 @@
 "use client";
 
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import Icon from "@/components/atoms/Icon";
-import { Pencil1Bulk, CheckCircle1Solid, XmarkSolid } from "@lineiconshq/free-icons";
+import { Pencil1Bulk, CheckCircle1Solid, XmarkSolid, RefreshCircle1ClockwiseSolid, Spinner3Solid } from "@lineiconshq/free-icons";
 import { AsyncSelectField } from "@/components/atoms/form/AsyncSelectField";
 import { searchQuery } from "@/actions/common";
 import { Select } from "@/components/atoms/form/items/Select";
@@ -18,6 +18,7 @@ interface FactureTabProps {
     setIsEditing: Dispatch<SetStateAction<boolean>>;
     canEditOtherFields: boolean;
     onSave: () => void;
+    onRefresh?: () => void | Promise<void>;
 }
 
 export default function FactureTab({
@@ -27,31 +28,59 @@ export default function FactureTab({
     setIsEditing,
     canEditOtherFields,
     onSave,
+    onRefresh,
 }: FactureTabProps) {
 
+    const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+
+    const handleRefresh = async () => {
+        if (!onRefresh || isRefreshing) return;
+        setIsRefreshing(true);
+        try {
+            await onRefresh();
+        } catch (error) {
+            console.error('Failed to refresh invoice', error);
+        } finally {
+            setIsRefreshing(false);
+        }
+    };
     return (
         <div className="flex flex-col gap-2 h-full">
             <div className="flex flex-col rounded-xl bg-gray-50">
-                <div className="flex flex-col items-start justify-between gap-1 p-4">
-                    <div className="flex flex-row items-center justify-between leading-tight gap-2">
-                        <span className="text-lg font-semibold">
-                            Facture 
-                        </span>
-                        <span className="text-xs border border-cyan-500 text-cyan-500 bg-cyan-100 p-1 rounded-md">
-                            #{pickedRecord?.id?.toString().toUpperCase() ?? 'N/A'}
-                        </span>
-                        <StatusRow status={`${pickedRecord?.status ?? 'N/A'}`} className="self-start" />
+                <div className="flex flex-row items-start justify-between gap-2 p-4">
+                    <div className="flex flex-col items-start justify-between gap-1">
+                        <div className="flex flex-row items-center justify-between leading-tight gap-2">
+                            <span className="text-lg font-semibold">
+                                Facture 
+                            </span>
+                            <span className="text-xs border border-cyan-500 text-cyan-500 bg-cyan-100 p-1 rounded-md">
+                                #{pickedRecord?.id?.toString().toUpperCase() ?? 'N/A'}
+                            </span>
+                            <StatusRow status={`${pickedRecord?.status ?? 'N/A'}`} className="self-start" />
+                        </div>
+                        <div className="flex flex-row items-baseline justify-start leading-tight gap-2">
+                             <span className="text-xs text-gray-500">
+                                {
+                                    new Date(pickedRecord?.invoice_date ?? '')
+                                    .toLocaleDateString(
+                                        'fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }
+                                    )
+                                }
+                            </span>
+                        </div>
                     </div>
-                    <div className="flex flex-row items-baseline justify-start leading-tight gap-2">
-                         <span className="text-xs text-gray-500">
-                            {
-                                new Date(pickedRecord?.invoice_date ?? '')
-                                .toLocaleDateString(
-                                    'fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }
-                                )
-                            }
-                        </span>
-                    </div>
+                    <button
+                        type="button"
+                        disabled={isRefreshing}
+                        onClick={handleRefresh}
+                        className={`inline-flex items-center gap-2 text-sm font-semibold px-2 py-1 rounded-lg transition-all duration-300 transform ${isRefreshing ? 'cursor-not-allowed bg-gray-100 text-gray-400' : 'cursor-pointer bg-gray-100/50 border border-gray-200 hover:bg-gray-200 text-gray-600'}`}>
+                        <Icon
+                            Icon={isRefreshing ? Spinner3Solid : RefreshCircle1ClockwiseSolid}
+                            size={16}
+                            strokeWidth={2}
+                            className={isRefreshing ? 'animate-spin duration-300' : ''} />
+                        {isRefreshing ? 'Syncing...' : 'Sync'}
+                    </button>
                 </div>
                 <div className="w-full flex flex-col gap-2 p-4 rounded-t-[25px] rounded-b-xl border border-gray-200 bg-white">
                     <form className="self-stretch flex gap-4 flex-col">

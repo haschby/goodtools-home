@@ -147,3 +147,13 @@ export async function updateBookingComment(
     });
     return response;
 }
+
+export async function refreshInvoice(invoiceId: string): Promise<GenericResponseAPI<Invoice>> {
+    const api_url = `/client/invoice/${invoiceId}/refresh`;
+    const response: GenericResponseAPI<Invoice> = await gatewayService(api_url, {
+        method: "POST",
+        cache: 'no-store',
+        headers: { 'Content-Type': 'application/json' }
+    });
+    return response;
+}

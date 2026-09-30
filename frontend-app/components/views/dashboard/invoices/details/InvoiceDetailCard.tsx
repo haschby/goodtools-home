@@ -45,6 +45,14 @@ export default function InvoiceDetailCard() {
         }
     }, [pickedRecord, setIsEditing, fetchData, pagination, activeStatus]);
 
+    const handleRefreshInvoice = useCallback(async () => {
+        // await fetchData({
+        //     status: activeStatus || 'All',
+        //     page: pagination?.page ?? 1,
+        //     limit: pagination?.limit ?? 30
+        // });
+    }, []);
+
     const tabToDiosplay = useCallback(() => {
         if (pickedRecord?.invoice_type === InvoiceType.PROVIDER) {
             return {
@@ -57,6 +65,7 @@ export default function InvoiceDetailCard() {
                         setIsEditing={setIsEditing}
                         canEditOtherFields={canEditOtherFields}
                         onSave={handlePatchInvoice}
+                        onRefresh={handleRefreshInvoice}
                         pickedRecord={pickedRecord}
                         setPickedRecord={setPickedRecord}
                     />
@@ -72,7 +81,7 @@ export default function InvoiceDetailCard() {
             )
         }
 
-    }, [pickedRecord, isEditing, canEditOtherFields, handlePatchInvoice, setPickedRecord]);
+    }, [pickedRecord, isEditing, canEditOtherFields, handlePatchInvoice, setPickedRecord, handleRefreshInvoice]);
 
     return (
         <div className="bg-white relative flex flex-col gap-2 w-[60%] border-t border-gray-200 text-gray-800">

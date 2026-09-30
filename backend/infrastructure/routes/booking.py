@@ -60,18 +60,18 @@ def booking_routes() -> APIRouter:
                 "message": "No booking found"
             }
         
-        rentability, invoices = await asyncio.gather(
+        rentabilities, invoices = await asyncio.gather(
             gc_gateway.getRentabilitiesByBookingId(bookingId),
             invoice_repository.get_by_gc_booking(bookingId),
         )
         
         total_invoice = float(sum(row.amount_ht or 0 for row in invoices))
-        total_rentability = float(sum(row["totalPriceHT"] or 0 for row in rentability))
+        total_rentability = float(sum(row["totalPriceHT"] or 0 for row in rentabilities))
             
         profit = total_invoice - total_rentability
         marging = profit / total_invoice if total_invoice else 0
         
-        items = build_rentability_items(rentability, invoices)
+        items = build_rentability_items(rentabilities, invoices)
         
         return {
             "data": {
