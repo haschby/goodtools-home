@@ -79,7 +79,7 @@ export default function FactureTab({
                             size={16}
                             strokeWidth={2}
                             className={isRefreshing ? 'animate-spin duration-300' : ''} />
-                        {isRefreshing ? 'Syncing...' : 'Sync'}
+                        {isRefreshing ? 'Refreshing...' : 'Refresh'}
                     </button>
                 </div>
                 <div className="w-full flex flex-col gap-2 p-4 rounded-t-[25px] rounded-b-xl border border-gray-200 bg-white">
