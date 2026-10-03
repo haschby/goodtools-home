@@ -16,6 +16,9 @@ from application.orchestrator.activities.updateWorkflowSync import UpdateWorkflo
 
 logger = logging.getLogger("Goodtools.Application")
 
+# Matches the VARCHAR(255) length of workflow(_step).message columns.
+MESSAGE_MAX_LENGTH = 255
+
 
 class SyncInvoiceToGcError(Exception):
     pass
@@ -143,7 +146,7 @@ class SyncInvoiceToGcWorkflow(BaseActivity):
                 except Exception as e:
                     workflow.steps[3].status = StatusWorkflow.FAILED
                     workflow.steps[3].ended_at = datetime.now()
-                    workflow.steps[3].message = f"Failed to update Rentability line: {str(e)}"
+                    workflow.steps[3].message = f"Failed to update Rentability line: {str(e)}"[:MESSAGE_MAX_LENGTH]
                     await update_workflow.execute(workflow)
                     raise UpdateRentabilityLineError(str(e))
 
@@ -166,7 +169,7 @@ class SyncInvoiceToGcWorkflow(BaseActivity):
             except Exception as e:
                 workflow.steps[2].status = StatusWorkflow.FAILED
                 workflow.steps[2].ended_at = datetime.now()
-                workflow.steps[2].message = f"Failed to create asset: {str(e)}"
+                workflow.steps[2].message = f"Failed to create asset: {str(e)}"[:MESSAGE_MAX_LENGTH]
                 await update_workflow.execute(workflow)
                 raise CreateAssetError(str(e))
 
@@ -199,7 +202,7 @@ class SyncInvoiceToGcWorkflow(BaseActivity):
             except Exception as e:
                 workflow.steps[3].status = StatusWorkflow.FAILED
                 workflow.steps[3].ended_at = datetime.now()
-                workflow.steps[3].message = f"Failed Rentability line: {str(e)}"
+                workflow.steps[3].message = f"Failed Rentability line: {str(e)}"[:MESSAGE_MAX_LENGTH]
                 await update_workflow.execute(workflow)
                 raise CreateRentabilityLineError(str(e))
 
@@ -221,9 +224,11 @@ class SyncInvoiceToGcWorkflow(BaseActivity):
                         step.status = StatusWorkflow.FAILED
                         step.ended_at = datetime.now()
                         if not step.message:
-                            step.message = str(e)[:255]
+                            step.message = str(e)[:MESSAGE_MAX_LENGTH]
+                        else:
+                            step.message = step.message[:MESSAGE_MAX_LENGTH]
 
-                workflow.message = f"Failed to sync invoice to GC: {str(e)}"[:255]
+                workflow.message = f"Failed to sync invoice to GC: {str(e)}"[:MESSAGE_MAX_LENGTH]
                 workflow.status = StatusWorkflow.FAILED
                 workflow.ended_at = datetime.now()
                 try:

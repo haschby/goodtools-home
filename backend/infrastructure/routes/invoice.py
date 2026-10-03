@@ -242,4 +242,37 @@ def invoice_routes() -> APIRouter:
             
         return updated_invoices
     
+    
+    @router.get(
+    '/{id:str}/refresh',
+    response_model=InvoiceDetailResponseSchema,
+    status_code=201
+    )
+    @inject
+    async def refresh(
+        id: str,
+        background_tasks: BackgroundTasks,
+        useCase: BaseUsecase = Depends(
+            Provide[AppContainer.invoice_container.refreshInvoiceUsecase]
+        ),
+        orchestrator: WorkflowLauncher = Depends(
+            Provide[AppContainer.orchestrator_container.localWorkflowLauncher]
+        )
+    ):
+        response = await useCase.execute(id)
+
+        # If the HT amount changed on a booked invoice, re-sync the GC
+        # rentability line asynchronously using the existing workflow.
+        
+        print('@GC_SYNC_NEEDED', getattr(useCase, "gc_sync_needed", False))
+        if getattr(useCase, "gc_sync_needed", False):
+            gc_command = SyncInvoiceToGcCommand(
+                workflow_id='INTERNAL-SYNC-GOOD-COLLECT',
+                workflow_name="syncInvoiceToGcWorkflow",
+                invoice_id=id
+            )
+            background_tasks.add_task(orchestrator.startWorkflow, gc_command)
+
+        return response
+    
     return router

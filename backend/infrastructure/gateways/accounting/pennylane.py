@@ -134,3 +134,14 @@ class PennyLaneAccountingGateway(AccountingGateway[Invoice]):
             return result.text
         else:
             return None
+    
+    async def get_supplier_invoice(self, invoice_id: str) -> dict | None:
+        result = await self.centralize_fetch(
+            "GET",
+            f"/supplier_invoices/{invoice_id}"
+        )
+        
+        if result:
+            return result.json()
+        else:
+            return None

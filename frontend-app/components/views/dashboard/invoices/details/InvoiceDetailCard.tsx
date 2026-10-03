@@ -17,6 +17,8 @@ export default function InvoiceDetailCard() {
         pickedRecord, 
         setPickedRecord,
         fetchData,
+        refreshData,
+        refreshIsLoading,
         pagination, activeStatus
     } = useDataTable<Invoice>();
 
@@ -46,12 +48,10 @@ export default function InvoiceDetailCard() {
     }, [pickedRecord, setIsEditing, fetchData, pagination, activeStatus]);
 
     const handleRefreshInvoice = useCallback(async () => {
-        // await fetchData({
-        //     status: activeStatus || 'All',
-        //     page: pagination?.page ?? 1,
-        //     limit: pagination?.limit ?? 30
-        // });
-    }, []);
+        if (refreshData && pickedRecord?.id) {
+            await refreshData();
+        }
+    }, [refreshData, pickedRecord]);
 
     const tabToDiosplay = useCallback(() => {
         if (pickedRecord?.invoice_type === InvoiceType.PROVIDER) {

@@ -151,7 +151,7 @@ export async function updateBookingComment(
 export async function refreshInvoice(invoiceId: string): Promise<GenericResponseAPI<Invoice>> {
     const api_url = `/client/invoice/${invoiceId}/refresh`;
     const response: GenericResponseAPI<Invoice> = await gatewayService(api_url, {
-        method: "POST",
+        method: "GET",
         cache: 'no-store',
         headers: { 'Content-Type': 'application/json' }
     });

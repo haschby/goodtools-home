@@ -10,6 +10,7 @@ from application.usecases.invoice.updateInvoice import UpdateInvoice
 from application.usecases.invoice.getInvoices import GetInvoices
 from application.usecases.invoice.getLastInvoice import GetLastInvoice
 from application.usecases.invoice.searchInvoice import SearchInvoice
+from application.usecases.invoice.refreshInvoice import RefreshInvoice
 
 from application.facades.invoiceFacade import InvoiceFacade
 
@@ -67,6 +68,12 @@ class InvoiceContainer(containers.DeclarativeContainer):
     searchInvoiceUsecase = providers.Factory(
         SearchInvoice,
         invoiceService=service
+    )
+    
+    refreshInvoiceUsecase = providers.Factory(
+        RefreshInvoice,
+        invoiceService=service,
+        accountingGateway=pennylane_gateway
     )
     
     invoiceFacade = providers.Factory(

@@ -1,10 +1,11 @@
 "use client";
 
-import { ReactNode, useState, useEffect } from "react";
+import { ReactNode, useState } from "react";
 import { DataTableCTX, DataTableContextType } from "@/lib/contexts/DataTableCustomContext";
 import { useFetchData } from "@/lib/hooks/datatable/useFetchData";
 import { GenericResponseAPI, GetSearchParams, PaginatedResponse } from "@/lib/types/base";
 import { usePickRecord } from "@/lib/hooks/datatable/usePickRecord";
+import { useRefreshRecord } from "@/lib/hooks/datatable/useRefreshRecord";
 import { BaseEntity } from "@/lib/types/base";
 
 interface CursorEntity {
@@ -18,6 +19,7 @@ interface DataTableListProviderProps<T> {
     fetchFunction: (params: GetSearchParams) => Promise<GenericResponseAPI<PaginatedResponse<T[] | T>>>;
     getRecordById: (id: string) => Promise<GenericResponseAPI<T>>;
     columns?: unknown[];
+    refreshRecord: (id: string) => Promise<GenericResponseAPI<T>>;
 }
 
 export function DataListProvider<T extends CursorEntity & BaseEntity>({
@@ -25,7 +27,8 @@ export function DataListProvider<T extends CursorEntity & BaseEntity>({
     fetchFunction,
     columns,
     statuses,
-    getRecordById
+    getRecordById,
+    refreshRecord
 }: DataTableListProviderProps<T> ) {
 
     // const searchParams = useSearchParams();
@@ -41,9 +44,9 @@ export function DataListProvider<T extends CursorEntity & BaseEntity>({
         fetchRecord,
         setPickedRecord,
         pickedIsLoading
-     } = usePickRecord<T>({
+    } = usePickRecord<T>({
         getRecordById: getRecordById
-     });
+    });
     
     const { 
         pagination, 
@@ -54,6 +57,15 @@ export function DataListProvider<T extends CursorEntity & BaseEntity>({
         setHasMore } = useFetchData<T>({
         fetchFunction,
         status: activeStatus
+    });
+
+    const {
+        isLoading: refreshIsLoading,
+        refreshData,
+    } = useRefreshRecord<T>({
+        pickedId,
+        refreshRecord,
+        setPickedRecord
     });
 
     // useEffect(() => {
@@ -73,6 +85,8 @@ export function DataListProvider<T extends CursorEntity & BaseEntity>({
         activeInvoiceTypes,
         isLoading,
         error,
+        refreshData,
+        refreshIsLoading,
         pagination,
         columns: columns ?? [],
         fetchData,

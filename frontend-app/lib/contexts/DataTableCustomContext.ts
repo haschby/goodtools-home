@@ -18,6 +18,8 @@ export interface DataTableContextType<T> {
   error: string | undefined;
   pagination: PaginatedResponse<T> | null;
   columns: unknown[];
+  refreshData?: () => void;
+  refreshIsLoading?: boolean;
   fetchData: (params: GetSearchParams) => void;
   fetchRecord: () => Promise<void>;
   setPickedRecord: (record: T | null) => void;
