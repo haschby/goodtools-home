@@ -5,7 +5,9 @@ import Icon from "@/components/atoms/Icon";
 import { Database2Stroke } from "@lineiconshq/free-icons";
 import { useQueryClient } from "@/lib/contexts/QueryClientContext";
 
-export function SearchBox() {
+export function SearchBox(
+    { placeholder = "Search for invoices..." }: { placeholder?: string }
+) {
 
     const { setQueryParams } = useQueryClient();
     const debounceRef = useRef<NodeJS.Timeout | null>(null);
@@ -42,7 +44,7 @@ export function SearchBox() {
                     id="search-box"
                     type="search"
                     onChange={handleChange}
-                    placeholder="Search for invoices..."
+                    placeholder={placeholder}
                     className="border-l-0 border border-gray-200 rounded-r-md px-3 h-full bg-white placeholder:text-sm placeholder:text-gray-400 focus:outline-none active:outline-none w-full"
                 />
             </label>

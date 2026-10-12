@@ -1,36 +1,42 @@
 "use client";
-import { useEffect, useState } from "react";
-import { getWorkflows } from "@/actions/workflow";
+import { useMemo } from "react";
 import { ListView } from "@/components/atoms/listview/ListView";
 import WorkflowListRowItem from "@/components/views/dashboard/workflow/listview/WorkflowListRowItem";
+import WorkflowListViewTableControl from "@/components/views/dashboard/workflow/listview/WorkflowListViewTableControl";
 import { Workflow } from "@/lib/types/workflow";
+import { useDataTable } from "@/lib/contexts/DataTableCustomContext";
 import TitleInfo from "@/components/atoms/view/TitleInfo";
 
 export default function WorkflowList() {
 
-    const [workflows, setWorkflows] = useState<Workflow[]>([]);
+    const { pagination, error } = useDataTable<Workflow>();
+    const workflows = useMemo(
+        () => (pagination?.items ?? []) as Workflow[],
+        [pagination?.items]
+    );
 
-    useEffect(() => {
-        const fetchWorkflows = async () => {
-            const workflows = await getWorkflows();
-            setWorkflows(workflows as unknown as Workflow[]);
-        }
-        fetchWorkflows();
-    }, []);
+    const TableControl = useMemo(() => <WorkflowListViewTableControl />, []);
 
     const cssHeader = "whitespace-nowrap text-sm font-bold bg-gray-100 text-gray-500";
 
     return (
         <div className="h-screen bg-white">
-            <div className="px-6 flex flex-col h-full text-gray-700 gap-4 w-full">
+            <div className="flex flex-col h-full text-gray-700 gap-4 w-full">
 
                 <TitleInfo
                     title="Workflows"
                     baseLineText="View detailed workflows by clicking on the row."
-                    totalRows={workflows.length}
+                    totalRows={pagination?.total ?? 0}
                 />
 
+                { error && (
+                    <p className="text-sm text-red-700 bg-red-400/10 border border-red-200 rounded-md p-2">
+                        {error}
+                    </p>
+                )}
+
                 <ListView
+                    filters={ <></> }
                     data={ <WorkflowListRowItem data={workflows} /> }
                     headers={
                         <>
@@ -66,7 +72,7 @@ export default function WorkflowList() {
                             </th>
                         </>
                     }
-                    paginationActions={undefined}
+                    paginationActions={ TableControl }
                     controlTableActions={undefined}
                 />
             </div>

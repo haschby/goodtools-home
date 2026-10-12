@@ -1,6 +1,7 @@
 "use server";
 
-import { BaseResponse } from "@/lib/types/base";
+import { BaseResponse, GenericResponseAPI, GetSearchParams, PaginatedResponse } from "@/lib/types/base";
+import { Workflow } from "@/lib/types/workflow";
 import { gatewayService } from "@/lib/services/gateway";
 
 interface WorkflowProps {
@@ -29,9 +30,26 @@ export async function pollWorkflow({ id }: { id: string }): Promise<BaseResponse
     return response;
 }
 
-export async function getWorkflows(): Promise<BaseResponse<unknown>> {
-    const api_url = `/client/workflow/`;
-    const response: BaseResponse<unknown> = await gatewayService(api_url, {
+export async function getWorkflows(
+    { status = 'All', page = 1, limit = 30, query = null }: GetSearchParams
+): Promise<GenericResponseAPI<PaginatedResponse<Workflow[]>>> {
+    const params = new URLSearchParams({
+        status: status ?? 'All',
+        page: `${page ?? 1}`,
+        limit: `${limit ?? 30}`,
+        query: query ?? ''
+    });
+    const api_url = `/client/workflow/?${params.toString()}`;
+    const response: GenericResponseAPI<PaginatedResponse<Workflow[]>> = await gatewayService(api_url, {
+        method: "GET",
+        cache: 'no-store',
+        headers: { 'Content-Type': 'application/json' }
+    });
+    return response;
+}
+
+export async function getWorkflowById(id: string): Promise<GenericResponseAPI<Workflow>> {
+    const response: GenericResponseAPI<Workflow> = await gatewayService(`/client/workflow/poll/${id}`, {
         method: "GET",
         cache: 'no-store',
         headers: { 'Content-Type': 'application/json' }

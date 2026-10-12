@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request, BackgroundTasks
+from fastapi import APIRouter, Depends, Request, BackgroundTasks, Query
 from dependency_injector.wiring import inject, Provide
 from application.containers.appContainer import AppContainer
 from application.ports.baseRepository import BaseRepositoryPort
@@ -23,11 +23,20 @@ def workflow_routes(
     )
     @inject
     async def get_workflows(
+        status: Optional[str] = Query(default="All", description="Filter workflows by status"),
+        page: Optional[int] = Query(default=1, description="Page Selector"),
+        limit: Optional[int] = Query(default=30, description="Limit Selector"),
+        query: Optional[str] = Query(default=None, description="Query Selector"),
         getWorkflowsUsecase: BaseUsecase = Depends(
             Provide[AppContainer.workflow_container.getWorkflowsUsecase]
         )
     ):
-        return await getWorkflowsUsecase.execute()
+        return await getWorkflowsUsecase.execute({
+            "status": status,
+            "page": page,
+            "limit": limit,
+            "query": query or None,
+        })
     
     @router.get("/poll/{id:str}",
         operation_id="pull_workflow_id",
