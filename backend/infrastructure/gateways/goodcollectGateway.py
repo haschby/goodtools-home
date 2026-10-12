@@ -152,7 +152,7 @@ class GoodcollectGateway:
                     b."isMonthly" AS "isMonthly",
                     b."manualInvoice" AS "isManualInvoice",
                     b.external AS "isExternal",
-                    b.comment AS "comment",
+                    b.goodtool_comment AS "comment",
                     b."eventStartDate" AS "bookingStartDate",
                     b."eventEndDate" AS "bookingEndDate"
                 FROM "Booking" b
@@ -165,11 +165,11 @@ class GoodcollectGateway:
     async def updateBookingComment(self, bookingId: int, comment: str) -> Any:
         async with self.session() as session:
             stmt = text(
-                'UPDATE "Booking" SET "comment" = :comment '
+                'UPDATE "Booking" SET "goodtool_comment" = :comment '
                 'WHERE "id" = :bookingId '
-                'RETURNING "id" AS "bookingId", "comment"'
+                'RETURNING "id" AS "bookingId", "goodtool_comment"'
             )
-            result = await session.execute(stmt, {"bookingId": bookingId, "comment": comment})
+            result = await session.execute(stmt, { "bookingId": bookingId, "comment": comment })
             await session.commit()
             row = result.mappings().first()
             return dict(row) if row else None
@@ -187,7 +187,7 @@ class GoodcollectGateway:
 
                 FROM "BookingRentabilityLine" brl
             
-                WHERE brl."bookingId" = :bookingId
+                WHERE brl."groupBookingId" = :bookingId
                 AND brl."type" = 'GoodcollectPrice'
                 ORDER BY brl."dateUpdated" DESC
             """)
