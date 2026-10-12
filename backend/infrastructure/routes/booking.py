@@ -76,6 +76,7 @@ def booking_routes() -> APIRouter:
         return {
             "data": {
                 "comment": booking.comment,
+                "isClosed": booking.isClosed,
                 "bookingId": booking.bookingId,
                 "eventStartDate": booking.bookingStartDate,
                 "eventEndDate": booking.bookingEndDate,
@@ -110,6 +111,25 @@ def booking_routes() -> APIRouter:
             "data": updated,
             "status_code": 200,
             "message": "Booking comment updated successfully"
+        }
+
+    @router.patch("/{bookingId:int}/close")
+    @inject
+    async def close_booking(
+        bookingId: int,
+        gc_gateway: any = Depends(Provide[AppContainer.goodcollect_container.goodcollect_gateway])
+    ):
+        closed = await gc_gateway.closeBookingRentability(bookingId)
+        if not closed:
+            return {
+                "data": None,
+                "status_code": 404,
+                "message": "No booking found"
+            }
+        return {
+            "data": closed,
+            "status_code": 200,
+            "message": "Booking closed successfully"
         }
 
     # @router.post("/asset")

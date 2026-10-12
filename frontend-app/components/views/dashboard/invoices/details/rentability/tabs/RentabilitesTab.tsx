@@ -2,10 +2,10 @@
 
 import { useState, useRef, useLayoutEffect, useEffect } from "react";
 import Icon from "@/components/atoms/Icon";
-import { CalendarDaysSolid, Gear1Solid, Locked1Solid, Spinner3Solid, Telephone3Solid } from "@lineiconshq/free-icons";
+import { Locked1Solid, Spinner3Solid } from "@lineiconshq/free-icons";
 import InvoiceRentability from "../../InvoiceRentability";
 import RentabilityList from "../RentabilityList";
-import { getRentabilitiesByBookingId, RentabilitiesResponse, updateBookingComment } from "@/actions/invoice.actions";
+import { closeBooking, getRentabilitiesByBookingId, RentabilitiesResponse, updateBookingComment } from "@/actions/invoice.actions";
 import { Invoice } from "@/lib/types/invoice";
 import Link from "next/link";
 
@@ -104,13 +104,14 @@ export default function RentabilitesTab({
 
     const handleCloseBooking = async () => {
         const bookingId = pickedRecord?.gc_booking;
-        if (!bookingId || isClosing) return;
+        if (!bookingId || isClosing || rentabilities?.isClosed) return;
 
         setIsClosing(true);
         try {
-            // TODO: brancher sur l'API de clôture de booking une fois disponible
-            // await closeBooking(Number(bookingId));
-            console.log('Clôture du booking', bookingId);
+            const response = await closeBooking(Number(bookingId));
+            if (response.data?.isClosed) {
+                setRentabilities((prev) => (prev ? { ...prev, isClosed: true } : prev));
+            }
         } catch (error) {
             console.error('Failed to close booking', error);
         } finally {
@@ -153,15 +154,15 @@ export default function RentabilitesTab({
                                 </div>
                                 <button
                                     type="button"
-                                    disabled={isClosing || !rentabilities?.bookingId}
+                                    disabled={isClosing || !rentabilities?.bookingId || rentabilities?.isClosed}
                                     onClick={handleCloseBooking}
-                                    className={`inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg transition-all duration-300 transform ${isClosing || !rentabilities?.bookingId ? 'cursor-not-allowed bg-gray-100 text-gray-400' : 'cursor-pointer bg-green-200/50 border border-green-200 hover:bg-green-200 text-green-600'}`}>
+                                    className={`inline-flex items-center gap-2 text-sm font-semibold px-2 py-1 rounded-lg transition-all duration-300 transform ${isClosing || rentabilities?.isClosed ? 'cursor-not-allowed bg-gray-100 text-gray-400' : 'cursor-pointer bg-gray-100/50 border border-gray-200 hover:bg-gray-200 text-gray-600'}`}>
                                     <Icon
                                         Icon={isClosing ? Spinner3Solid : Locked1Solid}
                                         size={16}
                                         strokeWidth={2}
                                         className={isClosing ? 'animate-spin duration-300' : ''} />
-                                    {isClosing ? 'Clôture...' : 'Clôturer'}
+                                    {isClosing ? 'Clôture...' : rentabilities?.isClosed ? 'Clôturé' : 'Clôturer'}
                                 </button>
                             </div>
                             <div className="flex flex-col gap-2 p-4 rounded-t-[25px] rounded-b-xl border border-gray-200 bg-white">

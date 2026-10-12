@@ -94,6 +94,7 @@ export async function bulkUpdateInvoices(payload: InvoiceBulkUpdateSchema): Prom
 
 export interface RentabilitiesResponse {
     comment?: string;
+    isClosed?: boolean;
     bookingId?: string;
     isMonthly?: boolean;
     isExternal?: boolean;
@@ -144,6 +145,23 @@ export async function updateBookingComment(
         cache: 'no-store',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ comment })
+    });
+    return response;
+}
+
+export interface CloseBookingResponse {
+    bookingId?: string;
+    isClosed?: boolean;
+}
+
+export async function closeBooking(
+    bookingId: number
+): Promise<BaseResponse<CloseBookingResponse>> {
+    const api_url = `/client/gc/booking/${bookingId}/status/close`;
+    const response: BaseResponse<CloseBookingResponse> = await gatewayService<CloseBookingResponse>(api_url, {
+        method: "PATCH",
+        cache: 'no-store',
+        headers: { 'Content-Type': 'application/json' }
     });
     return response;
 }

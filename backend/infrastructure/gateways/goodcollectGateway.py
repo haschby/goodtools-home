@@ -153,6 +153,7 @@ class GoodcollectGateway:
                     b."manualInvoice" AS "isManualInvoice",
                     b.external AS "isExternal",
                     b.goodtool_comment AS "comment",
+                    b."goodtool_isRentabilityClosed" AS "isClosed",
                     b."eventStartDate" AS "bookingStartDate",
                     b."eventEndDate" AS "bookingEndDate"
                 FROM "Booking" b
@@ -170,6 +171,18 @@ class GoodcollectGateway:
                 'RETURNING "id" AS "bookingId", "goodtool_comment"'
             )
             result = await session.execute(stmt, { "bookingId": bookingId, "comment": comment })
+            await session.commit()
+            row = result.mappings().first()
+            return dict(row) if row else None
+
+    async def closeBookingRentability(self, bookingId: int) -> Any:
+        async with self.session() as session:
+            stmt = text(
+                'UPDATE "Booking" SET "goodtool_isRentabilityClosed" = true '
+                'WHERE "id" = :bookingId '
+                'RETURNING "id" AS "bookingId", "goodtool_isRentabilityClosed" AS "isClosed"'
+            )
+            result = await session.execute(stmt, { "bookingId": bookingId })
             await session.commit()
             row = result.mappings().first()
             return dict(row) if row else None
