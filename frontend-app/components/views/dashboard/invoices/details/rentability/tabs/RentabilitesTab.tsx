@@ -2,9 +2,10 @@
 
 import { useState, useRef, useLayoutEffect, useEffect } from "react";
 import Icon from "@/components/atoms/Icon";
-import { Locked1Solid, Spinner3Solid } from "@lineiconshq/free-icons";
+import { Locked1Solid, Spinner3Solid, PlusSolid } from "@lineiconshq/free-icons";
 import InvoiceRentability from "../../InvoiceRentability";
 import RentabilityList from "../RentabilityList";
+import { AddRentabilityModal, NewRentabilityLine } from "../AddRentabilityModal";
 import { closeBooking, getRentabilitiesByBookingId, RentabilitiesResponse, updateBookingComment } from "@/actions/invoice.actions";
 import { Invoice } from "@/lib/types/invoice";
 import Link from "next/link";
@@ -23,6 +24,7 @@ export default function RentabilitesTab({
     const [isClosing, setIsClosing] = useState<boolean>(false);
     const [rentabilities, setRentabilities] = useState<RentabilitiesResponse | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
 
     const listWrapperRef = useRef<HTMLElement>(null);
     const [listMaxHeight, setListMaxHeight] = useState<number>(0);
@@ -119,8 +121,20 @@ export default function RentabilitesTab({
         }
     }
 
+    const handleAddLines = async (lines: NewRentabilityLine[]) => {
+        // TODO: appeler l'endpoint de création des lignes puis rafraîchir les rentabilités
+        console.log('Lignes de rentabilité à créer', { bookingId: pickedRecord?.gc_booking, lines });
+    }
+
     return (
         <aside className="h-full flex flex-col">
+            {isAddModalOpen && (
+                <AddRentabilityModal
+                    bookingId={rentabilities?.bookingId ?? pickedRecord?.gc_booking ?? undefined}
+                    onClose={() => setIsAddModalOpen(false)}
+                    onSubmit={handleAddLines}
+                />
+            )}
             {
                 !pickedRecord?.gc_booking && (
                     <div className="p-5 bg-gray-50 border border-gray-100 rounded-md">
@@ -254,9 +268,15 @@ export default function RentabilitesTab({
                             <div className="flex flex-col h-full pt-4 rounded-b-xl">
                                 <h3 className="flex flex-row justify-between text-md font-semibold border-b border-gray-200 p-3">
                                     Details des lignes&nbsp;
-                                    <span className="text-green-500 text-xs bg-green-100 px-2 py-1 rounded-md">
-                                        {rentabilities?.items?.length ?? 0}&nbsp;lignes
-                                    </span>                                               
+                                    <p className="flex flex-row items-center gap-2">
+                                        <span className="text-green-500 text-xs bg-green-100 px-2 py-1 rounded-md">
+                                            {rentabilities?.items?.length ?? 0}&nbsp;lignes
+                                        </span>
+
+                                        <button id="add-line-button" type="button" onClick={() => setIsAddModalOpen(true)} className="cursor-pointer bg-gray-100/50 border border-gray-200 hover:bg-gray-200 text-gray-600 p-1 rounded-md">
+                                            <Icon Icon={PlusSolid} size={16} strokeWidth={2} className="text-gray-600" />
+                                        </button>
+                                    </p>                                               
                                 </h3>
                                 <aside
                                     ref={listWrapperRef}

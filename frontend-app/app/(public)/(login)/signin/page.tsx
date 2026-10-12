@@ -1,9 +1,14 @@
-"use server";
-
 import SigninGobalLayer from "@/components/views/login/signin/SigninGobalLayer";
+import { sanitizeCallbackUrl } from "@/lib/auth/config";
 
-export default async function SignInPage() {
+interface SignInPageProps {
+    searchParams: Promise<{ callbackUrl?: string }>;
+}
+
+export default async function SignInPage({ searchParams }: SignInPageProps) {
+    const { callbackUrl } = await searchParams;
+
     return (
-        <SigninGobalLayer />
+        <SigninGobalLayer callbackUrl={sanitizeCallbackUrl(callbackUrl)} />
     )
 }

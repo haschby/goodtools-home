@@ -113,7 +113,7 @@ def booking_routes() -> APIRouter:
             "message": "Booking comment updated successfully"
         }
 
-    @router.patch("/{bookingId:int}/close")
+    @router.patch("/{bookingId:int}/status/close")
     @inject
     async def close_booking(
         bookingId: int,

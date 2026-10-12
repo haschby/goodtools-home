@@ -4,6 +4,10 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Goodtools Flow Manager",
   description: "Goodtools Flow Manager",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function RootLayout({

@@ -6,16 +6,19 @@
     "dev": "PORT=2222 next dev",
     "build": "next build",
     "start": "PORT=2222 next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "auth:hash": "node scripts/hash-password.mjs"
   },
   "dependencies": {
     "@lineiconshq/free-icons": "^1.0.3",
     "@lineiconshq/react-lineicons": "^1.0.5",
     "flowbite-react": "^0.12.16",
+    "jose": "^6.2.12",
     "next": "^16.1.1",
     "pdfjs-dist": "^5.4.394",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "server-only": "^0.0.1",
     "tailwind-scrollbar-hide": "^4.0.0"
   },
   "devDependencies": {

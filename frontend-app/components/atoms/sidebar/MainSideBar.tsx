@@ -1,8 +1,9 @@
 "use client";
 
 import Icon from '@/components/atoms/Icon';
-import { DollarCircleSolid, CloudIot2Solid, Cart2Solid, Leaf1Solid  } from '@lineiconshq/free-icons';
+import { DollarCircleSolid, CloudIot2Solid, Cart2Solid, Leaf1Solid, ExitSolid } from '@lineiconshq/free-icons';
 import { SideBarItem } from './SideBarItem';
+import { signout } from '@/actions/auth.actions';
 
 const routes = [
     {
@@ -47,6 +48,15 @@ export default function MainSideBar() {
                 ))}
             </ul>
         </nav>
+        <form action={signout} className="w-full px-2 pb-4">
+            <button
+                type="submit"
+                title="Sign out"
+                className="flex w-full items-center justify-center xl:justify-start gap-2 rounded-md p-2 text-sm text-gray-700 hover:bg-gray-200 cursor-pointer transition-all duration-300">
+                <Icon Icon={ExitSolid} size={16} strokeWidth={1.5} />
+                <span className="hidden xl:inline">Sign out</span>
+            </button>
+        </form>
     </div>
   );
 }

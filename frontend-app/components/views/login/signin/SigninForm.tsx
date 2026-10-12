@@ -1,52 +1,69 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useActionState, useMemo, useState } from "react";
 import Icon from "@/components/atoms/Icon";
 import { Bell1Solid } from "@lineiconshq/free-icons";
+import { signin, SigninState } from "@/actions/auth.actions";
 
 interface UserModel {
     username: string;
     password: string;
 }
 
-export default function SigninForm() {
-    const [username, setUsername] = useState<UserModel>({
+const initialState: SigninState = { errors: [] };
+
+export default function SigninForm({ callbackUrl }: { callbackUrl: string }) {
+    const [user, setUser] = useState<UserModel>({
         username: "",
         password: "",
     });
 
-    const [errors, setErrors] = useState<string[]>([]);
+    const [state, formAction, isPending] = useActionState(signin, initialState);
+    const [hideErrors, setHideErrors] = useState(false);
+    const errors = hideErrors ? [] : state.errors;
 
     const canActiveSignInButton = useMemo(
         () => {
-        if(username.username.length > 0 && username.password.length > 0) {
+        if(user.username.length > 0 && user.password.length > 0 && !isPending) {
             return { css: "text-green-300 bg-green-500 cursor-pointer", disabled: false };
         }
         return { css: "bg-gray-700 text-white cursor-not-allowed opacity-10", disabled: true };
-    }, [username]);
+    }, [user, isPending]);
 
-    const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-        console.log(username.username, username.password);
+    const handleAction = (formData: FormData) => {
+        setHideErrors(false);
+        setUser((prev) => ({ ...prev, password: "" }));
+        formAction(formData);
     };
 
     return (
-        <div className="max-w-[40%] w-full shadow-xl rounded-md p-6 flex flex-col gap-6 bg-white">
+        <form
+            action={handleAction}
+            className="max-w-[40%] w-full shadow-xl rounded-md p-6 flex flex-col gap-6 bg-white">
             <div className="flex flex-col text-left gap-2">
                 <h2 className="text-gray-700 text-2xl font-bold">Welcome Back !</h2>
                 <p className="text-gray-500 text-sm">Enter your username and password to continue</p>
             </div>
-            <aside className="flex flex-col items-center justify-center rounded-lg gap-2" onSubmit={handleSubmit}>
+            <input type="hidden" name="callbackUrl" value={callbackUrl} />
+            <aside className="text-gray-700 flex flex-col items-center justify-center rounded-lg gap-2">
                 <input
                     type="email"
-                    onFocus={() => setErrors([])}
-                    onChange={(e) => setUsername({ ...username, username: e.target.value })}
+                    name="username"
+                    autoComplete="username"
+                    required
+                    value={user.username}
+                    onFocus={() => setHideErrors(true)}
+                    onChange={(e) => setUser({ ...user, username: e.target.value })}
                     placeholder="Email"
                     className="w-full h-14 border border-gray-100 rounded-md p-2 focus:outline-none focus:ring-1 focus:ring-gray-300 transition-all duration-300" />
                 <input
                     type="password"
-                    onFocus={() => setErrors([])}
-                    onChange={(e) => setUsername({ ...username, password: e.target.value })}
+                    name="password"
+                    autoComplete="current-password"
+                    required
+                    value={user.password}
+                    onFocus={() => setHideErrors(true)}
+                    onChange={(e) => setUser({ ...user, password: e.target.value })}
                     placeholder="Password"
                     className="w-full h-14 border border-gray-100 rounded-md p-2 focus:outline-none focus:ring-1 focus:ring-gray-300 transition-all duration-300" />
             </aside>
@@ -68,10 +85,11 @@ export default function SigninForm() {
                 </div>
             )}
             <button
+                type="submit"
                 disabled={canActiveSignInButton.disabled}
-                className={`w-full h-14 font-semibold rounded-md p-2 transition-all duration-300 ${canActiveSignInButton.css}`}
-                onClick={handleSubmit}>Sign In
+                className={`w-full h-14 font-semibold rounded-md p-2 transition-all duration-300 ${canActiveSignInButton.css}`}>
+                {isPending ? "Signing in..." : "Sign In"}
             </button>
-        </div>
+        </form>
     );
 }
