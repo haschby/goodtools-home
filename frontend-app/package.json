@@ -12,7 +12,7 @@
   "dependencies": {
     "@lineiconshq/free-icons": "^1.0.3",
     "@lineiconshq/react-lineicons": "^1.0.5",
-    "flowbite-react": "^0.12.16",
+    "flowbite-react": "^0.10.2",
     "jose": "^6.2.12",
     "next": "^16.1.1",
     "pdfjs-dist": "^5.4.394",
@@ -29,7 +29,7 @@
     "autoprefixer": "^10.4.21",
     "baseline-browser-mapping": "^2.8.32",
     "eslint": "^9",
-    "eslint-config-next": "16.0.1",
+    "eslint-config-next": "^14.2.35",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.17",
     "typescript": "^5"
