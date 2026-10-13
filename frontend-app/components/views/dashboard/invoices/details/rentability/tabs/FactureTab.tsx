@@ -2,7 +2,7 @@
 
 import { Dispatch, SetStateAction, useState } from "react";
 import Icon from "@/components/atoms/Icon";
-import { Pencil1Bulk, CheckCircle1Solid, XmarkSolid, RefreshCircle1ClockwiseSolid, Spinner3Solid } from "@lineiconshq/free-icons";
+import { Pencil1Bulk, CheckCircle1Solid, XmarkSolid, RefreshCircle1ClockwiseSolid, Spinner3Solid, ArrowRightSolid } from "@lineiconshq/free-icons";
 import { AsyncSelectField } from "@/components/atoms/form/AsyncSelectField";
 import { searchQuery } from "@/actions/common";
 import { Select } from "@/components/atoms/form/items/Select";
@@ -10,6 +10,7 @@ import { statuses } from "../../configCard";
 import { SearchQueryMockData } from "@/mockData/common";
 import { Invoice } from "@/lib/types/invoice";
 import { StatusRow } from "@/components/atoms/listview/RowItems/StatusRow";
+import Link from "next/link";
 
 interface FactureTabProps {
     pickedRecord: Invoice | null;
@@ -58,7 +59,7 @@ export default function FactureTab({
                             </span>
                             <StatusRow status={`${pickedRecord?.status ?? 'N/A'}`} className="self-start" />
                         </div>
-                        <div className="flex flex-row items-baseline justify-start leading-tight gap-2">
+                        <div className="flex flex-col items-baseline justify-start leading-tight gap-2">
                              <span className="text-xs text-gray-500">
                                 {
                                     new Date(pickedRecord?.invoice_date ?? '')
@@ -67,6 +68,13 @@ export default function FactureTab({
                                     )
                                 }
                             </span>
+                            <Link
+                                className="group self-start border-b border-gray-900 text-xs flex items-center gap-2"
+                                target="_blank"
+                                href={`${process.env.NEXT_PUBLIC_PENNYLANE_URL_SUPPLIER_INVOICES}?invoice_id=${pickedRecord?.external_id}`}>
+                                {`Voir dans Pennylane`}
+                                <Icon Icon={ArrowRightSolid} size={16} strokeWidth={2} className="group-hover:translate-x-1 transition-all duration-300" />
+                            </Link>
                         </div>
                     </div>
                     <button

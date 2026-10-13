@@ -79,7 +79,7 @@ export function AddRentabilityModal({ bookingId, onClose, onSubmit }: AddRentabi
             <div className="flex w-full max-w-lg flex-col gap-4 rounded-xl bg-white p-6 shadow-xl">
                 <div className="flex items-center justify-between">
                     <div className="flex flex-col">
-                        <h2 className="text-lg font-bold text-gray-800">Ajouter une rentabilité</h2>
+                        <h2 className="text-lg font-bold text-gray-800">Ajouter une nouvelle facture</h2>
                         {bookingId && (
                             <span className="text-xs text-gray-500">Booking #{bookingId}</span>
                         )}
@@ -108,7 +108,7 @@ export function AddRentabilityModal({ bookingId, onClose, onSubmit }: AddRentabi
                 </label>
 
                 {error && <p className="text-sm text-red-500">{error}</p>}
-                {urlValue && <p className="text-sm text-gray-500">Invoice Id: {urlValue}</p>}
+                {urlValue && <p className="text-sm text-gray-500 font-bold">Invoice Id: {urlValue}</p>}
 
                 <div className="flex items-center justify-end gap-2 border-t border-gray-100 pt-4">
                     <button

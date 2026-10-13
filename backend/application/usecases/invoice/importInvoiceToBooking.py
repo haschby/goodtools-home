@@ -123,8 +123,8 @@ class ImportInvoiceToBooking(BaseUsecase):
         self.gc_sync_needed = True
 
         return InvoiceDetailResponseSchema(
-            message="Existing invoice linked to booking",
-            status_code=200,
+            message="Cette facture est déjà liée à un autre booking",
+            status_code=409,
             data=InvoiceResponseSchema.model_validate(updated, from_attributes=True),
         )
 
