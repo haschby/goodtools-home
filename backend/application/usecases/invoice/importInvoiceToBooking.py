@@ -113,7 +113,7 @@ class ImportInvoiceToBooking(BaseUsecase):
         try:
             invoice.gc_booking = gc_booking
             if invoice.status in (None, EnumInvoiceStatus.TBD, EnumInvoiceStatus.TBD.value):
-                invoice.status = EnumInvoiceStatus.TO_BE_TRAITED
+                invoice.status = EnumInvoiceStatus.VALIDATED_ONLY
             updated = await self.invoiceService.repository.update_one(invoice)
         except Exception as e:
             logger.exception("ImportInvoiceToBooking: failed to link existing invoice")
