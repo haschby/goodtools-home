@@ -166,6 +166,29 @@ export async function closeBooking(
     return response;
 }
 
+export interface CreateRentabilityLinePayload {
+    invoiceId: string;
+}
+
+export async function createRentabilityLine(
+    bookingId: number,
+    payload: CreateRentabilityLinePayload
+): Promise<BaseResponse<Rentability>> {
+    const api_url = `/client/gc/booking/${bookingId}/rentabilities`;
+    const response: BaseResponse<Rentability> = await gatewayService<Rentability>(api_url, {
+        method: "POST",
+        cache: 'no-store',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
+
+    if (response.status_code && response.status_code >= 400) {
+        throw new Error(response.message || 'Failed to create rentability line');
+    }
+
+    return response;
+}
+
 export async function refreshInvoice(invoiceId: string): Promise<GenericResponseAPI<Invoice>> {
     const api_url = `/client/invoice/${invoiceId}/refresh`;
     const response: GenericResponseAPI<Invoice> = await gatewayService(api_url, {

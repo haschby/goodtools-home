@@ -5,8 +5,8 @@ import Icon from "@/components/atoms/Icon";
 import { Locked1Solid, Spinner3Solid, PlusSolid } from "@lineiconshq/free-icons";
 import InvoiceRentability from "../../InvoiceRentability";
 import RentabilityList from "../RentabilityList";
-import { AddRentabilityModal, NewRentabilityLine } from "../AddRentabilityModal";
-import { closeBooking, getRentabilitiesByBookingId, RentabilitiesResponse, updateBookingComment } from "@/actions/invoice.actions";
+import { AddRentabilityModal } from "../AddRentabilityModal";
+import { closeBooking, createRentabilityLine, getRentabilitiesByBookingId, RentabilitiesResponse, updateBookingComment } from "@/actions/invoice.actions";
 import { Invoice } from "@/lib/types/invoice";
 import Link from "next/link";
 
@@ -121,9 +121,20 @@ export default function RentabilitesTab({
         }
     }
 
-    const handleAddLines = async (lines: NewRentabilityLine[]) => {
-        // TODO: appeler l'endpoint de création des lignes puis rafraîchir les rentabilités
-        console.log('Lignes de rentabilité à créer', { bookingId: pickedRecord?.gc_booking, lines });
+    const handleAddLines = async (invoiceId: string) => {
+        const bookingId = pickedRecord?.gc_booking;
+        if (!bookingId) throw new Error("Le booking ID est requis");
+
+        // Les erreurs remontent jusqu'à la modale qui les affiche
+        try {
+            await createRentabilityLine(Number(bookingId), { invoiceId });
+        } catch (error) {
+            console.error('Failed to create rentability line', error);
+            throw error;
+        }
+
+        const refreshed = await getRentabilitiesByBookingId(Number(bookingId));
+        setRentabilities(refreshed);
     }
 
     return (
