@@ -58,6 +58,7 @@ class InvoiceUpdateSchema(BaseInvoiceSchema):
 class InvoiceResponseSchema(BaseInvoiceSchema):
     id: str | None = None
     name: str | None = None 
+    comments: str | None = None
     external_id: str | None = None
     invoice_type: EnumInvoiceType | None = None
     invoice_number: str | None = None
