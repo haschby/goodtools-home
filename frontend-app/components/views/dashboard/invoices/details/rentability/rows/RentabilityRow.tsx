@@ -48,8 +48,6 @@ const TypeRow = ({ type, bookingId }: { type: string, bookingId: string }) => {
 
 export default function RentabilityRow({ bookingId, rentability }: RentabilityRowProps) {
 
-    console.log(rentability);
-
     const { 
         pickRecordById,
         pickedRecord

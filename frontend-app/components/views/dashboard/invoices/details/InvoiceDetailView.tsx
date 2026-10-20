@@ -1,5 +1,5 @@
 "use client";
-import { ReactNode, useEffect, useCallback, useMemo } from "react";
+import { ReactNode, useEffect, useCallback, useMemo, useState } from "react";
 import { useDataTable } from "@/lib/contexts/DataTableCustomContext";
 import InvoiceDetailCard from "./InvoiceDetailCard";
 import { Invoice } from "@/lib/types/invoice";
@@ -20,6 +20,9 @@ export default function InvoiceDetailView(
 ) {
 
     const { pickedRecord, pickedId, pickRecordById, pickedIsLoading, pagination } = useDataTable<Invoice>();
+
+    // Conservé ici (et non dans InvoiceDetailCard) car la card est remontée à chaque changement de pickedRecord
+    const [ activeTabKey, setActiveTabKey ] = useState<string | undefined>(undefined);
 
     const items = useMemo(() => pagination?.items ?? [], [pagination?.items]);
     const currentId = pickedId ?? pickedRecord?.id ?? null;
@@ -123,7 +126,9 @@ export default function InvoiceDetailView(
                     }
                 </div>
                 <InvoiceDetailCard
-                    key={pickedRecord?.id} />
+                    key={pickedRecord?.id}
+                    activeTabKey={activeTabKey}
+                    onTabChange={setActiveTabKey} />
             </aside>
         </div>
     );

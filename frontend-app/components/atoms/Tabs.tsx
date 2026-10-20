@@ -22,9 +22,12 @@ interface TabsProps {
 export default function Tabs(
     { tabs, defaultTabKey, className = "", navClassName = "", stretch = true, onTabChange }: TabsProps
 ) {
+    
     const [ activeKey, setActiveKey ] = useState<string>(
         defaultTabKey || tabs[0]?.key
     );
+
+    console.log('activeKey : ', activeKey);
 
     const activeTab = tabs.find((tab) => tab.key === activeKey) || tabs[0];
 

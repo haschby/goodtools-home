@@ -30,7 +30,6 @@ export async function gatewayService<T>(
 
     // La session est toujours vérifiée, y compris en local.
     const sessionToken = await getSessionToken();
-    console.log('sessionToken : ', sessionToken);
     if (!sessionToken) {
         redirect(SIGNIN_PATH);
     }

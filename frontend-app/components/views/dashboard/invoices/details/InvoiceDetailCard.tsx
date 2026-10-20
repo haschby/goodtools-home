@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useDataTable } from "@/lib/contexts/DataTableCustomContext";
 import { Invoice, InvoiceType } from "@/lib/types/invoice";
 import { FileXmarkSolid, Calculator1Solid, Cart1Solid } from '@lineiconshq/free-icons';
@@ -10,7 +10,12 @@ import FactureTab from "./rentability/tabs/FactureTab";
 import RentabilitesTab from "./rentability/tabs/RentabilitesTab";
 import { BuybackDetailCard } from '@/components/views/dashboard/buyback/components/details/BuybackDetailCard';
 
-export default function InvoiceDetailCard() {
+interface InvoiceDetailCardProps {
+    activeTabKey?: string;
+    onTabChange?: (key: string) => void;
+}
+
+export default function InvoiceDetailCard({ activeTabKey, onTabChange }: InvoiceDetailCardProps) {
     
     // const router = useRouter();
     const { 
@@ -20,6 +25,7 @@ export default function InvoiceDetailCard() {
         refreshData,
         pagination, activeStatus
     } = useDataTable<Invoice>();
+
 
     const [ isEditing, setIsEditing ] = useState<boolean>(false);
 
@@ -52,7 +58,7 @@ export default function InvoiceDetailCard() {
         }
     }, [refreshData, pickedRecord]);
 
-    const tabToDiosplay = useCallback(() => {
+    const primaryTab = useMemo<TabItem>(() => {
         if (pickedRecord?.invoice_type === InvoiceType.PROVIDER) {
             return {
                 key: 'facture',
@@ -80,7 +86,7 @@ export default function InvoiceDetailCard() {
             )
         }
 
-    }, [pickedRecord, isEditing, canEditOtherFields, handlePatchInvoice, setPickedRecord, handleRefreshInvoice]);
+    }, [pickedRecord, setPickedRecord, isEditing, canEditOtherFields, handlePatchInvoice, handleRefreshInvoice]);
 
     return (
         <div className="bg-white relative flex flex-col gap-2 w-[60%] border-t border-gray-200 text-gray-800">
@@ -90,9 +96,10 @@ export default function InvoiceDetailCard() {
                     className="gap-4"
                     navClassName="w-[300px] m-auto"
                     stretch={true}
-                    defaultTabKey={tabToDiosplay().key}
+                    onTabChange={onTabChange}
+                    defaultTabKey={activeTabKey}
                     tabs={[
-                        tabToDiosplay(),
+                        primaryTab,
                         {
                             key: 'booking',
                             label: 'Rentabilités',
