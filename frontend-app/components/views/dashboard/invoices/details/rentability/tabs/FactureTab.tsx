@@ -20,6 +20,7 @@ interface FactureTabProps {
     canEditOtherFields: boolean;
     onSave: () => void;
     onRefresh?: () => void | Promise<void>;
+    refreshKey?: number;
 }
 
 export default function FactureTab({
@@ -30,6 +31,7 @@ export default function FactureTab({
     canEditOtherFields,
     onSave,
     onRefresh,
+    refreshKey = 0,
 }: FactureTabProps) {
 
     const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
@@ -54,27 +56,28 @@ export default function FactureTab({
                             <span className="text-lg font-semibold">
                                 Facture 
                             </span>
-                            <span className="text-xs border border-cyan-500 text-cyan-500 bg-cyan-100 p-1 rounded-md">
+                            <span className="text-xs bg-black rounded-md py-0.5 px-1 text-white">
                                 #{pickedRecord?.id?.toString().toUpperCase() ?? 'N/A'}
                             </span>
-                            <StatusRow status={`${pickedRecord?.status ?? 'N/A'}`} className="self-start" />
                         </div>
+                        
                         <div className="flex flex-col items-baseline justify-start leading-tight gap-2">
-                             <span className="text-xs text-gray-500">
+                             <p className="text-sm text-gray-500 flex items-center gap-4">
                                 {
                                     new Date(pickedRecord?.invoice_date ?? '')
                                     .toLocaleDateString(
                                         'fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }
                                     )
                                 }
-                            </span>
-                            <Link
-                                className="group self-start border-b border-gray-900 text-xs flex items-center gap-2"
-                                target="_blank"
-                                href={`${process.env.NEXT_PUBLIC_PENNYLANE_URL_SUPPLIER_INVOICES}?invoice_id=${pickedRecord?.external_id}`}>
-                                {`Voir dans Pennylane`}
-                                <Icon Icon={ArrowRightSolid} size={16} strokeWidth={2} className="group-hover:translate-x-1 transition-all duration-300" />
+                                <Link
+                                    className="group self-start border-b border-green-500 text-xs flex text-green-500 items-center gap-2"
+                                    target="_blank"
+                                    href={`${process.env.NEXT_PUBLIC_PENNYLANE_URL_SUPPLIER_INVOICES}?invoice_id=${pickedRecord?.external_id}`}>
+                                    {`Voir dans Pennylane`}
+                                    <Icon Icon={ArrowRightSolid} size={16} strokeWidth={2} className="group-hover:translate-x-1 transition-all duration-300 text-green-500" />
                             </Link>
+                            </p>
+                            
                         </div>
                     </div>
                     <button
@@ -91,7 +94,7 @@ export default function FactureTab({
                     </button>
                 </div>
                 <div className="w-full flex flex-col gap-2 p-4 rounded-t-[25px] rounded-b-xl border border-gray-200 bg-white">
-                    <form className="self-stretch flex gap-4 flex-col">
+                    <form key={`facture-form-${pickedRecord?.id}-${refreshKey}`} className="self-stretch flex gap-4 flex-col">
                 
                         <div className="flex flex-col gap-2">
                             <div className="flex flex-col">

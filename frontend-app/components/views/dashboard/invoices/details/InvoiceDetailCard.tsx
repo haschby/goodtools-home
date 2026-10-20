@@ -18,7 +18,6 @@ export default function InvoiceDetailCard() {
         setPickedRecord,
         fetchData,
         refreshData,
-        refreshIsLoading,
         pagination, activeStatus
     } = useDataTable<Invoice>();
 

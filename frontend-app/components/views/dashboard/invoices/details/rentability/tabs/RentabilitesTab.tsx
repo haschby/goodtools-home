@@ -12,10 +12,12 @@ import Link from "next/link";
 
 interface RentabilitesTabProps {
     pickedRecord: Invoice | null;
+    refreshKey?: number;
 }
 
 export default function RentabilitesTab({
     pickedRecord,
+    refreshKey = 0,
 }: RentabilitesTabProps) {
 
     const [comment, setComment] = useState<string>('');
@@ -64,7 +66,7 @@ export default function RentabilitesTab({
         })();
 
         return () => { cancelled = true; };
-    }, [pickedRecord?.gc_booking, setRentabilities]);
+    }, [pickedRecord?.gc_booking, refreshKey, setRentabilities]);
 
     useLayoutEffect(() => {
         const element = listWrapperRef.current;

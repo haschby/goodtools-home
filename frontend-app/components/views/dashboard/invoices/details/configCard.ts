@@ -27,6 +27,7 @@ const statuses = [
     { label: 'A Traiter', value: 'A Traiter' },
     { label: 'A Facturer', value: 'A Facturer' },
     { label: 'TBD', value: 'TBD' },
+    { label: 'Archivé', value: 'Archivé' },
 ];
 
 export { configCard, statuses };

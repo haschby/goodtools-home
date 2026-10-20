@@ -24,5 +24,6 @@ export const configHeaders = {
         EnumInvoiceStatus.INVOICED,
         EnumInvoiceStatus.VALIDATED,
         EnumInvoiceStatus.VALIDATED_ONLY,
+        EnumInvoiceStatus.ARCHIVED,
     ].map(s => s.toString()),
 }

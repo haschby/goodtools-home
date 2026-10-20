@@ -69,7 +69,8 @@ export class EnumInvoiceStatus {
     static readonly INVOICED = 'Facturer ticket';
     static readonly VALIDATED = 'A Payer';
     static readonly VALIDATED_ONLY = 'Payé'; 
-
+    static readonly ARCHIVED = 'Archivé';
+    
     static getStatusLabel(status: EnumInvoiceStatus): string | undefined {
         return Object.entries(this).find(
             ([, v]) => v === status

@@ -1,6 +1,6 @@
 "use client";
 import Icon from "@/components/atoms/Icon";
-import { ArrowAngularTopRightSolid, Spinner3Solid } from "@lineiconshq/free-icons";
+import { Spinner3Solid } from "@lineiconshq/free-icons";
 
 const formatCurrency = (value: number) =>
     new Intl.NumberFormat("fr-FR", {
@@ -15,41 +15,6 @@ const formatPercent = (value: number) =>
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     }).format(value) + " %";
-
-function InfoIcon() {
-    return (
-        <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-gray-300 text-[9px] font-bold text-white">
-            i
-        </span>
-    );
-}
-
-function SubMetric({
-    label,
-    value,
-    format = "currency",
-}: {
-    label: string;
-    value: number;
-    format?: "currency" | "percent";
-}) {
-    const isNegative = value < 0;
-    const valueClass = isNegative ? "text-red-500" : "text-green-500";
-    const displayValue =
-        format === "percent" ? `${value.toFixed(0)}%` : formatCurrency(value);
-
-    return (
-        <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-1.5 text-sm text-gray-800">
-                <span>{label}</span>
-                <InfoIcon />
-            </div>
-            <span className={`text-lg font-semibold ${valueClass}`}>
-                {displayValue}
-            </span>
-        </div>
-    );
-}
 
 interface InvoiceRentabilityProps {
     profit?: number;

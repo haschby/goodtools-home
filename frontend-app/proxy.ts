@@ -12,23 +12,34 @@ export default async function proxy(request: NextRequest) {
     const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
     const session = await verifySessionToken(token);
 
+    console.log('session : ', session);
+    console.log('token : ', token);
+
     // Déjà connecté -> pas besoin de revoir la page de login
     if (isPublicPath(pathname)) {
-        if (session) {
-            return NextResponse.redirect(new URL(DEFAULT_AUTHENTICATED_PATH, request.url));
-        }
-        return NextResponse.next();
+      if (session) {
+          return NextResponse.redirect(new URL(DEFAULT_AUTHENTICATED_PATH, request.url));
+      }
+      return NextResponse.next();
     }
 
     // Non connecté (ou token expiré / invalide) -> /signin
     if (!session) {
-        const signinUrl = new URL(SIGNIN_PATH, request.url);
-        if (pathname !== "/") {
-            signinUrl.searchParams.set("callbackUrl", `${pathname}${search}`);
+        // Server Action (POST avec header `Next-Action`) : un 307 ici serait suivi
+        // par le fetch du client et renverrait le HTML de /signin, que Next ne sait
+        // pas interpréter -> aucune redirection. On laisse passer : l'action appelle
+        // `gatewayService` / `requireSession` qui font un `redirect()` géré par Next.
+        if (request.method === "POST" && request.headers.has("next-action")) {
+          return NextResponse.next();
         }
-        const response = NextResponse.redirect(signinUrl);
-        if (token) response.cookies.delete(AUTH_COOKIE_NAME); // nettoie un token invalide
-        return response;
+
+      const signinUrl = new URL(SIGNIN_PATH, request.url);
+      if (pathname !== "/") {
+        signinUrl.searchParams.set("callbackUrl", `${pathname}${search}`);
+      }
+      const response = NextResponse.redirect(signinUrl);
+      if (token) response.cookies.delete(AUTH_COOKIE_NAME); // nettoie un token invalide
+      return response;
     }
 
     return NextResponse.next();

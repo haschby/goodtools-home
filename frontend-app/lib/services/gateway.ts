@@ -28,10 +28,15 @@ export async function gatewayService<T>(
     }
 ): Promise<BaseResponse<T>> {
 
-    const token = await getSessionToken();
-    if (!token) {
+    // La session est toujours vérifiée, y compris en local.
+    const sessionToken = await getSessionToken();
+    console.log('sessionToken : ', sessionToken);
+    if (!sessionToken) {
         redirect(SIGNIN_PATH);
     }
+
+    // En local, le backend attend un token de test.
+    const token = process.env.ENV === 'local' ? 'test-token' : sessionToken;
 
     const headers = new Headers(options.headers);
     headers.set("Authorization", `Bearer ${token}`);

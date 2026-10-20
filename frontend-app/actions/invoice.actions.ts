@@ -110,6 +110,7 @@ export interface RentabilitiesResponse {
 
 export interface Rentability {
     id?: string;
+    externalId?: string;
     goodtool_id?: string;
     priceHT?: number;
     bookingId?: string;
